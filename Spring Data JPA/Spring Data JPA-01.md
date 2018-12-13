@@ -188,7 +188,7 @@ factory.close();
 * SEQUENCE:序列(Oracle数据库用)
 * IDENTITY:数据库自增(Mysql数据库用)
 * TABLE:Hibernate负责生成主键值,并自动创建一个序列表,存储实体类对应表中的主键值.
-* AUTO:Hibernate自动选择逐渐策略(优先选择使用SEQUENCE)
+* AUTO:Hibernate自动选择主键生成策略(优先选择使用SEQUENCE)
 
 # 4. JPA常用API介绍
 
