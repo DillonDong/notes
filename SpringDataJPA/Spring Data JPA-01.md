@@ -420,4 +420,4 @@ public void testCount() {
 }
 ```
 
-[案例教程](https://github.com/fudingcheng/JPA-Demo)
+[教程源码](https://github.com/fudingcheng/JPA-Demo)
