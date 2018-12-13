@@ -4,6 +4,8 @@
 
 将对象与数据库表建立一种映射关系,这样就可以通过操作对象的方式实现对数据库表的操作.
 
+![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/pinyougou/%E9%83%A8%E7%BD%B2/ORM%E6%98%A0%E5%B0%84%E5%85%B3%E7%B3%BB.png)
+
 ### 映射关系
 
 Java类==表
@@ -29,6 +31,8 @@ Java类==表
 1. 面向接口编程,标准化开发
 2. 配置简单,易用
 3. 提供了面向对象的查询语言,类似于SQL语法,易于查询
+
+![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/pinyougou/%E9%83%A8%E7%BD%B2/JPA%E4%B8%8EHibernate%E7%9A%84%E5%85%B3%E7%B3%BB.png)
 
 # 3. JPA入门案例
 
@@ -416,6 +420,3 @@ public void testCount() {
 }
 ```
 
-
-
-#### 
