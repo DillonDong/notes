@@ -357,6 +357,8 @@ public void testCount() {
 2. 代理对象的类型是```SimpleJpaRepository```
 3. 接口的方法在```SimpleJpaRepository```类中进行了默认实现
 
+![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/jpa/JPA.png)
+
 # 4.SpringDataJPA复杂查询
 
 ### 4.1 JPQL查询
