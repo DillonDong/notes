@@ -264,7 +264,7 @@ public void testSave() {
  */
 @Test
 public void testDelete () {
-    customerDao.delete(3l);
+    customerDao.delete(3L);
 }
 ```
 
