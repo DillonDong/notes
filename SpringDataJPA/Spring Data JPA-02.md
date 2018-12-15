@@ -4,6 +4,8 @@
 
 SpringDataJPA是Spring针对JPA进行封装的框架,目的是**简化**JPA针对DB持久层的操作.
 
+![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/jpa/SpringDataJPA.png)
+
 # 2.SpringDataJPA入门操作
 
 ### 1. 引入依赖
@@ -416,6 +418,8 @@ public List<Object [] > findSql(String name);
 
 ### 4.3 方法命名查询
 
+![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/jpa/%E6%96%B9%E6%B3%95%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99.png)
+
 #### 4.3.1 单条件完全匹配
 
 ```java
@@ -446,3 +450,4 @@ public List<Customer> findByCustNameLike(String custName);
 public Customer findByCustNameLikeAndCustIndustry(String custName,String custIndustry);
 ```
 
+[案例源码](https://github.com/fudingcheng/JPA-Demo)
