@@ -182,7 +182,7 @@ public void testSpec4() {
 
 一对一:在任意一方添加对方的对象属性
 
-一对多:在多方中添加一方的对象属性,在一方添加多方的集合属性
+一对多:在一方添加多方的集合属性,在多方中添加一方的对象属性
 
 多对多:在任意一方添加对方的集合属性
 
@@ -265,8 +265,8 @@ public void testAdd() {
     LinkMan linkMan = new LinkMan();
     linkMan.setLkmName("小李");
 
-	//联系人关联客户
-    customer.getLinkMans().add(linkMan);
+	//维护外键关系
+    linkMan.setCustomer(customer);
 	
     //保存客户
     customerDao.save(customer);
@@ -294,7 +294,9 @@ public void testCascadeAdd() {
     LinkMan linkMan = new LinkMan();
     linkMan.setLkmName("小李1");
 
+    //维护外键
     linkMan.setCustomer(customer);
+    //级联保存
     customer.getLinkMans().add(linkMan);
 
     customerDao.save(customer);
@@ -336,7 +338,7 @@ public class User {
     private Integer age;
     //配置多对多关系,User方维护外键关系
   	@ManyToMany
-    @JoinTable(joinColumns = {@JoinColumn(name ="user_id" )},
+    @JoinTable(name="user_role",joinColumns = {@JoinColumn(name ="user_id" )},
                inverseJoinColumns = {@JoinColumn(name="role_id")})
     private Set<Role> roles = new HashSet<Role>();
     
