@@ -346,6 +346,8 @@
 2. 检查Zookeeper是否正常启动
 3. 使用Dubbo-admin查看服务是否注册成功
 
+[源码](https://github.com/fudingcheng/dubbo-learning)
+
 # 4. 搭建工程框架，完成品牌列表后端代码
 
 ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B9%E7%9B%AE%E5%9B%BE.png?raw=true)
