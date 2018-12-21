@@ -2,6 +2,8 @@
 
 # 1. 了解电商行业特点并理解常见电商的模式
 
+### [大型网站演变过程](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%BC%94%E5%8F%98%E8%BF%87%E7%A8%8B.png?raw=true)
+
 ### 电商技术特点
 
 1. 用户多,高并发
@@ -9,6 +11,8 @@
 1. 海量文件的存储
 1. 安全要求性高
 1. 一路演变而来,技术发展的目的是更好的处理业务.
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%A0%87%E5%87%86.png?raw=true)
 
 ### 电商模式
 
@@ -24,14 +28,18 @@
 
 ### 分布式架构优点
 
-  1. 解耦
-  2. 提高服务的复用和扩展
+    1. 解耦
+    2. 提高服务的复用和扩展
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%93%81%E4%BC%98%E8%B4%AD%E6%9E%B6%E6%9E%84.png?raw=true)
 
  ### 品优购框架组合
   后台:SSM+Dubbo
   前台:AngularJS+Bootstrap
   数据交互:Ajax
   数据格式:JSON
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%93%81%E4%BC%98%E8%B4%AD%E5%89%8D%E5%90%8E%E5%8F%B0%E7%B3%BB%E7%BB%9F%E5%85%B3%E7%B3%BB.png?raw=true)
 
 ###Dubbo组件的运行原理
 
@@ -54,6 +62,8 @@
   Monitor: 监控中心。
   Container: 容器。
 
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/dubbo%E5%8E%9F%E7%90%86%E5%9B%BE.png?raw=true)
+
 # 3. 能够运用 Dubbox+SSM 搭建分布式应用
 
 ### 虚拟机网路配置
@@ -68,7 +78,7 @@
 
 2. 解压zookeeper软件; ```tar -zvxf   XXXX.tar.gz```
 
-3. 进入zookeeper的目录中,创建data文件  ```mkdir data```
+3. 进入zookeeper的目录中,创建data文件夹, ```mkdir data```
 
 4. 进入conf目录下,将zoo.sample.cfg 修改为 zoo.cfg;  ```mv  zoo.sample.cfg zoo.cfg```
 
@@ -337,6 +347,8 @@
 3. 使用Dubbo-admin查看服务是否注册成功
 
 # 4. 搭建工程框架，完成品牌列表后端代码
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B9%E7%9B%AE%E5%9B%BE.png?raw=true)
 
 ### Mybatis逆向工程的使用步骤
 
