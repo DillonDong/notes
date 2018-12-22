@@ -33,7 +33,7 @@
 
 ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%93%81%E4%BC%98%E8%B4%AD%E6%9E%B6%E6%9E%84.png?raw=true)
 
- ### 品优购框架组合
+ ### 品优购架构
   后台:SSM+Dubbo
   前台:AngularJS+Bootstrap
   数据交互:Ajax
@@ -64,7 +64,7 @@
 
 ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/dubbo%E5%8E%9F%E7%90%86%E5%9B%BE.png?raw=true)
 
-# 3. 能够运用 Dubbox+SSM 搭建分布式应用
+# 3. Dubbo入门案例
 
 ### 虚拟机网路配置
 
@@ -72,7 +72,7 @@
 2. NAT:虚拟机将主机当作交换机,如果宿主机连上，虚拟机能够上网
 3. 桥接:虚拟机相当于主机直接连接到外部交换机，宿主机有独立的IP地址
 
-### 注册中心zookeeper安装步骤
+### 注册中心zookeeper安装
 
 1. 将本地的zookeeper软件上传到Linux系统
 
@@ -94,7 +94,7 @@
    3. 查看启动状态 ```./zkServer.sh status```
 
 
-### dubbo服务提供方开发步骤
+### dubbo服务提供方
 
 1. 创建Web工程,添加依赖
 
@@ -242,7 +242,7 @@
 
 7. 在classpath下添加log4j.properties
 
-### dubbo服务消费方开发步骤
+### dubbo服务消费方
 
 1. 创建Web工程,添加依赖
 
@@ -348,11 +348,13 @@
 
 [源码](https://github.com/fudingcheng/dubbo-learning)
 
-# 4. 搭建工程框架，完成品牌列表后端代码
+# 4. 初始化品优购工程
 
 ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B9%E7%9B%AE%E5%9B%BE.png?raw=true)
 
-### Mybatis逆向工程的使用步骤
+# 5. 查询品牌数据
+
+### Mybatis逆向工程
 
 1. 在配置文件中指定数据库的连接信息
 2. 确定生成的PO类所在包名和位置
@@ -361,24 +363,43 @@
 5. 指定对哪些表进行逆向处理
 6. 执行main方法
 
-### 逆向工程代码的使用
-
-1. 查询方法
-
-```java
-//创建example对象
-TbBrandExample example = new TbBrandExample();	
-//获得封装查询条件的对象
-TbBrandExample.Criteria criteria = example.createCriteria();	
-//通过criteria封装查询条件
-criteria.andNameLike("NIKE");		
-//通过criteria封装查询条件
-criteria.andFirstCharEqualTo("N");	
-//在查询的时候传入example,注意如果查所有传递null
-brandMapper.selectByExample(example);	
-```
-
 PO实现```Serializable```接口的场景
 
 1. PO类对象要在网络上进行传输
 2. PO类对象要序列化到磁盘
+
+### 服务提供方
+
+* BrandController
+
+```java
+@Service
+public class BrandServiceImpl implements BrandService {
+	@Autowired
+	private TbBrandMapper brandMapper;
+	
+	@Override
+	public List<TbBrand> findAll() {
+		return brandMapper.selectByExample(null);
+	}
+}
+```
+
+### 服务消费方
+
+* BrandServiceImpl
+
+```java
+@RestController
+@RequestMapping("/brand")
+public class BrandController {
+	@Reference
+	private BrandService brandService;
+	
+	@RequestMapping("/findAll")
+	public List<TbBrand> findAll(){
+		return brandService.findAll();		
+	}
+}
+```
+
