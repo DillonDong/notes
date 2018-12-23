@@ -254,7 +254,7 @@ $scope.save=function(){
 	$http.post('../brand/'+methodName +'.do',$scope.entity).success(
 		function(response){
 			if(response.success){
-				$scope.reloadList();//刷新
+				$scope.reloadList();//刷新页面数据
 			}else{
 				alert(response.message);
 			}				
@@ -331,7 +331,7 @@ $scope.dele=function(){
 		$http.get('../brand/delete.do?ids='+$scope.selectIds).success(
 				function(response){
 					if(response.success){
-						$scope.reloadList();//刷新
+						$scope.reloadList();//刷新页面数据
 					}else{
 						alert(response.message);
 					}						
@@ -368,4 +368,67 @@ public void delete(Long[] ids) {
 ```
 
 ### 2.6 条件查询
+
+* 页面绑定数据
+
+```html
+品牌名称:<input ng-model="searchEntity.name"> 
+品牌首字母:<input ng-model="searchEntity.firstChar">  
+<button  class="btn btn-default" ng-click="reloadList()">查询</button>  
+```
+
+* Javascript
+
+```javascript
+//刷新数据
+$scope.reloadList=function(){
+	$scope.search( $scope.paginationConf.currentPage,$scope.paginationConf.itemsPerPage );
+}
+
+
+$scope.searchEntity={};		//第一次加载页面,初始化searchEntity
+
+//条件查询 
+$scope.search=function(page,size){
+	$http.post('../brand/search.do?page='+page +'&size='+size, $scope.searchEntity).success(
+		function(response){
+			$scope.list=response.rows;//显示当前页数据 	
+			$scope.paginationConf.totalItems=response.total;//更新总记录数 
+		}		
+	);
+}
+```
+
+* Web层
+
+```java
+@RequestMapping("/search")
+public PageResult search(@RequestBody TbBrand brand,int page,int size){
+	return brandService.findPage(brand, page, size);		
+}
+```
+
+* 服务层
+
+```java
+public PageResult findPage(TbBrand brand, int pageNum, int pageSize) {
+	
+    //分页
+	PageHelper.startPage(pageNum, pageSize);
+	//条件查询对象
+	TbBrandExample example=new TbBrandExample();
+	Criteria criteria = example.createCriteria();
+    //封装查询条件
+	if(brand!=null){
+		if(brand.getName()!=null && brand.getName().length()>0){
+			criteria.andNameLike("%"+brand.getName()+"%");
+		}
+		if(brand.getFirstChar()!=null && brand.getFirstChar().length()>0){
+			criteria.andFirstCharLike("%"+brand.getFirstChar()+"%");
+		}			
+	}
+	Page<TbBrand> page = (Page<TbBrand>) brandMapper.selectByExample(example);
+	return new PageResult(page.getTotal(), page.getResult());
+}
+```
 
