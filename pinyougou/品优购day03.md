@@ -72,7 +72,7 @@ app.controller('baseController' ,function($scope){
 
 * 注意
   1. 代码生成器不能放在中文目录下执行
-  2. 指定代码生成的代码所在的包名
+  2. 指定生成的代码所在的包名(3级)
 
 # 3. 规格管理
 
