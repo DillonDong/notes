@@ -125,7 +125,7 @@ app.controller('baseController' ,function($scope){
 
 ### 3.2 新增规格
 
-**新增行**
+#### 3.2.1 新增规格选项
 
 * HTML
 
@@ -158,7 +158,7 @@ $scope.addTableRow=function(){
 }
 ```
 
-**删除行**
+#### 3.2.2 删除行
 
 * HTML
 
@@ -180,14 +180,17 @@ $scope.deleTableRow=function(index){
 }
 ```
 
-**保存规格**
+#### 3.2.3 保存规格
 
 同时需要给2张表(规格和规格选项表中保存数据)
 
 * 页面提交的数据格式
 
 ```javascript
-{"specification":{},"specificationOptionList":[{},{}]}
+{
+    "specification":{},
+    "specificationOptionList":[{},{}...]
+}
 ```
 
 * 组合实体类
@@ -283,7 +286,7 @@ public void add(Specification specification) {
 
 ### 3.3 修改规格
 
-**数据回显** 
+#### 3.3.1 数据回显 
 
 * HTML 
 
@@ -335,7 +338,7 @@ public Specification findOne(Long id){
 }
 ```
 
-**修改数据** 
+#### 3.3.2 修改数据 
 
 * Web层
 
@@ -418,12 +421,261 @@ public void delete(Long[] ids) {
 
 ### 4.1 模板列表
 
-略
+导入模块相关文件,代码略
 
 ### 4.2 新增模板
 
+#### 4.2.1 select2使用
+
+select2是一种增强的下拉列表,支持下拉项的多选.
+
+1. 导入相关文件
+
+   ```html
+   <!--样式-->
+   <link rel="stylesheet" href="../plugins/select2/select2.css" />
+   <link rel="stylesheet" href="../plugins/select2/select2-bootstrap.css" />
+   
+   <!--JS文件-->
+   <script src="../plugins/select2/select2.min.js" type="text/javascript"></script>
+   <script type="text/javascript" src="../plugins/angularjs/angular.min.js"></script>
+   <script type="text/javascript" src="../js/base_pagination.js"></script>
+   <script type="text/javascript" src="../js/angular-select2.js"> </script>
+   ```
+
+2. 定义数据源
+
+   ```javascript
+   $scope.brandList={data:[{id:1,text:'联想'},{id:2,text:'华为'},{id:3,text:'小米'}]};
+   ```
+
+3. 实现多选下拉框
+
+   ```html
+   <input select2 	
+          select2-model="entity.brandIds"	<!--绑定变量-->
+          config="brandList"				<!--数据源-->
+          multiple							<!--多选-->
+          placeholder="选择品牌（可多选）"	  <!--提示信息-->
+          class="form-control"				<!--样式-->
+          type="text"/>
+   ```
+
+#### 4.2.2 显示品牌下拉列表
+
+配置参考```select2的使用```
+
+显示数据库数据
+
+1. Mapper配置文件,添加查询语句
+
+   ```sql
+   <select id="selectOptionList" resultType="java.util.Map">
+   	select id,name as text from tb_brand
+   </select>
+   ```
+
+2. Dao接口新增方法
+
+   ```java
+   List<Map> selectOptionList();
+   ```
+
+3. Serivice新增方法,调用Dao查询数据
+
+   ```java
+   public List<Map> selectOptionList() {
+   	// TODO Auto-generated method stub
+   	return brandMapper.selectOptionList();
+   }
+   ```
+
+4. BrandController,调用Service
+
+   ```java
+   @RequestMapping("/selectOptionList")
+   public List<Map> selectOptionList() {
+   	return brandService.selectOptionList();
+   }
+   ```
+
+5. brandService.js
+
+   ```javascript
+   this.selectOptionList=function(){
+   	return $http.get('../brand/selectOptionList.do');
+   }
+   ```
+
+6. 在typeTemplateController.js中注入js,请求后台获得数据
+
+   ```javascript
+   app.controller('typeTemplateController',function(...,brandService){
+   	$scope.brandList={data:[]};
+       
+      	//读取品牌列表
+   	$scope.findBrandList=function(){
+   		brandService.selectOptionList().success(
+   			function(response){
+   				$scope.brandList={data:response};
+   			}
+   		);		
+   	}
+   }     
+   ```
+
+7. 页面调用读取列表方法
+
+   ```html
+   <script type="text/javascript" src="../js/service/brandService.js"></script>
+   <script type="text/javascript" src="../js/controller/baseController.js"></script>
+   <script type="text/javascript" src="../js/controller/typeTemplateController.js"></script>
+   
+   <body ng-app="pinyougou" ng-controller="typeTemplateController" ng-init="findBrandList()">
+   	<input 
+              select2 
+              select2-model="entity.brandIds"  
+              config="brandList" 
+              multiple 
+              placeholder=" 选择品牌（可多选）" 
+              class="form-control">
+   </body>
+   ```
+
+#### 4.2.3 显示模板下拉列表
+
+同品牌下拉列表
+
+#### 4.2.4 保存模板
+
+* 页面提交的数据格式
+
+  ```javascript
+  {
+      "name":"",
+      "brandIds":[{},{}...],
+      "specIds":[{},{}...],
+      "customAttributeItems":[{},{}...]
+  }
+  ```
+
+* 实体类
+
+  ```java
+  public class TbTypeTemplate implements Serializable{
+      private Long id;
+      private String name;
+      private String specIds;
+      private String brandIds;
+      private String customAttributeItems;
+  }
+  ```
+
+* 绑定数据
+
+  ```html
+  <input  class="form-control" placeholder="商品类型" ng-model="entity.name">
+  
+  <input 
+         select2 
+         select2-model="entity.brandIds"  
+         config="brandList" multiple placeholder="选择品牌（可多选） " class="form-control">
+  
+  <input select2 
+         select2-model="entity.specIds"  
+         config="specList" multiple placeholder=" 选择规格（可多选） " class="form-control">
+  
+  <tr ng-repeat="pojo in entity.customAttributeItems">
+  	<td><input type="checkbox"></td>
+  	<td><input placeholder="属性名称" ng-model="pojo.text"></td>
+  	<td><button type="button"  title="删除" ng-click="deleTableRow($index)">删除</button></td>
+  </tr>
+  
+  <button ng-click="save()">保存</button>
+  ```
+
+* Javascript
+
+  ```javascript
+  $scope.save=function(){				
+  	var serviceObject;//服务层对象  				
+  	if($scope.entity.id!=null){//如果有ID
+  		serviceObject=typeTemplateService.update( $scope.entity ); //修改  
+  	}else{
+  		serviceObject=typeTemplateService.add( $scope.entity  );//增加 
+  	}				
+  	serviceObject.success(
+  		function(response){
+  			if(response.success){
+  				//重新查询 
+  	        	$scope.reloadList();//重新加载
+  			}else{
+  				alert(response.message);
+  			}
+  		}		
+  	);				
+  }
+  ```
+
 ### 4.3 修改模板
+
+* 页面
+
+  ```html
+  <button ng-click="findOne(entity.id)">修改</button>
+  ```
+
+* Javascript
+
+  ```javascript
+  $scope.findOne=function(id){				
+  	typeTemplateService.findOne(id).success(
+  		function(response){
+  		   $scope.entity= response;		
+  		   //转换字符串为json对象（集合）
+  		   $scope.entity.brandIds=  JSON.parse( $scope.entity.brandIds);
+  		   $scope.entity.specIds= JSON.parse($scope.entity.specIds);
+  		   $scope.entity.customAttributeItems = JSON.parse($scope.entity.customAttributeItems);	
+  		}
+  	);				
+  }
+  ```
 
 ### 4.4 删除模板
 
+同以上模块,代码略
+
 ### 4.5 优化列表显示
+
+* 定义优化方法
+
+  ```javascript
+  $scope.jsonToString=function(jsonString,key){
+  	var json= JSON.parse(jsonString);
+  	var value="";
+  	for(var i=0;i<json.length;i++){
+  		if(i>0){
+  			value+=",";
+  		}			
+  		value +=json[i][key];			
+  	}
+  	return value;
+  }
+  ```
+
+* 页面调用方法
+
+  ```html
+  <tr ng-repeat="entity in list">
+      <td><input  type="checkbox" ng-click="updateSelection($event, entity.id)" ></td>          
+  	<td>{{entity.id}}</td>
+  	<td>{{entity.name}}</td>
+  	<td>{{jsonToString(entity.brandIds,'text')}}</td>
+  	<td>{{jsonToString(entity.specIds,'text')}}</td>
+  	<td>{{jsonToString(entity.customAttributeItems,'text')}}</td>
+  	                                     
+  	<button ng-click="findOne(entity.id)">修改</button>                                           
+  </tr>
+  ```
+
+
