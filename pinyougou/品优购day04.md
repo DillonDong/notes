@@ -97,6 +97,8 @@ Role Base Access Controller
   </filter-mapping>
   ```
 
+  ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/SpringSecurity.png?raw=true)
+
 * spring-security.xml
 
   ```xml
@@ -131,7 +133,11 @@ Role Base Access Controller
   </authentication-manager>
   ```
 
-* 自定义登录页
+  扩展请求伪造
+
+  ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0.png?raw=true)
+
+* ''自定义登录页
 
   ```html
   <form action='/login' method='POST'>

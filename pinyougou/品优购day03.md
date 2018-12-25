@@ -2,6 +2,8 @@
 
 # 1. JavaScript的分层设计
 
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/AngularJS%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1.png?raw=true)
+
 * 服务层:负责和后台进行交互
 
 ```javascript
