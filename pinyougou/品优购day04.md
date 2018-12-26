@@ -1,6 +1,6 @@
 [TOC]
 
-#1. SpringSecurity权限框架
+# 1. SpringSecurity权限框架
 
 ### 1.1 概念
 
