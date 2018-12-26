@@ -8,14 +8,14 @@
 | type_id   | bigint(11) NULL     | 类型id                           |
 
 **查询商品分类**
-    ```sql
+ ```sql
 --一级分类
 SELECT * FROM tb_item_cat WHERE parent_id=0;
 --二级分类
 SELECT * FROM tb_item_cat WHERE parent_id=161;
 --三级分类
 SELECT * FROM tb_item_cat WHERE parent_id=162;
-    ```
+```
 
 * item_cat.html
 
