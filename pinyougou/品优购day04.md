@@ -117,7 +117,7 @@ Role Base Access Controller
      		
       	<!--CSRF（Cross-site request forgery）跨站请求伪造-->
           <csrf disabled="true"/>
-      </http>
+  </http>
   
   <!-- 认证管理器 -->
   <!--2.配置了系统的用户拥有的角色-->
@@ -319,7 +319,7 @@ Role Base Access Controller
   ```xml
   <dependency>
   	<groupId>com.pinyougou</groupId>
-  	<artifactId>pinyougou-common</artifactId>
+  	<artifactId>pinyougou-sellergoods-interface</artifactId>
   	<version>0.0.5-SNAPSHOT</version>
   </dependency>
   ```
@@ -341,25 +341,18 @@ Role Base Access Controller
   	<input type="text" placeholder="公司名称" ng-model="entity.name">
   	...
       <a ng-click="add()" target="_blank">申请入驻</a>
-  
   </body>
   ```
 
 * sellerController.js
 
   ```javascript
-  $scope.save=function(){				
-  	var serviceObject;//服务层对象  				
-  	if($scope.entity.id!=null){//如果有ID
-  		serviceObject=sellerService.update( $scope.entity ); //修改  
-  	}else{
-  		serviceObject=sellerService.add( $scope.entity  );//增加 
-  	}				
-  	serviceObject.success(
+  $scope.add=function(){
+  	sellerService.add( $scope.entity  ).success(
   		function(response){
   			if(response.success){
-  				//重新查询 
-  	        	$scope.reloadList();//重新加载
+  				//如果注册成功，跳转到登录页
+  	        	location.href="shoplogin.html";
   			}else{
   				alert(response.message);
   			}
@@ -619,6 +612,7 @@ Role Base Access Controller
   		TbSeller seller = sellerService.findOne(username);
   		if(seller!=null){
   			if(seller.getStatus().equals("1")){
+  			/**<user name="admin" password="123456" authorities="ROLE_ADMIN"/>**/
   				return new User(username,seller.getPassword(),grantAuths);
   			}else{
   				return null;
