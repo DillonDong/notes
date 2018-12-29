@@ -9,6 +9,8 @@
 | name      | varchar(50) NULL    | 类目名称                         |
 | type_id   | bigint(11) NULL     | 类型id                           |
 
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%88%86%E7%B1%BB%E5%92%8C%E6%A8%A1%E6%9D%BF%E5%92%8C%E5%93%81%E7%89%8C%E5%8F%8A%E8%A7%84%E6%A0%BC%E5%85%B3%E7%B3%BB.png?raw=true)
+
 ### 1.1 查询商品分类
 
  ```sql
@@ -19,6 +21,8 @@ SELECT * FROM tb_item_cat WHERE parent_id=161;
 --三级分类
 SELECT * FROM tb_item_cat WHERE parent_id=162;
  ```
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%95%86%E5%93%81%E5%88%86%E7%B1%BB%E5%85%B3%E7%B3%BB.png?raw=true)
 
 * item_cat.html
 
@@ -172,7 +176,7 @@ SKU=stock keeping unit（库存量单位）
 
 ### 2.3 表结构
 
-**商品表(SPU)**
+**商品表(SPU):Tb_goods**
 
 | Field            | Type                | Comment      |
 | ---------------- | ------------------- | ------------ |
@@ -193,7 +197,7 @@ SKU=stock keeping unit（库存量单位）
 | is_enable_spec   | varchar(1) NULL     | 是否启用规格 |
 | is_delete        | varchar(1) NULL     | 是否删除     |
 
-**商品详情表**
+**商品详情表:tb_goods_desc**
 
 | Field                  | Type                | Comment                              |
 | ---------------------- | ------------------- | ------------------------------------ |
@@ -205,7 +209,7 @@ SKU=stock keeping unit（库存量单位）
 | package_list           | varchar(3000) NULL  | 包装列表                             |
 | sale_service           | varchar(3000) NULL  | 售后服务                             |
 
-**SKU表**
+**SKU表:tb_item**
 
 | Field          | Type                   | Comment                          |
 | -------------- | ---------------------- | -------------------------------- |
@@ -249,9 +253,11 @@ public class Goods implements Serializable{
 {
    goods:{},
    goodsDesc:{}
-   itemList:{}
+   itemList:[{},{}]
 }
 ```
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%95%86%E5%93%81%E5%BD%95%E5%85%A5%E8%A1%A8%E5%85%B3%E7%B3%BB.png?raw=true)
 
 # 3. 商品基本信息录入
 
@@ -382,7 +388,197 @@ $scope.add=function(){
 * Tracker server：调度服务器；负责负载均衡和任务调度，管理所有的存储服务器。
 * Storage server：存储服务器；负责文件的存储。
 
+原理图
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastDFS%E5%8E%9F%E7%90%86%E5%9B%BE.png?raw=true)
+
+时序图
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastdfs%E6%97%B6%E5%BA%8F%E5%9B%BE1.png?raw=true)
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastdfs%E6%97%B6%E5%BA%8F%E5%9B%BE2.png?raw=true)
+
+### 4.1 上传文件
+
+* 配置文件
+
+```properties
+connect_timeout = 2
+network_timeout = 30
+charset = ISO8859-1
+http.tracker_http_port = 8080
+http.anti_steal_token = no
+http.secret_key = FastDFS1234567890
+
+tracker_server = 192.168.25.133:22122
+```
+
+* 编码
+
+```java
+// 1、加载配置文件，配置文件中的内容就是 tracker 服务的地址。
+ClientGlobal.init("...\\fdfs_client.conf");
+// 2、创建一个 TrackerClient 对象。直接 new 一个。
+TrackerClient trackerClient = new TrackerClient();
+// 3、使用 TrackerClient 对象创建连接，获得一个 TrackerServer 对象。
+TrackerServer trackerServer = trackerClient.getConnection();
+// 4、创建一个 StorageServer 的引用，值为 null
+StorageServer storageServer = null;
+// 5、创建一个 StorageClient 对象，需要两个参数 TrackerServer 对象、StorageServer的引用
+StorageClient storageClient = new StorageClient(trackerServer, storageServer);
+// 6、使用 StorageClient 对象上传图片。参数1:文件位置;参数2:文件扩展名,扩展名不带“.”;参数3:文件属性
+String[] strings = storageClient.upload_file("...\\fast.jpg","jpg",null);
+// 7、返回数组。包含组名和图片的路径。
+for (String string : strings) {
+    System.out.println(string);
+}
+```
+
+* 结果
+
+```tex
+group1
+M00/00/00/wKgZhVwlqxGABYyFAAEKGFTDYoc324.jpg
+
+访问:http://ip/group1/M00/00/00/wKgZhVwlqxGABYyFAAEKGFTDYoc324.jpg
+```
+
+图片访问
+
+![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastDFS%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE.png?raw=true)
+
 # 5. 商品图片录入
 
-# 6. AngularJS文件上传
+### 5.1 商品录入
+
+* goods_edit.html
+
+```html
+<table class="table table-bordered table-striped">
+	<tr>
+		<td>颜色</td>
+		<td><input   placeholder="颜色" ng-model="image_entity.color">  </td>
+	</tr>			    
+	<tr>
+		<td>商品图片</td>
+		<td>
+			<table>
+				<tr>
+					<td>
+					<input type="file" id="file" />				                
+		                <button  type="button" ng-click="uploadFile()">
+	                   		上传
+		                </button>	
+		            </td>
+					<td>
+						<img  src="{{image_entity.url}}" width="200px" height="200px">
+					</td>
+				</tr>						
+			</table>
+		</td>
+	</tr>		      	
+</table>
+```
+
+* goodsController.js
+
+```javascript
+$scope.uploadFile=function(){
+	uploadService.uploadFile().success(
+		function(response){
+			if(response.success){
+				$scope.image_entity.url= response.message;
+			}else{
+				alert(response.message);					
+			}
+		}		
+	);
+}
+```
+
+* uploadService.js
+
+```javascript
+this.uploadFile=function(){
+	var formdata=new FormData();		  //创建form表单
+	formdata.append('file',file.files[0]);//绑定表单参数
+	
+	return $http({
+		url:'../upload.do',						//提交的路径
+		method:'post',							//提交方式
+		data:formdata,							//表单数据
+		headers:{ 'Content-Type':undefined },	//设置Content-Type="multipart/formdata"
+		transformRequest: angular.identity		//序列化表单数据	
+	});
+}
+```
+
+* UploadController.java
+
+```java
+@RequestMapping("/upload")
+public Result upload(MultipartFile file){
+	
+	String originalFilename = file.getOriginalFilename();//获取文件名
+	String extName=originalFilename.substring( originalFilename.lastIndexOf(".")+1);//得到扩展名
+	
+	try {
+		util.FastDFSClient client=new FastDFSClient("classpath:config/fdfs_client.conf");
+		String fileId = client.uploadFile(file.getBytes(), extName);
+		String url=file_server_url+fileId;//图片完整地址
+		return new Result(true, url);
+		
+	} catch (Exception e) {
+		e.printStackTrace();
+		return new Result(false, "上传失败");
+	}
+	
+}
+```
+
+* Spring配置文件添加文件解析器
+
+```xml
+<bean id="multipartResolver"
+	class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	<property name="defaultEncoding" value="UTF-8"></property>
+	<!-- 设定文件上传的最大值 5MB，5*1024*1024 -->
+	<property name="maxUploadSize" value="5242880"></property>
+</bean>
+```
+
+### 5.2 商品列表
+
+* goods_edit.html
+
+```html
+<!--图片列表-->
+<tr ng-repeat="pojo in entity.goodsDesc.itemImages">
+  <td>
+	  {{pojo.color}}
+  </td>
+  <td>
+	  <img alt="" src="{{pojo.url}}" width="100px" height="100px">
+  </td>
+  <td> 
+      <button type="button"  title="删除" ng-click="remove_image_entity($index)">删除</button>
+  </td>
+</tr>
+-------------------------------------------------------------------------------------------
+<!--图片上传-->
+<table class="table table-bordered table-striped">
+    <input   ng-model="image_entity.color" placeholder="颜色" >
+    <img  	 src="{{image_entity.url}}" width="200px" height="200px">		      	
+</table>
+
+<button class="btn btn-primary" ng-click="add()"><i class="fa fa-save"></i>保存</button>
+```
+
+* goodsController.js
+
+```javascript
+$scope.add_image_entity=function(){
+	$scope.entity.goodsDesc.itemImages.push($scope.image_entity);			
+}
+```
 
