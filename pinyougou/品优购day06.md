@@ -146,7 +146,7 @@ public TbTypeTemplate findOne(Long id){
 
 ```html
 <select 
-        ng-model="entity.goods.brandId"  
+            ng-model="entity.goods.brandId"  
         ng-options="brand.id as brand.text for brand in typeTemplate.brandIds">
 </select>
 ```
@@ -194,7 +194,7 @@ $scope.$watch('entity.goods.typeTemplateId',function(newValue,oldValue){
                 JSON.parse($scope.typeTemplate.customAttributeItems);
 			}
 		);
-	});
+});
 ```
 
 # 4. 录入商品规格
@@ -218,7 +218,8 @@ $scope.$watch('entity.goods.typeTemplateId',function(newValue,oldValue){
 
 ```javascript
 $scope.$watch('entity.goods.typeTemplateId',function(newValue,oldValue){
-	typeTemplateService.findOne(newValue).success(
+	//读取品牌和扩展属性
+    typeTemplateService.findOne(newValue).success(
 		function(response){
             //模板对象 		
 			$scope.typeTemplate=response;

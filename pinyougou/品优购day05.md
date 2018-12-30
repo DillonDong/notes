@@ -130,9 +130,8 @@ $scope.selectList=function(p_entity){
 		$scope.entity_1=null;
 		$scope.entity_2=null;
 	}
-    //第二季
+    //第二级
 	if($scope.grade==2){
-		
 		$scope.entity_1=p_entity;
 		$scope.entity_2=null;
 	}
@@ -449,7 +448,7 @@ M00/00/00/wKgZhVwlqxGABYyFAAEKGFTDYoc324.jpg
 
 # 5. 商品图片录入
 
-### 5.1 商品录入
+### 5.1 商品图片录入
 
 * goods_edit.html
 
@@ -507,7 +506,7 @@ this.uploadFile=function(){
 		url:'../upload.do',						//提交的路径
 		method:'post',							//提交方式
 		data:formdata,							//表单数据
-		headers:{ 'Content-Type':undefined },	//设置Content-Type="multipart/formdata"
+		headers:{ 'Content-Type':undefined },	//设置Content-Type="multipart/form-data"
 		transformRequest: angular.identity		//序列化表单数据	
 	});
 }
@@ -577,6 +576,7 @@ public Result upload(MultipartFile file){
 * goodsController.js
 
 ```javascript
+$scope.entity={ goodsDesc:{itemImages:[],specificationItems:[]}};
 $scope.add_image_entity=function(){
 	$scope.entity.goodsDesc.itemImages.push($scope.image_entity);			
 }
