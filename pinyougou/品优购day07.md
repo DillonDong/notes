@@ -173,6 +173,8 @@ $scope.status=['未审核','已审核','审核未通过','已关闭'];
 * goodsController.js
 
 ```javascript
+//商品分类数组
+$scope.itemCatList=[];
 //查询商品分类列表
 $scope.findItemCatList=function(){
 	itemCatService.findAll().success(
@@ -321,7 +323,7 @@ public Goods findOne(Long id){
 	}
 ```
 
-### 2.3 回显商品图片图片列表
+### 2.3 回显商品图片列表
 
 ```javascript
 $scope.findOne=function(){	
@@ -383,27 +385,40 @@ $scope.$watch('entity.goods.typeTemplateId',function(newValue,oldValue){
 
 ### 2.5 回显商品规格信息
 
+主要回显规格勾选的状态
+
+* 页面
+
+```html
+<div ng-repeat="pojo in specList">
+    <div class="col-md-2 title">{{pojo.text}}</div>
+    
+        <span ng-repeat="option in pojo.options">
+       <input  type="checkbox"
+        	 		ng-click="updateSpecAttribute($event,pojo.text,option.optionName)
+                              ;createItemList()"                     	 
+              		ng-checked="checkAttributeValue(pojo.text,option.optionName)" >
+            {{option.optionName}}					                            				     
+        </span>  																					
+</div> 
+```
+
+* goodsController.js
+
 ```javascript
-$scope.findOne=function(){	
-	var id=$location.search()['id'];
-	if(id==null){
-		return ;
+$scope.checkAttributeValue=function(specName,optionName){
+	var items= $scope.entity.goodsDesc.specificationItems;
+	var object =$scope.searchObjectByKey( items,'attributeName', specName);
+	
+	if(object!=null){
+		if(object.attributeValue.indexOf(optionName)>=0){//如果能够查询到规格选项
+			return true;
+		}else{
+			return false;
+		}			
+	}else{
+		return false;
 	}		
-	goodsService.findOne(id).success(
-		function(response){
-			$scope.entity= response;
-            //商品介绍 
-			editor.html($scope.entity.goodsDesc.introduction );
-			//商品图片
-			$scope.entity.goodsDesc.itemImages=JSON.parse($scope.entity.goodsDesc.itemImages);
-			//扩展属性
-			$scope.entity.goodsDesc.customAttributeItems
-			    		=JSON.parse($scope.entity.goodsDesc.customAttributeItems);
-            //规格选择
-			$scope.entity.goodsDesc.specificationItems
-                    	=JSON.parse($scope.entity.goodsDesc.specificationItems);
-		}
-	);		
 }
 ```
 
@@ -487,7 +502,7 @@ public Result update(@RequestBody Goods goods){
       !goods.getGoods().getSellerId().equals(sellerId) 		//登录的商家提交修改的是否是自己的商品
       ){
 		return new Result(false, "非法操作");
-	}		
+	}	
 	
 	try {
 		goodsService.update(goods);
@@ -569,6 +584,180 @@ private void saveItemList(Goods goods){
 
 # 3. 运营商系统审核商品
 
+### 3.1 商品审核列表
+
+条件查询,查询未审核的商品列表
+
+* 页面
+
+```html
+<body  ng-app="pinyougou" 
+       ng-controller="goodsController" 
+       ng-init="findItemCatList();searchEntity={auditStatus:'0'}">
+    
+   	<tr ng-repeat="entity in list">
+		...
+		<td>{{itemCatList[entity.category1Id]}}</td>
+		<td>{{itemCatList[entity.category2Id]}}</td>
+		<td>{{itemCatList[entity.category3Id]}}</td>
+    	...
+	</tr>
+    
+</body>
+```
+
+* goodsController.js
+
+```javascript
+//状态数组
+$scope.status=['未审核','已审核','审核未通过','已关闭'];
+//商品分类数组
+$scope.itemCatList=[];
+//查询商品分类列表
+$scope.findItemCatList=function(){
+	itemCatService.findAll().success(
+		function(response){
+			for(var i=0;i<response.length;i++){
+				$scope.itemCatList[response[i].id]=response[i].name;
+			}
+		}
+	);
+}
+```
+
+### 3.2 审核商品
+
+* goodsController.html
+
+```html
+<button type="button"  title="审核通过" ng-click="updateStatus('1')" >审核通过</button>
+<button type="button"  title="驳回" ng-click="updateStatus('2')" >驳回</button>       
+```
+
+* goodsController.js
+
+```javascript
+//更新状态
+$scope.updateStatus=function(status){
+	goodsService.updateStatus( $scope.selectIds ,status).success(
+		function(response){
+			if(response.success){
+				$scope.reloadList();//刷新页面
+				$scope.selectIds=[];
+			}else{
+				alert(response.message);
+			}				
+		}
+	);		
+}
+```
+
+* GoodsController.java
+
+```java
+@RequestMapping("/updateStatus")
+public Result updateStatus(Long[] ids, String status){
+	try {
+		goodsService.updateStatus(ids, status);
+		return new Result(true, "成功");
+	} catch (Exception e) {
+		e.printStackTrace();
+		return new Result(false, "失败");
+	}		
+}
+```
+
+* GoodsServiceImpl.java
+
+```java
+public void updateStatus(Long[] ids, String status) {
+	for(Long id:ids){
+		TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+		goods.setAuditStatus(status);
+		goodsMapper.updateByPrimaryKey(goods);
+	}		
+}
+```
+
 # 4. 运营商后台商品删除
 
+删除分类为逻辑删除和物理删除
+
+> 逻辑删除:后台执行update语句,修改数据的状态,前台查询未删除的数据,数据还保存在数据库.
+>
+> 物理删除:后台执行delete语句,从数据库删除数据.
+
+* 页面删除按钮
+
+```html
+<button type="button" title=" 删 除 " ng-click="dele()">删除</button>
+```
+
+* goodsController.js
+
+```javascript
+//批量删除 
+$scope.dele=function(){			
+	//获取选中的复选框			
+	goodsService.dele( $scope.selectIds ).success(
+		function(response){
+			if(response.success){
+				$scope.reloadList();//刷新列表
+				$scope.selectIds=[];
+			}						
+		}		
+	);				
+}
+```
+
+* GoodsController.java
+
+```java
+@RequestMapping("/delete")
+public Result delete(Long [] ids){
+	try {
+		goodsService.delete(ids);
+		return new Result(true, "删除成功"); 
+	} catch (Exception e) {
+		e.printStackTrace();
+		return new Result(false, "删除失败");
+	}
+}
+```
+
+* GoodsServiceImpl.java
+
+```java
+public void delete(Long[] ids) {
+	for(Long id:ids){			
+		TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+		goods.setIsDelete("1");//表示逻辑删除
+		goodsMapper.updateByPrimaryKey(goods);
+	}		
+}
+```
+
 # 5. 注解事务配置
+
+* Spring配置文件
+
+```xml
+<!-- 事务管理器  -->  
+<bean id="transactionManager"
+      class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+    <property name="dataSource" ref="dataSource" />  
+</bean>  
+  
+<!-- 开启事务控制的注解支持 -->  
+<tx:annotation-driven transaction-manager="transactionManager"/>
+```
+
+* 在服务层添加事务注解
+
+```java
+@Transactional
+public class GoodsServiceImpl implements GoodsService {
+    ...
+}
+```
+

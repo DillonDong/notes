@@ -398,6 +398,10 @@ $scope.createItemList=function(){
 ### 5.2 显示SKU集合
 
 ```html
+<td ng-repeat="item in entity.goodsDesc.specificationItems">
+    {{item.attributeName}}
+</td>
+
 <tr ng-repeat="pojo in entity.itemList">					                           
       <td ng-repeat="item in entity.goodsDesc.specificationItems">
       	{{pojo.spec[item.attributeName]}}
