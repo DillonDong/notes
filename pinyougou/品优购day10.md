@@ -45,7 +45,6 @@ private Map searchList(Map searchMap){
 	}
 	map.put("rows", page.getContent());
 	return map;
-	
 }
 ```
 
@@ -73,11 +72,11 @@ private Map searchList(Map searchMap){
 // 定义模块:
 var app = angular.module("pinyougou",[]);
 // 定义过滤器
-app.filter('trustHtml',['$sce',function($sce){
+app.filter('trustHtml',function($sce){
 	return function(data){//传入参数时被过滤的内容
 		return $sce.trustAsHtml(data);//返回的是过滤后的内容（信任html的转换）
 	}	
-} ]);
+});
 ```
 
 # 2. 搜索页面过滤面板的实现思路分析
@@ -86,12 +85,14 @@ app.filter('trustHtml',['$sce',function($sce){
 
 过滤面板的数据来自于搜索的商品,目的是对搜索结果进行过滤
 
-* 过滤面板的显示
-  1. 针对搜索条件,对商品数据进行按照分类进行分组查询
-  2. 将分组的结果(分类信息)封装到结果集
-  3. 默认根据第一个分类信息,查询其对应的模板
-  4. 根据模板查询其对应的品牌信息,封装到结果集
-  5. 根据模板查询其对应的规格信息,封装到结果集
+- 过滤面板的显示
+
+1. 针对搜索条件,对商品数据进行按照分类进行分组查询
+2. 将分组的结果(分类信息)封装到结果集
+3. 默认根据第一个分类信息,查询其对应的模板
+4. 根据模板查询其对应的品牌信息,封装到结果集
+5. 根据模板查询其对应的规格信息,封装到结果集
+
 * 过滤查询
   1. 用户点击过滤面板的分类、品牌和规格等过滤条件时，将条件封装到searchEntity中
   2. 后台根据过滤条件筛选结果
@@ -99,8 +100,465 @@ app.filter('trustHtml',['$sce',function($sce){
 
 # 3. 显示过滤面板中分类信息
 
+### 3.1 重构代码
+
+* 控制层
+
+```java
+@RequestMapping("/search")
+public Map search(@RequestBody Map searchMap){
+	return itemSearchService.search(searchMap);
+}
+```
+
+* 服务层
+
+```java
+public Map search(Map searchMap) {
+	Map map=new HashMap();
+	
+	//1.查询SKU列表
+	map.put(...);
+	//2.分组查询 商品分类列表
+	map.put(...);
+	//3.查询品牌和规格列表
+	map.put(...);
+    
+	return map;
+}
+```
+
+### 3.2 类型分组查询
+
+* 业务层search方法
+
+```java
+public Map search(Map searchMap) {
+	Map map=new HashMap();
+	//1.查询列表
+	map.putAll(searchList(searchMap));
+	//2.分组查询 商品分类列表
+	List<String> categoryList = searchCategoryList(searchMap);
+	map.put("categoryList", categoryList);
+	return map;
+}
+```
+
+* 业务层分组查询
+
+```java
+private List<String> searchCategoryList(Map searchMap){
+	List<String> list=new ArrayList();
+	
+	Query query=new SimpleQuery("*:*");
+	//根据关键字查询  
+	Criteria criteria=new Criteria("item_keywords").is(searchMap.get("keywords"));
+	query.addCriteria(criteria);
+	//设置分组选项
+	GroupOptions groupOptions=new GroupOptions().addGroupByField("item_category");  
+	query.setGroupOptions(groupOptions);
+	//获取分组页
+	GroupPage<TbItem> page = solrTemplate.queryForGroupPage(query, TbItem.class);
+	//获取分组结果对象
+	GroupResult<TbItem> groupResult = page.getGroupResult("item_category");
+	//获取分组入口页
+	Page<GroupEntry<TbItem>> groupEntries = groupResult.getGroupEntries();
+	//获取分组入口集合
+	List<GroupEntry<TbItem>> entryList = groupEntries.getContent();
+	
+	for(GroupEntry<TbItem> entry:entryList  ){
+		list.add(entry.getGroupValue()	);	//将分组的结果添加到返回值中
+	}
+	return list;
+}
+```
+
+* 页面显示
+
+```html
+<body ng-app="pinyougou" ng-controller="searchController">
+    <input type="text" id="autocomplete" ng-model="searchMap.keywords"  />
+    <button ng-click="search()" type="button">搜索</button>
+    <!--商品分类-->
+	<span ng-repeat="category in resultMap.categoryList" > 
+		<a href="#">{{category}}</a>
+	</span>	
+    <!--商品列表-->
+    <ul>
+		<li  ng-repeat="item in resultMap.rows">	
+			<a href="item.html" target="_blank"><img src="{{item.image}}" /></a>
+			<i>{{item.price}}</i>
+            <!--{{item.title}}-->
+            <div class="attr" ng-bind-html="item.title | trustHtml"></div>
+		</li>
+	</ul>
+</body>
+```
+
 # 4. 缓存品牌和规格信息
 
-# 5. 显示过滤面板中品牌和规格信息
+### 4.1 缓存分析
+
+过滤面板的数据:
+
+1. 分类---->模板
+2. 模板---->品牌
+3. 模板--->规格
+
+如果查询数据库会导致数据库访问压力太大,所以将数据缓存到Redis中.
+
+### 4.2 缓存数据
+
+#### 4.2.1 缓存分类与模板
+
+* 分类服务层ItemCatServiceImpl
+
+  缓存分类-->模板
+
+```java
+/**
+ * 分类列表
+ */
+public List<TbItemCat> findByParentId(Long parentId) {
+	TbItemCatExample example = new TbItemCatExample();
+	Criteria criteria = example.createCriteria();
+	// 设置条件
+	criteria.andParentIdEqualTo(parentId);
+	//将模板ID放入缓存（以商品分类名称作为key）	
+	List<TbItemCat> itemCatList = findAll();
+	for(TbItemCat itemCat:itemCatList){
+		redisTemplate.boundHashOps("itemCat").put(itemCat.getName(), itemCat.getTypeId());
+	}
+	System.out.println("将模板ID放入缓存");
+	
+	return itemCatMapper.selectByExample(example);
+}
+
+/**
+ * 查询全部
+ */
+@Override
+public List<TbItemCat> findAll() {
+	return itemCatMapper.selectByExample(null);
+}
+```
+
+#### 4.2.2 缓存品牌与规格
+
+* 模板服务层TypeTemplateServiceImpl
+
+  缓存模板---->品牌
+
+  缓存模板---->规格
+
+```java
+/**
+ * 模板列表
+ */
+public PageResult findPage(TbTypeTemplate typeTemplate, int pageNum, int pageSize) {
+	PageHelper.startPage(pageNum, pageSize);
+	
+	TbTypeTemplateExample example=new TbTypeTemplateExample();
+	Criteria criteria = example.createCriteria();
+	...		
+	Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);
+	//缓存处理
+	saveToRedis();	
+	return new PageResult(page.getTotal(), page.getResult());
+}
+
+
+/**
+ * 将品牌列表与规格列表放入缓存
+ */
+private void saveToRedis(){
+	List<TbTypeTemplate> templateList = findAll();
+	for(TbTypeTemplate template:templateList){
+		//得到品牌列表
+		List brandList= JSON.parseArray(template.getBrandIds(), Map.class) ;
+		redisTemplate.boundHashOps("brandList").put(template.getId(), brandList);
+		
+		//得到规格列表
+		List<Map> specList = findSpecList(template.getId());
+		redisTemplate.boundHashOps("specList").put(template.getId(), specList);
+		
+	}
+	System.out.println("缓存品牌列表");
+	
+}
+```
+
+# 5. 显示品牌和规格信息
+
+默认根据第一个分类查询其对应的品牌和规格信息
+
+* 页面
+
+```html
+<script type="text/javascript" src="plugins/angularjs/angular.min.js"></script>
+<script type="text/javascript" src="js/base.js"></script>
+<script type="text/javascript" src="js/service/searchService.js"></script>
+<script type="text/javascript" src="js/controller/searchController.js"></script>
+
+...
+
+<body ng-app="pinyougou" ng-controller="searchController">
+    <input type="text" id="autocomplete" ng-model="searchMap.keywords"  />
+    <button ng-click="search()" type="button">搜索</button>
+    <!--分类集合-->
+    <div ng-if="resultMap.categoryList!=null">
+        <span ng-repeat="category in resultMap.categoryList" >
+			   {{category}}
+        </span>
+    </div>
+    <!--品牌集合-->
+    <div class="type-wrap logo" ng-if="resultMap.brandList!=null">
+		<ul>
+            <li ng-repeat="brand in resultMap.brandList">
+				{{brand.text}}
+			</li>		
+        </ul>					
+	 </div>
+    
+    <!--规格集合-->
+    <div  ng-repeat="spec in resultMap.specList" ng-if="searchMap.spec[spec.text]==null">
+		<div>{{spec.text}}</div>
+		<ul>
+            <li ng-repeat="option in spec.options">
+                {{option.optionName}}
+            </li>							
+		</ul>  
+    </div>
+    <!--商品集合-->
+    <ul>
+		<li  ng-repeat="item in resultMap.rows">	
+			<a href="item.html" target="_blank"><img src="{{item.image}}" /></a>
+			<i>{{item.price}}</i>
+			<em>{{item.title}}</em>
+		</li>
+	</ul>
+</body>
+```
+
+* searchController.js
+
+```javascript
+$scope.search=function(){
+	searchService.search($scope.searchMap).success(
+		function(response){
+			$scope.resultMap=response;				
+		}
+	);		
+}
+```
+
+* searchService.js
+
+```javascript
+app.service('searchService',function($http){
+	this.search=function(searchMap){
+		return $http.post('itemsearch/search.do',searchMap);
+	}
+});
+```
+
+* 控制层
+
+```java
+@RequestMapping("/search")
+public Map search(@RequestBody Map searchMap){
+	return itemSearchService.search(searchMap);
+}
+```
+
+* 服务层
+
+```java
+public Map search(Map searchMap) {
+	Map map=new HashMap();
+	
+	//1.查询SKU列表
+	map.putAll(searchList(searchMap));
+	//2.分组查询 商品分类列表
+	List<String> categoryList = searchCategoryList(searchMap);
+	map.put("categoryList", categoryList);
+	//3.查询品牌和规格列表
+	map.putAll(searchBrandAndSpecList(categoryList.get(0)));
+    
+	return map;
+}
+
+
+/**
+ * 根据商品分类名称查询品牌和规格列表
+ */
+private Map searchBrandAndSpecList(String category){
+	Map map=new HashMap();
+	//1.根据商品分类名称得到模板ID		
+	Long templateId= (Long) redisTemplate.boundHashOps("itemCat").get(category);
+	if(templateId!=null){
+		//2.根据模板ID获取品牌列表
+		List brandList = (List) redisTemplate.boundHashOps("brandList").get(templateId);
+		map.put("brandList", brandList);	
+		System.out.println("品牌列表条数："+brandList.size());
+		
+		//3.根据模板ID获取规格列表
+		List specList = (List) redisTemplate.boundHashOps("specList").get(templateId);
+		map.put("specList", specList);		
+		System.out.println("规格列表条数："+specList.size());
+	}
+	return map;
+}
+```
 
 # 6. 过滤查询
+
+### 6.1 思路分析
+
+构建查询实体,当用户点击过滤面板的[分类|品牌|规格]时,在searchMap中绑定查询条件
+
+```
+$scope.searchMap={'keywords':'','category':'','brand':'','spec':{}};
+```
+
+### 6.2 绑定查询条件
+
+* HTML
+
+```html
+<body ng-app="pinyougou" ng-controller="searchController">
+    
+    ...
+    <!--面包屑-->
+    <ul>
+        <li  ng-if="searchMap.category!=''">商品分类：{{searchMap.category}}</li>
+        <li  ng-if="searchMap.brand!=''" >品牌：{{searchMap.brand}}</li>
+        <li  ng-repeat="(key,value) in searchMap.spec">{{key}}：{{value}}</li>					
+    </ul>
+
+    <!--分类集合-->
+    <div ng-if="resultMap.categoryList!=null && searchMap.category==''">
+        <span ng-repeat="category in resultMap.categoryList" >
+               <a href="#" ng-click="addSearchItem('category',category)">{{category}}</a>
+        </span>
+    </div>
+    <!--品牌集合-->
+    <div class="type-wrap logo" ng-if="resultMap.brandList!=null && searchMap.brand==''">
+        <ul>
+            <li ng-repeat="brand in resultMap.brandList">
+                <a href="#" ng-click="addSearchItem('brand',brand.text)">{{brand.text}}</a>
+            </li>		
+        </ul>					
+     </div>
+
+    <!--规格集合-->
+    <div  ng-repeat="spec in resultMap.specList" ng-if="searchMap.spec[spec.text]==null">
+        <div>{{spec.text}}</div>
+        <ul>
+            <li ng-repeat="option in spec.options">
+                <a href="#" ng-click="addSearchItem(spec.text,option.optionName)">
+                    {{option.optionName}}
+                </a>
+            </li>							
+        </ul>  
+    </div>
+</body>
+```
+
+* searchController.js
+
+```javascript
+$scope.addSearchItem=function(key,value){
+	if(key=='category' || key=='brand'){//如果用户点击的是分类或品牌
+		$scope.searchMap[key]=value;
+		
+	}else{//用户点击的是规格
+		$scope.searchMap.spec[key]=value;		
+	}
+	$scope.search();//查询
+}
+```
+
+### 6.3 撤销查询条件
+
+* HTML
+
+```html
+<body ng-app="pinyougou" ng-controller="searchController">
+...
+<!--面包屑-->
+<ul>
+    <li  ng-if="searchMap.category!=''" ng-click="removeSearchItem('category')">
+        商品分类：{{searchMap.category}}
+    </li>
+    <li  ng-if="searchMap.brand!=''"    ng-click="removeSearchItem('brand')">
+        品牌：{{searchMap.brand}}
+    </li>
+    <li  ng-repeat="(key,value) in searchMap.spec" ng-click="removeSearchItem(key)">
+        {{key}}：{{value}}
+    </li>					
+</ul> 
+...    
+</body>
+```
+* JS
+
+```javascript
+$scope.removeSearchItem=function(key){
+	if(key=='category' || key=='brand'){//如果用户点击的是分类或品牌
+		$scope.searchMap[key]="";
+	}else{//用户点击的是规格
+		delete $scope.searchMap.spec[key];		
+	}
+	$scope.search();//查询
+}
+```
+
+### 6.4 后台过滤查询
+
+```java
+private Map searchList(Map searchMap){
+	Map map=new HashMap();
+	//高亮选项初始化
+	HighlightQuery query=new SimpleHighlightQuery();		
+	...
+	//1.1 关键字查询
+	Criteria criteria=new Criteria("item_keywords").is(searchMap.get("keywords"));
+	query.addCriteria(criteria);
+	
+	//1.2 按商品分类过滤
+	if(!StringUtils.isEmpty(searchMap.get("category"))  )	{//如果用户选择了分类
+		FilterQuery filterQuery=new SimpleFilterQuery();
+		Criteria filterCriteria=new Criteria("item_category").is(searchMap.get("category"));
+		filterQuery.addCriteria(filterCriteria);
+		query.addFilterQuery(filterQuery);			
+	}
+	
+	//1.3 按品牌过滤
+	if(!StringUtils.isEmpty(searchMap.get("brand"))  )	{//如果用户选择了品牌
+		FilterQuery filterQuery=new SimpleFilterQuery();
+		Criteria filterCriteria=new Criteria("item_brand").is(searchMap.get("brand"));
+		filterQuery.addCriteria(filterCriteria);
+		query.addFilterQuery(filterQuery);			
+	}
+	//1.4 按规格过滤
+	if(searchMap.get("spec")!=null){			
+		Map<String,String> specMap= (Map<String, String>) searchMap.get("spec");
+		for(String key :specMap.keySet()){
+			
+			FilterQuery filterQuery=new SimpleFilterQuery();
+			Criteria filterCriteria=new Criteria("item_spec_"+key).is( specMap.get(key)  );
+			filterQuery.addCriteria(filterCriteria);
+			query.addFilterQuery(filterQuery);					
+			
+		}		
+	}
+	//执行查询
+	HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
+	...
+	map.put("rows", page.getContent());
+	return map;
+	
+}
+```
+
