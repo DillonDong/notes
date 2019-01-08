@@ -120,6 +120,13 @@ private Map searchList(Map searchMap){
 2. 总页数:totalPages
 3. 数据集合:rows
 
+
+实现步骤:
+
+ 	1. 显示分页的工具栏
+ 	2. 点击分页工具栏查询数据
+ 	3. 前后省略点
+
 ### 2.2 代码实现
 
 * HTML
@@ -149,7 +156,7 @@ private Map searchList(Map searchMap){
         <!--前省略点-->
         <li ng-if="lastDot==true"><span>...</span></li>
 
-        <!--前后略点-->
+        <!--下一页-->
         <li class="next {{isEndPage()?'disabled':''}}">
             <a href="#" ng-click="queryByPage(searchMap.pageNo+1)">»</a>
         </li>
