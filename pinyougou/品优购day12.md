@@ -204,7 +204,7 @@ ${goodsDesc.saleService}
 
 <!--遍历图片-->
 <#--大图-->
-<#if (imageList?size>0)>
+<#if (imageList?size>0)></#i>)>
 	<img jqimg="${imageList[0].url}" src="${imageList[0].url}" width="400px" height="400px" />
 </#if>
 <!--小图列表-->
