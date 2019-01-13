@@ -2,10 +2,10 @@
 
 # 1.  消息服务概述
 
-### 1.1 解决问题
+### 1.1 优点
 
-* 系统耦合
-* 系统响应时间过长
+* 耦合
+* 异步
 * 削峰
 
 ### 1.2 JMS
@@ -31,7 +31,7 @@
 * 发布/订阅
 
 1. 一个消息的消息生产者可以对应多个消费者
-2. 如果当前的消费方不存在,那么消息就会过期了.
+2. 如果当前的消费方不存在,那么消息就会过期了
 
 # 2.JMS原生开发
 
@@ -93,10 +93,8 @@ consumer.setMessageListener(new MessageListener() {
 	}
 });
 //8.等待键盘输入
-//System.in.read();
-while (true){
+System.in.read();
 
-}
 
 //9.关闭资源
 //session.close();
@@ -207,7 +205,7 @@ public class QueueProducer {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 	@Autowired
-	private Destination queueTextDestination;		//消息对象
+	private Destination queueTextDestination;		//消息类型
 	
 	/**
 	 * 发送文本消息
@@ -449,9 +447,11 @@ public class TestTopic {
 }
 ```
 
-# 4. 消息服务优化商品审核|删除之导入索引库
+# 4. 优化商品审核和删除更新索引库
 
-### 4.1 审核商品消息生产者
+## 4.1 商品审核
+
+### 4.1.1 审核商品消息生产者
 
 * ```Spring```文件
 
@@ -500,7 +500,7 @@ public Result updateStatus(Long[] ids,String status){
 }
 ```
 
-### 4.2 审核商品消息消费者
+### 4.1.2 审核商品消息消费者
 
 * ```spring```配置文件
 
@@ -546,7 +546,9 @@ public class ItemSearchListener implements MessageListener {
 }
 ```
 
-### 4.3 删除商品消息生产者
+## 4.2 商品删除
+
+### 4.2.1 删除商品消息生产者
 
 * ```spring```配置文件
 
@@ -580,7 +582,7 @@ public Result delete(final Long [] ids){
 }
 ```
 
-### 4.3 删除商品消息消费者
+### 4.2.2 删除商品消息消费者
 
 * ```Spring```配置文件
 
@@ -623,7 +625,7 @@ public class ItemDeleteListener implements MessageListener {
 }
 ```
 
-# 5. 使用消息服务优化商品审核之生成静态页面 
+# 5. 优化商品审核之生成静态页面 
 
 ### 消息生产者
 
@@ -691,7 +693,7 @@ public class PageListener implements MessageListener {
 }
 ```
 
-# 6. 使用消息机制完成商品删除后删除静态页面 
+# 6. 优化删除静态页面 
 
 ### 消息生产者
 
