@@ -228,12 +228,18 @@ p:cookiePath="/cas" />
 
 ### 4.2 错误提示
 
+* cas\WEB-INF\classes\ messages_zh_CN.properties
+
 ```properties
+# 用户名不存在时的错误
 authenticationFailure.AccountNotFoundException=\u7528\u6237\u4E0D\u5B58\u5728.
+# 用户名不存在时的错误
 authenticationFailure.FailedLoginException=\u5BC6\u7801\u9519\u8BEF.
 ```
 
 ### 4.3 设置中文简体为默认语言
+
+* cas-servlet.xml
 
 ```xml
 <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" p:defaultLocale="zh_CN" />
