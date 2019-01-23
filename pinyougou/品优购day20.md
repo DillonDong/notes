@@ -112,14 +112,15 @@ public void removeSeckillGoods(){
     <port>9105</port>
 </properties>
 
-<!--生产/上线环境-->
 <profiles>
+    <!--生产环境-->
     <profile>
         <id>pro</id>
         <properties>
             <port>9205</port>
         </properties>
     </profile>
+     <!--开发环境-->
     <profile>
         <id>dev</id>
         <properties>
@@ -193,19 +194,20 @@ jdbc.password=${env.jdbc.password}
 	 <env>dev</env>
 </properties>
 
-<!--生产/上线环境-->
 <profiles>
+    <!--开发环境-->
 	<profile>
 		<id>dev</id>
 		<properties>
-	  	 <env>dev</env>
-	</properties>
+	  	 	<env>dev</env>
+		</properties>
 	</profile>
+    <!--生产环境-->
 	<profile>
 		<id>pro</id>
 		<properties>
-	  	 <env>pro</env>
-	</properties>
+	  	 	<env>pro</env>
+		</properties>
 	</profile> 
 </profiles>
 ```
@@ -228,7 +230,166 @@ jdbc.password=${env.jdbc.password}
 </build>
 ```
 
+### 2.5 切换zookeeper配置
+
+* 准备环境配置
+
+```properties
+# dubbox_dev.properties
+env.address=192.168.25.135:2181
+```
+
+```properties
+# dubbox_pro.properties
+env.address=192.168.25.136:2181
+```
+
+* 配置dubbox.properties
+
+```properties
+address=${env.address}
+```
+
+* 配置Maven环境变量
+
+```xml
+<!--默认环境-->
+<properties>
+	  <env>dev</env>
+</properties>
+
+<profiles>
+    <!--开发环境-->
+	<profile>
+		<id>dev</id>
+        <properties>
+           <env>dev</env>
+        </properties>
+	</profile>
+    <!--生产环境-->
+	<profile>
+		<id>pro</id>
+        <properties>
+           <env>pro</env>
+        </properties>
+	</profile>
+</profiles>
+```
+
+* 配置maven过滤器根据参数选择指定的环境文件
+
+```xml
+<build>
+	<filters>
+		<filter>src/main/resources/filters/dubbox_${env}.properties</filter>
+	</filters>
+    <resources>
+      <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+      </resource>    
+    </resources>  
+</build>
+```
+
 # 3. Mongodb
 
-# 4. 其他功能
+### 3.1 概述
+
+面向文档的no-sql数据库
+
+### 3.2 数据格式
+
+BSON格式;BSON=Binary+JSON
+
+```json
+{
+    title:"MongoDB",
+    last_editor:"192.168.1.122",
+    last_modified:new Date("27/06/2011"),
+    body:"MongoDB introduction",
+    categories:["Database","NoSQL","BSON"],
+    revieved:false
+}
+```
+
+### 3.3 类比关系型数据库
+
+| MongoDb           | 关系型数据库      |
+| ----------------- | ----------------- |
+| 数据库(databases) | 数据库(databases) |
+| 集合(collections) | 表(table)         |
+| 文档(document)    | 行(row)           |
+
+### 3.4 安装/启动
+
+* 启动
+
+```shell
+# 端口默认为27017可以缺省
+mongod --port XXX --dbpath XXX
+```
+
+* 客户端连接
+
+```shell
+# 在本机默认端口启动ip和Port可以缺省
+mongo ip:port
+```
+
+### 3.5 数据操作
+
+* 创建/选择数据库
+
+```shell
+use itcastdb
+```
+
+* 增
+
+  db.集合名称.save(变量)
+
+```shell
+#1.创建数据
+r={name:'zs',age:20}
+#2.在集合中保存数据
+db.student.save(r)
+###############################
+db.student.save({name:"沙和尚",sex:"男",age:25,address:"流沙河路11号"});
+```
+
+* 删
+
+  db.集合名称.remove( 条件 )
+
+```shell
+# 如果条件为{}代表删除所有
+db.student.remove({name:'zs',age:20});
+```
+
+* 改
+
+  db.集合名称.update( 条件,{$set:{age:30}})
+
+```shell
+#$set代表只修改指定字段,其他字段保留
+db.student.update({name:"zs1"},{$set:{age:30}})
+```
+
+* 查
+
+  db.集合名称.find();
+
+```shell
+# 查询所有
+db.student.find()
+# 条件查询
+db.student.find({name:"zs"})
+# 查询唯一数据
+db.student.findOne({_id:ObjectId("5c46fac976489082b76ad6d3")})
+```
+
+
+
+
 
