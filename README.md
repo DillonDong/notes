@@ -1,13 +1,12 @@
 # teaching-notes
 
-已经上传的笔记和画图包括
+## 1. pinyougou
 
-### pinyougou
+## 2. 品优购部署
 
-1. 部署01:zookeeper solr redis集群安装
-2. 部署02:Mycat安装  Nginx安装 Tomcat集群部署
-3. 部署03:Docker容器化技术
+## 3. SpringDataJPA
 
-### SpringDataJPA
+## 4. 面试宝典
 
-1. day01:JPA的基本操作
+## 5. Java技术栈
+
