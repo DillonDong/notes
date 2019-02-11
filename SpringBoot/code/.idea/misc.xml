@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/springboot01" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/springboot01/pom.xml" />
+        <option value="C:/Mac/视频/备课/springboot/代码/springboot_jpa/pom.xml" />
+        <option value="C:/Mac/视频/备课/springboot/代码/springboot_mybatis/pom.xml" />
+        <option value="C:/Mac/视频/备课/springboot/代码/springboot_quick/pom.xml" />
+        <option value="C:/Mac/视频/备课/springboot/代码/springboot_quick2/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

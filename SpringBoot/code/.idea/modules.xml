@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/springboot01/springboot01.iml" filepath="$PROJECT_DIR$/springboot01/springboot01.iml" />
+      <module fileurl="file://C:/Mac/视频/备课/springboot/代码/springboot_jpa/springboot_jpa.iml" filepath="C:/Mac/视频/备课/springboot/代码/springboot_jpa/springboot_jpa.iml" />
+      <module fileurl="file://C:/Mac/视频/备课/springboot/代码/springboot_mybatis/springboot_mybatis.iml" filepath="C:/Mac/视频/备课/springboot/代码/springboot_mybatis/springboot_mybatis.iml" />
+      <module fileurl="file://C:/Mac/视频/备课/springboot/代码/springboot_quick/springboot_quick.iml" filepath="C:/Mac/视频/备课/springboot/代码/springboot_quick/springboot_quick.iml" />
+      <module fileurl="file://C:/Mac/视频/备课/springboot/代码/springboot_quick2/springboot_quick2.iml" filepath="C:/Mac/视频/备课/springboot/代码/springboot_quick2/springboot_quick2.iml" />
+    </modules>
+  </component>
+</project>
