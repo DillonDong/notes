@@ -1,12 +1,8 @@
-[TOC]
-
 # 1. ORM思想
 
 将对象与数据库表建立一种映射关系,这样就可以通过操作对象的方式实现对数据库表的操作.
 
-![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/pinyougou/%E9%83%A8%E7%BD%B2/ORM%E6%98%A0%E5%B0%84%E5%85%B3%E7%B3%BB.png)
-
-### 映射关系
+### 1.1 映射关系
 
 Java类==表
 
@@ -22,23 +18,26 @@ Java类==表
 
 # 2. JPA与Hibernate介绍
 
-**JPA是SUN提出的ORM映射的标准和规范**
+**JPA是SUN针对ORM映射的标准和规范**
 
 **Hibernate是ORM的一种实现框架**
 
-**使用JPA的好处**
+**使用JPA的特点**
 
 1. 面向接口编程,标准化开发
 2. 配置简单,易用
 3. 提供了面向对象的查询语言,类似于SQL语法,易于查询
-
-![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/pinyougou/%E9%83%A8%E7%BD%B2/JPA%E4%B8%8EHibernate%E7%9A%84%E5%85%B3%E7%B3%BB.png)
 
 # 3. JPA入门案例
 
 ### 1. 导入依赖
 
 ```xml
+<properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.hibernate.version>5.0.7.Final</project.hibernate.version>
+</properties>
+
 <dependencies>
     <!-- junit -->
     <dependency>
@@ -127,6 +126,8 @@ public class Customer {
     //get...set...方法
 }
 ```
+
+> 注意:实体类的配置,表名和属性名的映射可以省略,但是@Id和@Entity的配置不能省略
 
 ### 4. 编写核心配置文件
 
@@ -230,6 +231,8 @@ CURD操作的核心对象
 
 # 5. JPA增删改查案例
 
+* JPA工具类
+
 ```java
 /**
  * JPA工具类,用来获得EntityManager对象
@@ -251,7 +254,7 @@ public class JpaUtils {
 /**
  * 根据ID查询对象,立即加载
  */
-public  void testFind() {
+public void testFind() {
     EntityManager entityManager = JpaUtils.getEntityManager();
     //参数一:返回结果封装的类型; 参数二:主键
     Customer customer = entityManager.find(Customer.class, 1L);
@@ -332,6 +335,11 @@ public  void testUpdate() {
 
 JPQL全称Java Persistence Query Language,是一种类似于SQL语法的面向对象的查询语言
 
+* 注意事项
+  * Jpql的类名和属性名是大小写敏感,sql相关的关键字是大小写不敏感
+  * Jpql不支持"*"查询,如果查询所有from 类名即可,返回的List<类型>
+  * 如果查询部分属性(字段信息),返回的数据类型List<Object[]>
+
 ### 6.1 查询全部
 
 ```java
@@ -377,8 +385,10 @@ public void testCondition() {
     EntityManager em = JpaUtils.getEntityManager();
     //编写查询语句
     String jpql = "from Customer where custName like ? ";
+    //String jpql = "from Customer where custName like :custName ";
     Query query = em.createQuery(jpql);
     query.setParameter(1,"传智播客%");
+    //query.setParameter("custName","传智播客%");
     List list = query.getResultList();
     for(Object obj : list) {
         System.out.println(obj);
