@@ -16,6 +16,8 @@ Java类==表
 >
 > 而是由框架根据配置的ORM映射关系自动生成.
 
+![](../diagrams/jpa/ORM映射关系.png)
+
 # 2. JPA与Hibernate介绍
 
 **JPA是SUN针对ORM映射的标准和规范**
@@ -27,6 +29,8 @@ Java类==表
 1. 面向接口编程,标准化开发
 2. 配置简单,易用
 3. 提供了面向对象的查询语言,类似于SQL语法,易于查询
+
+![](../diagrams/jpa/JPA与Hibernate的关系.png)
 
 # 3. JPA入门案例
 

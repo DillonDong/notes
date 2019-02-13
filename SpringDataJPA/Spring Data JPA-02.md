@@ -1,14 +1,12 @@
-[TOC]
-
 # 1.SpringDataJPA概述
 
-SpringDataJPA是Spring针对JPA进行封装的框架,目的是**简化**JPA针对DB持久层的操作.
+SpringDataJPA是Spring针对JPA进行封装的框架,目的是<font style="color:red">简化</font>JPA针对DB持久层的操作.
 
-![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/jpa/SpringDataJPA.png)
+![](../diagrams/jpa/SpringDataJPA.png)
 
 # 2.SpringDataJPA入门操作
 
-### 1. 引入依赖
+### 2.1引入依赖
 
 ```xml
 <properties>
@@ -157,7 +155,9 @@ SpringDataJPA是Spring针对JPA进行封装的框架,目的是**简化**JPA针�
 </dependencies>
 ```
 
-### 2. 编写配置文件
+### 2.2 编写配置文件
+
+* applicationContext.xml
 
 ```xml
 <!-- 1.创建entityManagerFactory对象交给spring容器管理-->
@@ -210,7 +210,7 @@ SpringDataJPA是Spring针对JPA进行封装的框架,目的是**简化**JPA针�
 <context:component-scan base-package="cn.itcast"/>
 ```
 
-### 3. 配置实体类映射关系
+### 2.3 配置实体类映射关系
 
 ```java
 @Entity
@@ -227,7 +227,7 @@ public class Customer {
 }
 ```
 
-### 5. 编写Dao接口
+### 2.4 编写Dao接口
 
 ```java
 /**
@@ -240,9 +240,9 @@ public interface CustomerDao extends JpaRepository<Customer,Long> ,JpaSpecificat
     
 ```
 
-### 5. CURD基本操作
+### 2.5 CURD基本操作
 
-#### 5.1 增
+#### 2.5.1 增
 
 ```java
 /**
@@ -258,7 +258,7 @@ public void testSave() {
 }
 ```
 
-#### 5.2 删
+#### 2.5.2 删
 
 ```java
 /**
@@ -270,7 +270,7 @@ public void testDelete () {
 }
 ```
 
-#### 5.3 改
+#### 2.5.3 改
 
 ```java
 /**
@@ -285,9 +285,9 @@ public void testUpdate() {
 }
 ```
 
-#### 5.4 查
+#### 2.5.4 查
 
-##### 5.4.1 根据ID查询
+##### 2.5.4.1 根据ID查询
 
 ```java
 /**
@@ -310,7 +310,7 @@ public void  testGetOne() {
 }
 ```
 
-##### 5.4.2 查询所有
+##### 2.5.4.2 查询所有
 
 ```java
 /**
@@ -325,7 +325,7 @@ public void testFindAll() {
 }
 ```
 
-##### 5.4.3 判断某条数据是否存在
+##### 2.5.4.3 判断某条数据是否存在
 
 ```java
 /**
@@ -338,7 +338,7 @@ public void  testExists() {
 }
 ```
 
-##### 5.4.4 统计查询
+##### 2.5.4.4 统计查询
 
 ```java
 /**
@@ -356,8 +356,6 @@ public void testCount() {
 1. 在调用接口的CURD方法时,SpringDataJPA会使用JDK动态代理生成接口的代理对象
 2. 代理对象的类型是```SimpleJpaRepository```
 3. 接口的方法在```SimpleJpaRepository```类中进行了默认实现
-
-![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/jpa/JPA.png)
 
 # 4.SpringDataJPA复杂查询
 
@@ -420,7 +418,7 @@ public List<Object [] > findSql(String name);
 
 ### 4.3 方法命名查询
 
-![](https://raw.githubusercontent.com/fudingcheng/teaching-notes/master/diagrams/jpa/%E6%96%B9%E6%B3%95%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99.png)
+![](../diagrams/jpa/方法命名规则.png)
 
 #### 4.3.1 单条件完全匹配
 
