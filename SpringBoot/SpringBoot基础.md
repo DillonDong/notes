@@ -1,47 +1,30 @@
 # SpringBoot基础
 
-## 学习目标：
-
-1. 能够理解Spring的优缺点
-2. 能够理解SpringBoot的特点
-3. 能够理解SpringBoot的核心功能
-4. 能够搭建SpringBoot的环境
-5. 能够完成application.properties配置文件的配置
-6. 能够完成application.yml配置文件的配置
-7. 能够使用SpringBoot集成Mybatis
-8. 能够使用SpringBoot集成Junit
-9. 能够使用SpringBoot集成SpringData JPA
-
 # 一、SpringBoot简介
 
-## 1.1  原有Spring优缺点分析
+## 1.1  Spring优缺点
 
-### 1.1.1 Spring的优点分析
+### 1.1.1 优点
 
-Spring是Java企业版（Java Enterprise Edition，JEE，也称J2EE）的轻量级代替品。无需开发重量级的Enterprise JavaBean（EJB），Spring为企业级Java开发提供了一种相对简单的方法，通过<font style="color:red">依赖注入和面向切面编程</font>，用简单的Java对象（Plain Old Java Object，POJO）实现了EJB的功能。
+依赖注入和面向切面编程,使代码解耦,更加的灵活和易于扩展
 
-### 1.1.2 Spring的缺点分析
+### 1.1.2 缺点
 
-<font style="color:red">虽然Spring的组件代码是轻量级的，但它的配置却是重量级的。</font>一开始，Spring用XML配置，而且是很多XML配置。Spring 2.5引入了基于注解的组件扫描，这消除了大量针对应用程序自身组件的显式XML配置。Spring 3.0引入了基于Java的配置，这是一种类型安全的可重构配置方式，可以代替XML。
+* Spring代码是轻量级的，但它的配置却是重量级的。
+* 项目的依赖管理耗时耗力
 
-所有这些配置都代表了开发时的损耗。因为在思考Spring特性配置和解决业务问题之间需要进行思维切换，所以编写配置挤占了编写应用程序逻辑的时间。和所有框架一样，Spring实用，但与此同时它要求的回报也不少。
+## 1.2 SpringBoot概述
 
-除此之外，<font style="color:red">项目的依赖管理也是一件耗时耗力的事情</font>。在环境搭建时，需要分析要导入哪些库的坐标，而且还需要分析导入与之有依赖关系的其他库的坐标，一旦选错了依赖的版本，随之而来的不兼容问题就会严重阻碍项目的开发进度。
+SpringBoot就是Spring,它做了哪些没有它你也会去做得配置和添加依赖.让开发者专注于应用程序的逻辑处理.
 
-## 1.2 SpringBoot的概述
-
-### 1.2.1 SpringBoot解决上述Spring的缺点
-
-SpringBoot对上述Spring的缺点进行的改善和优化，基于<font style="color:red">约定优于配置的思想</font>，可以让开发人员不必在配置与逻辑业务之间进行思维的切换，全身心的投入到逻辑业务的代码编写中，从而大大提高了开发的效率，一定程度上缩短了项目周期。
-
-### 1.2.2 SpringBoot的特点
+### 1.2.2 特点
 
 - 为基于Spring的开发提供更快的入门体验
 - 开箱即用，没有代码生成，也无需XML配置。同时也可以修改默认值来满足特定的需求
 - 提供了一些大型项目中常见的非功能性特性，如嵌入式服务器、安全、指标，健康检测、外部配置等
-- <font style="color:red">SpringBoot不是对Spring功能上的增强，而是提供了一种快速使用Spring的方式</font>
+- SpringBoot不是对Spring功能上的增强，而是提供了一种快速使用Spring的方式
 
-### 1.2.3 SpringBoot的核心功能
+### 1.2.3 核心功能
 
 - 起步依赖
 
@@ -52,9 +35,6 @@ SpringBoot对上述Spring的缺点进行的改善和优化，基于<font style="
 - 自动配置
 
   Spring Boot的自动配置是一个运行时（更准确地说，是应用程序启动时）的过程，考虑了众多因素，才决定Spring配置应该用哪个，不该用哪个。该过程是Spring自动完成的。
-
-
-注意：起步依赖和自动配置的原理剖析会在第三章《SpringBoot原理分析》进行详细讲解
 
 # 二、SpringBoot快速入门
 
@@ -102,8 +82,6 @@ SpringBoot要集成SpringMVC进行Controller的开发，所以项目要导入web
     </dependency>
 </dependencies>
 ```
-
-
 
 ### 2.1.3 编写SpringBoot引导类
 
@@ -671,25 +649,32 @@ prefix = "server" 表示SpringBoot配置文件中的前缀，SpringBoot会将配
 
 # 四、SpringBoot的配置文件
 
-## 4.1 SpringBoot配置文件类型
+SpringBoot是基于约定的，所以很多配置都有默认值.如果可以需要修改配置,可以通过配置文件进行配置
 
-### 4.1.1 SpringBoot配置文件类型和作用
+1. application.properties
+2. application.yml
 
-SpringBoot是基于约定的，所以很多配置都有默认值，但如果想使用自己的配置替换默认配置的话，就可以使用application.properties或者application.yml（application.yaml）进行配置。
+## 4.1 配置文件的类型
 
-SpringBoot默认会从Resources目录下加载application.properties或application.yml（application.yaml）文件
+### 4.1.1 application.properties
 
-其中，application.properties文件是键值对类型的文件，之前一直在使用，所以此处不在对properties文件的格式进行阐述。除了properties文件外，SpringBoot还可以使用yml文件进行配置，下面对yml文件进行讲解。
+​	语法:key=value
 
-### 4.1.2 application.yml配置文件
+### 4.1.2 application.yml
 
 #### 4.1.2.1 yml配置文件简介
 
-YML文件格式是YAML (YAML Aint Markup Language)编写的文件格式，YAML是一种直观的能够被电脑识别的的数据数据序列化格式，并且容易被人类阅读，容易和脚本语言交互的，可以被支持YAML库的不同的编程语言程序导入，比如： C/C++, Ruby, Python, Java, Perl, C#, PHP等。YML文件是以数据为核心的，比传统的xml方式更加简洁。
+YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JSON 格式方便。
 
 YML文件的扩展名可以使用.yml或者.yaml。
 
 #### 4.1.2.2 yml配置文件的语法
+
+- 大小写敏感
+- 使用缩进表示层级关系
+- 缩进时不允许使用Tab键，只允许使用空格。
+- 缩进的空格数目不重要，只要相同层级的元素左侧对齐即可
+- "#"号表示注释
 
 ##### 4.1.2.2.1 配置普通数据
 
@@ -697,9 +682,9 @@ YML文件的扩展名可以使用.yml或者.yaml。
 
 - 示例代码：
 
-- ```yaml
-  name: haohao
-  ```
+```yaml
+name: haohao
+```
 
 - 注意：value之前有一个空格
 
@@ -719,16 +704,14 @@ YML文件的扩展名可以使用.yml或者.yaml。
 
 - 示例代码：
 
-- ```yaml
-  person:
-    name: haohao
-    age: 31
-    addr: beijing
-
-  #或者
-
-  person: {name: haohao,age: 31,addr: beijing}
-  ```
+```yaml
+person:
+  name: haohao
+  age: 31
+  addr: beijing
+#或者
+person: {name: haohao,age: 31,addr: beijing}
+```
 
 - 注意：key1前面的空格个数不限定，在yml语法中，相同缩进代表同一个级别
 
@@ -736,7 +719,7 @@ YML文件的扩展名可以使用.yml或者.yaml。
 
 同上面的对象写法
 
-##### 4.1.2.2.3 配置数组（List、Set）数据
+##### 4.1.2.2.3 配置集合数据
 
 - 语法： 
 
@@ -752,29 +735,32 @@ YML文件的扩展名可以使用.yml或者.yaml。
 
 - 示例代码：
 
-- ```yaml
-  city:
-    - beijing
-    - tianjin
-    - shanghai
-    - chongqing
-    
-  #或者
-
-  city: [beijing,tianjin,shanghai,chongqing]
-
-  #集合中的元素是对象形式
-  student:
-    - name: zhangsan
-      age: 18
-      score: 100
-    - name: lisi
-      age: 28
-      score: 88
-    - name: wangwu
-      age: 38
-      score: 90
-  ```
+ ```yaml
+ city:
+   - beijing
+   - tianjin
+   - shanghai
+   - chongqing
+   
+ #或者
+ 
+ city: [beijing,tianjin,shanghai,chongqing]
+ 
+ #集合中的元素是对象形式
+ student:
+   - name: zhangsan
+     age: 18
+     score: 100
+   - name: lisi
+     age: 28
+     score: 88
+   - name: wangwu
+     age: 38
+     score: 90
+     
+ # 或者
+ student: [{name: tom,age: 18,addr: beijing},{name: lucy,age: 17,addr: tianjin}]
+ ```
 
 - 注意：value1与之间的 - 之间存在一个空格
 
@@ -895,11 +881,7 @@ public class QuickStartController {
 }
 ```
 
-浏览器访问地址：http://localhost:8080/quick 结果如下：
-
-![](img/13.png)
-
-
+> 注意@Value注解不能注入集合类型数据
 
 ### 4.2.2 使用注解@ConfigurationProperties映射
 
@@ -908,9 +890,8 @@ public class QuickStartController {
 application.properties配置如下：
 
 ```properties
-person:
-  name: zhangsan
-  age: 18
+person.name=zhangsan
+person.age=18
 ```
 
 或者，application.yml配置如下：
@@ -947,13 +928,55 @@ public class QuickStartController {
 }
 ```
 
-浏览器访问地址：http://localhost:8080/quick 结果如下：
-
-![](img/13.png)
-
 注意：使用@ConfigurationProperties方式可以进行配置文件与实体字段的自动映射，但需要字段必须提供set方法才可以，而使用@Value注解修饰的字段不需要提供set方法
 
+### 4.2.3 集合类型的映射
 
+* 配置文件
+
+```yml
+my:
+  servers:
+    - dev.example.com
+    - another.example.com
+
+  map:
+    key1: value1
+    key2: value2
+    key3: value3
+    
+  lMap:
+    - name: tom
+      age: 18
+      addr: beijing
+    - name: lucy
+      age: 17
+      addr: tianjin
+```
+
+* 配置类
+
+```java
+@Component
+@ConfigurationProperties(prefix = "my")
+public class Config {
+    private List<String> servers = new ArrayList<String>();
+    private Map<String,String> map = new HashMap<String,String>();
+    private List<Map<String,String>> lMap;
+    
+    //seter...
+}
+```
+
+* 使用配置类
+
+```java
+@RestController
+public class HelloServlet {
+    @Resource
+    Config config;
+}
+```
 
 # 五、SpringBoot与整合其他技术
 
@@ -1087,10 +1110,6 @@ public class MapperController {
 }
 ```
 
-### 5.1.10 测试
-
-![](img/14.png)
-
 ## 5.2 SpringBoot整合Junit
 
 ### 5.2.1 添加Junit的起步依赖
@@ -1136,23 +1155,13 @@ public class MapperTest {
 }
 ```
 
-其中，
-
-SpringRunner继承自SpringJUnit4ClassRunner，使用哪一个Spring提供的测试测试引擎都可以
+其中，SpringRunner继承自SpringJUnit4ClassRunner，使用哪一个Spring提供的测试测试引擎都可以
 
 ```java
 public final class SpringRunner extends SpringJUnit4ClassRunner 
 ```
 
 @SpringBootTest的属性指定的是引导类的字节码对象
-
-
-
-### 5.2.3 控制台打印信息
-
-![](img/15.png)
-
-
 
 ## 5.3 SpringBoot整合Spring Data JPA
 
@@ -1261,8 +1270,6 @@ public class JpaTest {
 </dependency>
 ```
 
-
-
 ## 5.4 SpringBoot整合Redis
 
 ### 5.4.1 添加redis的起步依赖
@@ -1321,3 +1328,55 @@ public class RedisTest {
 }
 ```
 
+# 六、Actuator
+
+SpringBoot的Actuator提供了监控应用程序的机制,帮助查看应用程序的运行和健康状况.
+
+* 添加actuator依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+* 访问端点
+
+actuator访问路径:http://localhost:8080/actuator
+
+默认情况下,SpringBoot处于安全的考虑,自己开放了部分的端点.
+
+如果需要全部开放,配置如下信息
+
+```properties
+management.endpoints.web.exposure.include=*
+```
+
+* 常用的端点
+
+  1. 查看应用程序加载的Bean:[/actuator/beans](http://localhost:8080/actuator/beans)
+  2. 自动配置详解:[/actuator/conditions](http://localhost:8080/actuator/conditions)
+  3. 查看配置属性:[/actuator/configprops](http://localhost:8080/actuator/configprops)
+  4. 查看环境配置信息:[actuator/env](http://localhost:8080/actuator/env)
+  5. 映射信息:[/actuator/mappings](http://localhost:8080/actuator/mappings)
+  6. 系统性能度量指标:[/actuator/metrics](http://localhost:8080/actuator/metrics)
+     - 检查某个具体指标的信息:[http://localhost:8080/actuator/metrics/XXX](http://localhost:8080/actuator/metrics/XXX)
+
+  7. 追踪Web请求:[/actuator/httptrace](http://localhost:8080/actuator/httptrace)
+  8. 线程快照:[/actuator/threaddump](http://localhost:8080/actuator/threaddump)
+  9. 健康状况:[/actuator/health](http://localhost:8080/actuator/health)
+
+  ```properties
+  # 处于安全考虑,SpringBoot没有开放系统安全详细信息,配置如下信息
+  management.endpoint.health.show-details=alwalys
+  ```
+
+  10. 系统信息:[/actuator/info](http://localhost:8080/actuator/info)
+
+  ```properties
+  info.contactEmail=support@myreadinglist.com
+  info.telephone=XXXXXXXX
+  ```
+
+  

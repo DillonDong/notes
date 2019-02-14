@@ -1,0 +1,21 @@
+my:
+  servers:
+    - dev.example.com
+    - another.example.com
+
+  map:
+    key1: value1
+    key2: value2
+    key3: value3
+
+
+  lMap:
+    - name: tom
+      age: 18
+      addr: beijing
+    - name: lucy
+      age: 17
+      addr: tianjin
+
+name: zs
+

@@ -353,9 +353,8 @@ public void testCount() {
 
 # 3.SpringDataJPA原理分析
 
-1. 在调用接口的CURD方法时,SpringDataJPA会使用JDK动态代理生成接口的代理对象
-2. 代理对象的类型是```SimpleJpaRepository```
-3. 接口的方法在```SimpleJpaRepository```类中进行了默认实现
+1. 在调用接口的CURD方法时,SpringDataJPA会使用JDK动态代理生成Dao接口的代理对象
+2. 代理对象的内部调用SimpleJpaRepository类的实现方法
 
 # 4.SpringDataJPA复杂查询
 
