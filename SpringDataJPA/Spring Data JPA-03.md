@@ -1,10 +1,11 @@
-[TOC]
-
 # 1. Specification动态条件查询
 
 ```JpaSpecificationExecutor```提供了一种以更加面向的方式构建动态条件查询.
 
-### 1.1 构建动态条件查询步骤:
+* 动态条件查询
+* 面向对象的查询方式
+
+### 1.1 步骤
 
 1. Dao接口继承```JpaSpecificationExecutor```
 2. 创建```Specification```对象封装查询条件
@@ -12,7 +13,7 @@
 
 ### 1.2 常见查询
 
-#### Dao接口
+#### 1.2.1 创建Dao接口
 
 ```java
 /**
@@ -23,7 +24,7 @@ public interface CustomerDao extends JpaRepository<Customer,Long> ,JpaSpecificat
 }
 ```
 
-#### 单条件
+#### 1.2.2 单条件
 
 ```java
 /**
@@ -52,7 +53,7 @@ public void testSpec() {
 }
 ```
 
-#### 多条件
+#### 1.2.3 多条件
 
 ```java
 /**
@@ -75,7 +76,7 @@ public void testSpec1() {
         //构造查询条件
         //1.构造客户名的精准匹配查询
         Predicate p1 = cb.equal(custName, "传智播客");
-        //2..构造所属行业的精准匹配查询
+        //2.构造所属行业的精准匹配查询
         Predicate p2 = cb.equal(custIndustry, "it教育");
         //3.将多个查询条件进行组合
         //同功能JPQL语句:from Customer where custName = "传智播客" and custIndustry="it教育"
@@ -88,7 +89,7 @@ public void testSpec1() {
 }
 ```
 
-#### 带条件查询并排序
+#### 1.2.4 带条件查询并排序
 
 ```java
 /**
@@ -117,7 +118,7 @@ public void testSpec3() {
 }
 ```
 
-#### 带条件分页查询
+#### 1.2.5 带条件分页查询
 
 ```java
 /**
@@ -142,6 +143,44 @@ public void testSpec4() {
     System.out.println("数据集合:"+page.getContent());
     System.out.println("总条数:"+page.getTotalElements());
     System.out.println("总页数:"+page.getTotalPages());
+}
+```
+
+#### 1.2.6 动态查询
+
+```java
+public void test(){
+        Customer customer = new Customer();
+        //customer.setCustIndustry("it教育");
+        customer.setCustName("传智播客");
+
+        Specification<Customer> spec = new Specification<Customer>() {
+            @Override
+            public Predicate toPredicate(Root<Customer> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+                List<Predicate> list = new ArrayList<Predicate>();
+
+                //判断cusName是否有值
+                if(customer.getCustName()!=null && !"".equals(customer.getCustName())){
+                    Path<Object> cusName = root.get("custName");
+                    Predicate p1 = cb.like(cusName.as(String.class), customer.getCustName());
+                    list.add(p1);
+                }
+                
+                //判断custIndustry是否有值
+                if(customer.getCustIndustry()!=null && !"".equals(customer.getCustIndustry())){
+                    Path<Object> custIndustry = root.get("custIndustry");
+                    Predicate p2 = cb.equal(custIndustry.as(String.class), customer.getCustIndustry());
+                    list.add(p2);
+                }
+
+                Predicate[] predicates = list.toArray(new Predicate[0]);
+
+                return cb.and(predicates);
+            }
+        };
+        List<Customer> list = customerDao.findAll(spec);
+        System.out.println(list);
 }
 ```
 
@@ -172,7 +211,7 @@ public void testSpec4() {
 
 **数据库实现:**
 
-一对一:在任意一张表中添加外键,关联对方主键
+一对一:在任意一张表中添加外键(值唯一),关联对方主键
 
 一对多:在多方表中添加外键,关联一方的主键
 
@@ -188,7 +227,7 @@ public void testSpec4() {
 
 **ORM配置多表关系步骤:**
 
-1. 添加关系注解
+1. 添加关系注解:@OneToMany @ManyToOne @ManyToMany
 2. 确定由哪方维护外键关系(另外一方放弃关系维护)
 3. 在维护关系一方配置外键信息
 
