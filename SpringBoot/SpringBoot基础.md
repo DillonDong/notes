@@ -147,13 +147,7 @@ o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**] onto handler of
 2018-05-08 14:30:03.206  INFO 5672 --- [           main] com.itheima.MySpringBootApplication      : Started MySpringBootApplication in 4.252 seconds (JVM running for 5.583)
 ```
 
-通过日志发现，Tomcat started on port(s): 8080 (http) with context path ''
-
-tomcat已经起步，端口监听8080，web应用的虚拟工程名称为空
-
-打开浏览器访问url地址为：http://localhost:8080/quick
-
-![](img/5.png)
+访问:[http://localhost:8080/quick](http://localhost:8080/quick)
 
 ## 2.2 快速入门解析
 
@@ -1199,7 +1193,7 @@ spring.jpa.database=MySQL
 spring.jpa.show-sql=true
 spring.jpa.generate-ddl=true
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.hibernate.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy
+spring.jpa.hibernate.naming_strategy=org.hibernate.implicit_naming_strategy
 ```
 
 ### 5.3.4 创建实体配置实体
