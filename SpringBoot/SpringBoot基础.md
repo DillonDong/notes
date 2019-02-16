@@ -6,11 +6,11 @@
 
 ### 1.1.1 优点
 
-依赖注入和面向切面编程,使代码解耦,更加的灵活和易于扩展
+依赖注入(IOC+DI)和面向切面(AOP)编程,使代码解耦,更加的灵活和易于扩展
 
 ### 1.1.2 缺点
 
-* Spring代码是轻量级的，但它的配置却是重量级的。
+* Spring代码是轻量级的，但它的配置(依赖+applicationContext.xml)却是重量级的。
 * 项目的依赖管理耗时耗力
 
 ## 1.2 SpringBoot概述
@@ -340,7 +340,7 @@ java -jar xxx.jar
    mvn package
    ```
 
-> 注意:打war包是,原先的启动类上的注解@SpringBootApplication是需要的!
+> 注意:打war包时,原先的启动类上的注解@SpringBootApplication是需要的!
 
 # 三、SpringBoot原理分析
 
@@ -1363,12 +1363,13 @@ management.endpoints.web.exposure.include=*
 
   ```properties
   # 处于安全考虑,SpringBoot没有开放系统安全详细信息,配置如下信息
-  management.endpoint.health.show-details=alwalys
+  management.endpoint.health.show-details=always
   ```
 
   10. 系统信息:[/actuator/info](http://localhost:8080/actuator/info)
 
   ```properties
+  # 配置系统定义信息
   info.contactEmail=support@myreadinglist.com
   info.telephone=XXXXXXXX
   ```
