@@ -1,5 +1,7 @@
 # 1. 版本控制
 
+作用:
+
 1. 版本控制可以记录每次数据的变更
 2. 还能够帮助还原任何一次的历史变更
 3. 实现团队的协同工作
@@ -25,7 +27,7 @@
 * 2005 年 4 月 3 日， 开始开发 Git。 
 * 2005 年 4 月 6 日， 项目发布。 
 * 2005 年 4 月 7 日， Git就可以作为自身的版本 控制 工具 了。 
-* 2005 年 4 月 18 日， 发生 第一个多分支合并。 
+* 2005 年 4 月 18 日，发生 第一个多分支合并。 
 * 2005 年 4 月 29 日， Git的性能就已经达到 了 Linus 的 预期。
 
 ## 3.2 git特点
@@ -73,6 +75,8 @@ git init
 git add .
 # 2.提交文件到master分支
 git commit -m '提交日志'
+# 3. 查看本地仓库的状态
+git status
 ```
 
 > 工作区:电脑里能看到的目录
@@ -198,9 +202,11 @@ target
 
 ## 6.3 同步远程仓库
 
+### 6.3.1 SSH方式
+
 将本地仓库和进行同步,以便将本地仓库的数据备份到远程仓库
 
-### 6.3.1  命令行方式(ssh)
+#### 6.3.1.1  命令行
 
 ```shell
 # orgin是远程仓库的别名
@@ -219,7 +225,14 @@ git remote rm origin
 
 ![](img/remote2.png)
 
-### 6.3.2  图形界面方式(ssh)
+推送本地仓库到远程仓库
+
+```shell
+# 将本地仓库master分支到远程仓库
+git push -u origin master
+```
+
+#### 6.3.1.2  图形界面
 
 * 配置ssh.exe可执行文件
 
@@ -235,7 +248,18 @@ git remote rm origin
 
   ![](img/remote3.4.png)
 
-### 6.3.3 图形界面方式(https)
+### 6.3.2 HTTPS
+
+#### 6.3.2.1 命令行
+
+```shell
+# 添加远程仓库
+git remote add origin 仓库的https地址
+# 提交代码
+git push -u origin master
+```
+
+#### 6.3.2.2 图形界面
 
 * 添加基于https路径的远端仓库信息
 
@@ -252,6 +276,8 @@ git remote rm origin
 ![](img/https4.png)
 
 ![](img/https5.png)
+
+
 
 ## 6.4 克隆远程仓库
 
@@ -295,13 +321,28 @@ $ git clone git@github.com:sublun/mytest.git
 
 ​										**git pull=git fetch+git merge**
 
+### 6.5.1 使用fetch和merge
+
+```shell
+# 查看远程仓库
+git remote -v
+# 获取远程仓库代码到本地仓库,并且创建一个新的分支temp
+git fetch origin master:temp
+# 比较temp与本地master分支的不同
+git diff temp
+# 合并temp分支到master
+git merge temp
+# 删除temp分支
+git branch -d temp
+```
+
 ## 6.6 解决冲突
 
-### 6.6.1 冲突原因
+### 6.6.1 冲突过程
 
 1. A和B两个人编辑同一个文件
-2. A提交修改到远程仓库
-3. B在未更新,然后修改相同文件(已过期),并且提交本地修改,冲突发生
+2. A提交修改到本地仓库,推送远程仓库
+3. B在未从远程仓库更新情况下,然后修改相同文件(已过期),并且提交本地修改,推送到远程仓库时冲突发生
 
 ### 6.6.2 解决方案
 
@@ -375,4 +416,105 @@ $ git remote add origin git@192.168.25.156:first
 
 # 7. 分支管理
 
+**HEAD:**指向当前正在使用分支的指针
+
+**master:**创建仓库时,git默认就会创建一个master分支
+
+* master指向当前最新的提交,HEAD指向master,master就是一条线
+
+![](img/branch1.png)
+
+* 创建新分支dev
+
+  ```shell
+  # dev:新分支名称 -b:创建并切换到dev
+  git checkout -b dev
+  ```
+
+  ![](img/branch2.png)
+
+* 在dev分支上进行开发,master分支不变
+
+  ```shell
+  git add readme.txt 
+  git commit -m "branch test"
+  ```
+
+  ![](img/branch3.png)
+
+* 此时,变更发生在dev分支上,如果切回master,看不到变更信息
+
+  ```shell
+  # 切回到master分支,不会看到dev分支上的修改内容
+  git checkout master
+  ```
+
+* master分支合并dev分支
+
+  ```shell
+  # 切回master分支,再进行合并
+  git merge dev
+  ```
+
+  ![](img/branch4.png)
+
+* 删除dev分支
+
+  ```shell
+  # 切回master分支,删除dev分支
+  git branch -d dev
+  ```
+
+  ![](img/branch5.png)
+
 # 8. IDEA中使用Git
+
+## 8.1 配置git
+
+![](img/idea1.png)
+
+![](img/idea1.1.png)
+
+## 8.2 添加工程到git
+
+### 8.3.1 创建工程
+
+![](img/idea3.png)
+
+### 8.3.2 创建本地仓库
+
+![](img/idea2.png)
+
+​								选择存放本地仓库的位置
+
+![](img/idea4.png)
+
+### 8.3.3 提交工程
+
+​											点击提交按钮
+
+![](img/idea5.png)
+
+​												输入日志信息
+
+![](img/idea6.png)
+
+### 8.3.4 推送到远程仓库
+
+![](img/idea7.png)
+
+![](img/idea8.png)
+
+![](img/idea9.png)
+
+![](img/idea10.png)
+
+## 8.3 克隆远程仓库
+
+![](img/idea11.png)
+
+![](img/idea12.png)
+
+## 8.4 拉取远程仓库代码
+
+![](img/idea13.png)
