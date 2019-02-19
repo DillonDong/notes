@@ -13,18 +13,16 @@
 | :----------: | ------------------------------------------------------------ |
 |     门户     | 在首页、活动页、专题页等页面提供课程学习入口。               |
 |   学习中心   | 学生登录学习中心在线学习课程。                               |
-|   社交系统   | 社交系统为老师和学生交流搭建沟通的平台，包括：问答系统、评论系统、论坛等，学生和老师
-通过问答系统提问问题、回答问题，通过评论系统对老师授课进行评论。 |
+|   社交系统   | 社交系统为老师和学生交流搭建沟通的平台，包括：问答系统、评论系统、论坛等，学生和老师通过问答系统提问问题、回答问题，通过评论系统对老师授课进行评论。 |
 | 教学管理中心 | 教师登录教学管理中心进行课程管理、资源管理、考试管理等教学活动。 |
 | 系统管理中心 | 系统管理员登录系统管理中心进行分类管理、运维管理等功能。     |
-
 # 2. 技术架构
 
 ## 2.1 架构图
 
 ![](img/day01-2.png)
 
-前后端分析的优势:
+前后端分离的优势:
 
 1. 提高开发的效率
 2. 提高系统的扩展性,可维护性
@@ -36,29 +34,12 @@
 | 1    | 用户层       | 用户层描述了本系统所支持的用户类型包括：pc用户、app用户、h5用户。pc用户通过浏览器访问系统、app用户通过android、ios手机访问系统，H5用户通过h5页面访问系统。 |
 | 2    | CDN          | CDN全称Content Delivery Network，即内容分发网络，本系统所有静态资源全部通过CDN加速来提高访问速度。系统静态资源包括：html页面、js文件、css文件、image图片、pdf和ppt及doc教学文档、video视频等。 |
 | 3    | 负载均衡     | 系统的CDN层、UI层、服务层及数据层均设置了负载均衡服务，上图仅在UI层前边标注了负载均衡。 每一层的负载均衡会根据系统的需求来确定负载均衡器的类型，系统支持4层负载均衡+7层负载均衡结合的方式，4层负载均衡是指在网络传输层进行流程转发，根据IP和端口进行转发，7层负载均衡完成HTTP协议负载均衡及反向代理的功能，根据url进行请求转发。 |
-| 4    | UI层         | UI层描述了系统向pc用户、app用户、h5用户提供的产品界面。根据系统功能模块特点
-确定了UI层包括如下产品界面类型： 
-1. 面向pc用户的门户系统、学习中心系统、教学管理系统、系统管理中心。 
-2. 面向h5用户的门户系统、学习中心系统。
-3. 面向app用户的门户系统、学习中心系统未在上图标注，在app项目中有详细说明。 |
-| 5    | 微服务层     | 微服务层将系统服务分类三类：前端服务、后端服务及系统服务。 <br/>前端服务：主要为学习用户提供学习服务。 
-后端服务：主要为管理用户提供教学管理服务。 
-系统服务：公共服务，为系统的所有微服务提供公共服务功能。 服务网关：提供服务路由、负载均
-衡、认证授权等服务。 |
-| 6    | 数据层       | 数据层描述了系统的数据存储的内容类型.<br>持久化数据:使用MySQL和MongoDB保存，其中MongoDB中主要保存系统日志信息。 <br>消息队列：存储系统服务间通信的消息，本身提供消息存取服务，与微服务层的系统服务连接。<br>索引库：存储课程信息的索引信息，本身提供索引维护及搜索的服务，与微服务层的系统服务连接。 <br>缓存：作为系统的缓存服务，存储课程信息、分类信息、用户信息等，与微服务层的所有服务连接。<br>文件存储：提供系统静态资源文件的分布式存储服务，文件存储服务器作为CDN服务器的数据来源，CDN上的静态资源将最终在文件存储服务器上保存多份。<br/>流媒体服务：作为流媒体服务器，存储所有的流媒体文件。 |
-| 7    | 外部系统接口 | 1. 微信、QQ、微博登录接口:本系统和微信、QQ、微博系统对接，用户输入微信、QQ、微博的账号和密码即可登录本系统。 <br/>2. 微信、QQ、微博分享接口，本系统和微信、QQ、微博系统对接，可直接将本系统的课程资源信息分享到微信、QQ、微博。
-3. 支付宝、微信、网银支付接口，本系统提供支付宝、微信、网银三种支付接口。
-4. 短信接口，本系统与第三方平台对接短信发送接口。
-5. 邮件接口，本系统需要连接第三方的smpt邮件服务器对外发送电子邮件。
-6. 微信公众号，本系统与微信公众号平台接口，用户通过微信公众号访问H5页面。
-7. 点播、直播，前期视频点播与直播采用第三方服务方式，本系统与第三方点、直播服务对接，对外提供视频点播与直播服务。
-8. OSS存储 ，前期静态资源文件的存储采用第三方服务方式，本系统与第三方提供的OSS存储服务对接，将系统的静态资源文件存储到第三方提供的OSS存储服务器上。
-9. CDN，本系统与第三方CDN服务对接，使用CDN加速服务来提高本系统的访问速度。 |
-| 8    | DevOps       | DevOps（英文Development和Operations的组合）是一组过程、方法与系统的统称，
-用于促进开发（应用程序/软件工程）、技术运营和质量保障（QA）部门之间的沟通、
-协作与整合。本项目供了许多开发、运营、维护支撑的技术，包括： 
-1. Eureka服务治理中心：提供服务治理服务，包括：服务注册、服务获取等。 
-2. Spring Cloud Config服务配置管理中心：提供服务配置管理服务，包括：配置文件更新、配置文件下发等。3. Hystrix Dashboard服务熔断监控：监控熔断的请求响应时间、成功率等 。 <br>4. Zipkin服务追踪监控：监控服务调用链路健康情况。 <br>5. Jenkins持续集成服务：提供系统持续集成服务。 <br>6. Git/GitLab代码管理服务:提供git代码管理服务。 <br>7. ELK日志分析服务:提供elk日志分析服务，包括系统运行日志分析、告警服务。 <br>8. Docker容器化部署服务：将本系统所有服务采用容器化部署方式。 <br>9. Maven项目管理工具：提供管理项目所有的Java包依赖、项目工程打包服务。<br>DevOps通过自动化的工具协作和沟通来完成软件的生命周期管理，从而更快、更频繁地交付更稳定的软件 |
+| 4    | UI层         | UI层描述了系统向pc用户、app用户、h5用户提供的产品界面。根据系统功能模块特点确定了UI层包括如下产品界面类型：①.面向pc用户的门户系统、学习中心系统、教学管理系统、系统管理中心。 ②.面向h5用户的门户系统、学习中心系统。③.面向app用户的门户系统、学习中心系统未在上图标注，在app项目中有详细说明。 |
+| 5    | 微服务层     | 微服务层将系统服务分类三类：前端服务、后端服务及系统服务。①:前端服务：主要为学习用户提供学习服务。②:后端服务：主要为管理用户提供教学管理服务。③:系统服务：公共服务，为系统的所有微服务提供公共服务功能。④:服务网关：提供服务路由、负载均衡、认证授权等服务。 |
+| 6    | 数据层       | 数据层描述了系统的数据存储的内容类型。①:持久化数据:使用MySQL和MongoDB保存，其中MongoDB中主要保存系统日志信息。②:消息队列：存储系统服务间通信的消息，本身提供消息存取服务，与微服务层的系统服务连接。③:索引库：存储课程信息的索引信息，本身提供索引维护及搜索的服务，与微服务层的系统服务连接。④:缓存：作为系统的缓存服务，存储课程信息、分类信息、用户信息等，与微服务层的所有服务连接。⑤:文件存储：提供系统静态资源文件的分布式存储服务，文件存储服务器作为CDN服务器的数据来源，CDN上的静态资源将最终在文件存储服务器上保存多份。⑥:流媒体服务：作为流媒体服务器，存储所有的流媒体文件。 |
+| 7    | 外部系统接口 | ①:微信、QQ、微博登录接口:本系统和微信、QQ、微博系统对接，用户输入微信、QQ、微博的账号和密码即可登录本系统。②:微信、QQ、微博分享接口，本系统和微信、QQ、微博系统对接，可直接将本系统的课程资源信息分享到微信、QQ、微博。③:支付宝、微信、网银支付接口，本系统提供支付宝、微信、网银三种支付接口。④:短信接口，本系统与第三方平台对接短信发送接口。⑤:邮件接口，本系统需要连接第三方的smpt邮件服务器对外发送电子邮件。⑥:微信公众号，本系统与微信公众号平台接口，用户通过微信公众号访问H5页面。⑦:点播、直播，前期视频点播与直播采用第三方服务方式，本系统与第三方点、直播服务对接，对外提供视频点播与直播服务。⑧:OSS存储 ，前期静态资源文件的存储采用第三方服务方式，本系统与第三方提供的OSS存储服务对接，将系统的静态资源文件存储到第三方提供的OSS存储服务器上。⑨:CDN，本系统与第三方CDN服务对接，使用CDN加速服务来提高本系统的访问速度。 |
+| 8    | DevOps       | DevOps（英文Development和Operations的组合）是一组过程、方法与系统的统称，用于促进开发（应用程序/软件工程）、技术运营和质量保障（QA）部门之间的沟通、协作与整合。本项目供了许多开发、运营、维护支撑的技术，包括：①:Eureka服务治理中心：提供服务治理服务，包括：服务注册、服务获取等。②:Spring Cloud Config服务配置管理中心：提供服务配置管理服务，包括：配置文件更新、配置文件下发等。③:Hystrix Dashboard服务熔断监控：监控熔断的请求响应时间、成功率等 。④:Zipkin服务追踪监控：监控服务调用链路健康情况。⑤:Jenkins持续集成服务：提供系统持续集成服务。⑥:Git/GitLab代码管理服务:提供git代码管理服务。⑦:ELK日志分析服务:提供elk日志分析服务，包括系统运行日志分析、告警服务。⑧:Docker容器化部署服务：将本系统所有服务采用容器化部署方式。⑨:Maven项目管理工具：提供管理项目所有的Java包依赖、项目工程打包服务。 |
+**DevOps通过自动化的工具协作和沟通来完成软件的生命周期管理，从而更快、更频繁地交付更稳定的软件**
 
 ![](img/Devops.png)
 
@@ -170,6 +151,8 @@ Server Side Include，通常称为服务器端嵌入，是一种类似于ASP/JSP
 
 ## 3.4 CMS页面管理流程
 
+![](img/页面和站点和模板关系图.png)
+
 1. 创建站点
 
    一个网站有很多子站点，比如：学成在线有主门户、学习中心、问答系统等子站点。具体的哪个页面是归属于具体的站点，所以要管理页面，先要管理页面所属的站点。
@@ -273,7 +256,7 @@ net stop MongoDB
 | row           | document         | 数据记录行/文档                           |
 | column        | field            | 数据字段/域                               |
 | index         | index            | 索引                                      |
-| table         | joins            | 表连接（MongoDB不支持）                   |
+| table joins   | -                | 表连接（MongoDB不支持）                   |
 | primary key   | primary key      | 主键,MongoDB自动在每个集合中添加_id的主键 |
 
 ![](img/mongo1.png)
@@ -395,7 +378,7 @@ mongodb://localhost,localhost:27018,localhost:27019，连接三台主从服务�
    db.collection.drop()
    
    #例子:删除student集合
-   db.student.drop() 
+   db.student.drop('student') 
    ```
 
 ### 5.2.5 文档
@@ -954,7 +937,7 @@ public class ManageCmsApplication {
 }
 ```
 
-## 6.2 测试Controller
+## 6.2 测试微服务
 
 在xc-service-manage-cms工程中编写Controller
 
@@ -982,7 +965,332 @@ QueryResponseResult(CommonCode.SUCCESS,queryResult);
 }
 ```
 
-访问:[http://localhost:31001/cms/page/list/1/10](http://localhost:31001/cms/page/list/1/10)
+访问测试:[http://localhost:31001/cms/page/list/1/10](http://localhost:31001/cms/page/list/1/10)
 
-# 7. 接口测试
+## 6.3 Dao层开发
 
+### 6.3.1 定义Dao接口
+
+```java
+public interface CmsPageRepository extends MongoRepository<CmsPage,String> {
+}
+```
+
+![](img/mongo3.png)
+
+### 6.3.2 Dao单元测试
+
+```java
+@SpringBootTest
+@RunWith(SpringRunner.class)
+public class CmsPageRepositoryTest {
+
+    @Autowired
+    CmsPageRepository cmsPageRepository;
+
+    //查询所有
+    @Test
+    public void testFindAll(){
+        List<CmsPage> all = cmsPageRepository.findAll();
+        System.out.println(all);
+    }
+
+    //分页查询
+    @Test
+    public void testFindPage(){
+        //分页参数
+        int page = 1;//从0开始
+        int size = 10;
+        Pageable pageable = PageRequest.of(page,size);
+        Page<CmsPage> all = cmsPageRepository.findAll(pageable);
+        System.out.println(all);
+    }
+
+    //修改
+    @Test
+    public void testUpdate() {
+        //查询对象
+        Optional<CmsPage> optional = cmsPageRepository.findById("5b4b1d8bf73c6623b03f8cec");
+        if(optional.isPresent()){
+            CmsPage cmsPage = optional.get();
+            //设置要修改值
+            cmsPage.setPageAliase("test01");
+            //...
+            //修改
+            CmsPage save = cmsPageRepository.save(cmsPage);
+            System.out.println(save);
+        }
+
+    }
+
+    //根据页面名称查询
+    @Test
+    public void testfindByPageName(){
+        CmsPage cmsPage = cmsPageRepository.findByPageName("测试页面");
+        System.out.println(cmsPage);
+    }
+}
+```
+
+> 关于Optional：
+> Optional是jdk1.8引入的类型，Optional是一个容器对象，它包括了我们需要的对象，使用isPresent方法判断所包含对象是否为空，isPresent方法返回false则表示Optional包含对象为空，否则可以使用get()取出对象进行操作。
+>
+> 优点:
+>
+> 1. 提醒你非空判断
+> 2. 将对象非空检测标准化。
+
+### 6.3.2 方法定义
+
+```java
+public interface CmsPageRepository extends MongoRepository<CmsPage, String> {
+    //根据页面名称查询
+    CmsPage findByPageName(String pageName);
+
+    //根据页面名称和类型查询
+    CmsPage findByPageNameAndPageType(String pageName, String pageType);
+
+    //根据站点和页面类型查询记录数
+    int countBySiteIdAndPageType(String siteId, String pageType);
+
+    //根据站点和页面类型分页查询
+    Page<CmsPage> findBySiteIdAndPageType(String siteId, String pageType, Pageable pageable);
+}
+```
+
+## 6.4 Service层开发
+
+```java
+@Service
+public class PageService {
+    @Autowired
+    CmsPageRepository cmsPageRepository;
+
+    /**
+     * 页面查询方法
+     * @param page 页码，从1开始记数
+     * @param size 每页记录数
+     * @param queryPageRequest 查询条件
+     * @return
+     */
+    public QueryResponseResult findList(int page, int size, QueryPageRequest queryPageRequest){
+
+        //分页参数
+        if(page <=0){
+            page = 1;
+        }
+        page = page -1;
+        if(size<=0){
+            size = 10;
+        }
+        Pageable pageable = PageRequest.of(page,size);
+        Page<CmsPage> all = cmsPageRepository.findAll(pageable);
+        QueryResult queryResult = new QueryResult();
+        queryResult.setList(all.getContent());//数据列表
+        queryResult.setTotal(all.getTotalElements());//数据总记录数
+        QueryResponseResult queryResponseResult = new QueryResponseResult(CommonCode.SUCCESS,queryResult);
+        return queryResponseResult;
+    }
+}
+```
+
+## 6.5 Controller层开发
+
+```java
+@RestController
+@RequestMapping("/cms/page")
+public class CmsPageController implements CmsPageControllerApi {
+
+    //注入Service
+    @Autowired
+    PageService pageService;
+
+    @Override
+    @GetMapping("/list/{page}/{size}")
+    public QueryResponseResult findList(@PathVariable("page") int page, @PathVariable("size")int size, QueryPageRequest queryPageRequest) {
+        //调用service
+        return pageService.findList(page,size,queryPageRequest);
+    }
+}
+```
+
+## 6.6 接口开发规范
+
+### 6.6.1 API请求及响应规范
+
+为了严格按照接口进行开发，提高效率，对请求及响应格式进行规范化。
+
+1. get 请求时，采用key/value格式请求，SpringMVC可采用基本类型的变量接收，也可以采用对象接收。
+2. Post请求时，可以提交form表单数据```（application/x-www-form-urlencoded）```和Json数据```（Content-
+   Type=application/json）```，文件等多部件类型```（multipart/form-data）```三种数据格式.
+3. SpringMVC接收Json数据使用@RequestBody注解解析请求的json数据。
+4. 响应结果统一信息为：是否成功、操作代码、提示信息及自定义数据。
+5. 响应结果统一格式为json。
+
+### 6.6.2 API定义约束
+
+1. @PathVariable 统一指定参数名称，如：@PathVariable("id") 
+
+   举例:浏览器请求:http://localhost:31001/cms/page/list/1/10
+
+   ```java
+   //Controller接口请求
+   @GetMapping("/list/{page}/{size}")
+   public QueryResponseResult findList(
+       @PathVariable("page") int page, 
+       @PathVariable("size")int size, 
+       QueryPageRequest queryPageRequest) {
+   
+   }
+   ```
+
+2. @RequestParam统一指定参数名称，如：@RequestParam（"id"）
+
+   举例:浏览器请求:http://localhost:31001/cms/page/list?page=1&size=10
+
+   ```java
+   @RequestMapping("/list")
+   public QueryResponseResult findList(
+       @RequestParam("page") int page, 
+       @RequestParam("size")int size, 
+       QueryPageRequest queryPageRequest) {
+   }
+   ```
+
+# 7. 接口测试工具
+
+服务器端接口定义完毕后,根据接口规范前后台人员就可以并行开发了.
+
+接口文档就是描述接口定义规范
+
+## 7.1 Swagger
+
+### 7.1.1 介绍
+
+根据接口定义,通过注解的方式快速生成对应的开发文档
+
+### 7.1.2 常用注解
+
+@Api：修饰整个类，描述Controller的作用 
+@ApiOperation：描述一个类的一个方法，或者说一个接口
+@ApiParam：单个参数描述
+@ApiModel：用对象来接收参数 
+@ApiModelProperty：用对象接收参数时，描述对象的一个字段
+@ApiResponse：HTTP响应其中1个描述 
+@ApiResponses：HTTP响应整体描述 
+@ApiIgnore：使用该注解忽略这个API 
+@ApiError ：发生错误返回的信息 
+@ApiImplicitParam：一个请求参数
+@ApiImplicitParams：多个请求参数
+
+**ApiImplicitParam详解:**
+
+| 属性         | 取值   | 作用                                          |
+| ------------ | ------ | --------------------------------------------- |
+| paramType    |        | 查询参数类型                                  |
+|              | path   | 以地址的形式提交数据                          |
+|              | query  | 直接跟参数完成自动映射赋值                    |
+|              | body   | 以流的形式提交 仅支持POST                     |
+|              | header | 参数在request headers 里边提交                |
+|              | form   | 以form表单的形式提交 仅支持POST               |
+|              |        |                                               |
+| dataType     |        | 参数的数据类型 只作为标志说明，并没有实际验证 |
+|              | Long   | long类型                                      |
+|              | String | 字符串                                        |
+| name         | 自定义 | 接收参数名                                    |
+| value        | 自定义 | 接收参数的意义描述                            |
+| required     |        |                                               |
+|              | true   | 值为必填                                      |
+|              | false  | 值为非必填                                    |
+| defaultValue | 自定义 | 默认值                                        |
+
+### 7.1.3 描述接口规范
+
+* 描述接口
+
+```java
+@Api(value="cms页面管理接口",description = "cms页面管理接口，提供页面的增、删、改、查")
+public interface CmsPageControllerApi {
+    //页面查询
+    @ApiOperation("分页查询页面列表")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name="page",value = "页码",required=true,paramType="path",dataType="int"),
+        @ApiImplicitParam(name="size",value = "每页记录数",
+                          required=true,paramType="path",dataType="int")
+    })
+    public QueryResponseResult findList(int page, int size, QueryPageRequest queryPageRequest);
+}
+```
+
+* 描述模型类
+
+```java
+@Data
+public class QueryPageRequest extends RequestData {
+    //站点id
+    @ApiModelProperty("站点id")
+    private String siteId;
+    //页面ID
+    @ApiModelProperty("页面ID")
+    private String pageId;
+    //页面名称
+    @ApiModelProperty("页面名称")
+    private String pageName;
+    //页面别名
+    @ApiModelProperty("页面别名")
+    private String pageAliase;
+    //模版id
+    @ApiModelProperty("模版id")
+    private String templateId;
+}
+```
+
+### 7.1.4 接口测试
+
+* Swagger原理分析:
+
+1. 系统启动，扫描到api工程中的Swagger2Configuration类
+
+   ```java
+   @Configuration
+   @EnableSwagger2
+   public class Swagger2Configuration {
+       @Bean
+       public Docket createRestApi() {
+           return new Docket(DocumentationType.SWAGGER_2)
+                   .apiInfo(apiInfo())
+                   .select()
+                   .apis(RequestHandlerSelectors.basePackage("com.xuecheng"))
+                   .paths(PathSelectors.any())
+                   .build();
+       }
+   
+       private ApiInfo apiInfo() {
+           return new ApiInfoBuilder()
+                   .title("学成网api文档")
+                   .description("学成网api文档")
+   				//.termsOfServiceUrl("/")
+                   .version("1.0")
+                   .build();
+       }
+   
+   }
+   ```
+
+2. 在此类中指定了包路径com.xuecheng，找到在此包下及子包下标记有@RestController注解的controller类
+
+3. 根据controller类中的Swagger注解生成接口文档。
+
+* 测试接口
+
+  访问:[http://localhost:31001/swagger-ui.html](http://localhost:31001/swagger-ui.html)
+
+## 7.2 PostMan
+
+### 7.2.1 介绍
+
+Postman是一款功能强大的http接口测试工具，使用postman可以完成http各种请求的功能测试。
+
+### 7.2.2 安装
+
+官方地址：[https://www.getpostman.com/](官方地址：https://www.getpostman.com/)
