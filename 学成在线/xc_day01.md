@@ -836,9 +836,9 @@ public interface CmsPageControllerApi {
 }
 ```
 
-# 6. 服务端开发
+# 7. 服务端开发
 
-## 6.1 创建CMS服务工程
+## 7.1 创建CMS服务工程
 
 ![](img/api1.png)
 
@@ -937,7 +937,7 @@ public class ManageCmsApplication {
 }
 ```
 
-## 6.2 测试微服务
+## 7.2 测试微服务
 
 在xc-service-manage-cms工程中编写Controller
 
@@ -969,7 +969,7 @@ QueryResponseResult(CommonCode.SUCCESS,queryResult);
 
 ## 6.3 Dao层开发
 
-### 6.3.1 定义Dao接口
+### 7.3.1 定义Dao接口
 
 ```java
 public interface CmsPageRepository extends MongoRepository<CmsPage,String> {
@@ -978,7 +978,7 @@ public interface CmsPageRepository extends MongoRepository<CmsPage,String> {
 
 ![](img/mongo3.png)
 
-### 6.3.2 Dao单元测试
+### 7.3.2 Dao单元测试
 
 ```java
 @SpringBootTest
@@ -1037,10 +1037,10 @@ public class CmsPageRepositoryTest {
 >
 > 优点:
 >
-> 1. 提醒你非空判断
-> 2. 将对象非空检测标准化。
+> 1. 将对象非空检测标准化。
+> 2. 提醒你非空判断
 
-### 6.3.2 方法定义
+### 7.3.2 方法定义
 
 ```java
 public interface CmsPageRepository extends MongoRepository<CmsPage, String> {
@@ -1058,7 +1058,7 @@ public interface CmsPageRepository extends MongoRepository<CmsPage, String> {
 }
 ```
 
-## 6.4 Service层开发
+## 7.4 Service层开发
 
 ```java
 @Service
@@ -1094,7 +1094,7 @@ public class PageService {
 }
 ```
 
-## 6.5 Controller层开发
+## 7.5 Controller层开发
 
 ```java
 @RestController
@@ -1114,20 +1114,20 @@ public class CmsPageController implements CmsPageControllerApi {
 }
 ```
 
-## 6.6 接口开发规范
+## 7.6 接口开发规范
 
-### 6.6.1 API请求及响应规范
+### 7.6.1 API请求及响应规范
 
 为了严格按照接口进行开发，提高效率，对请求及响应格式进行规范化。
 
-1. get 请求时，采用key/value格式请求，SpringMVC可采用基本类型的变量接收，也可以采用对象接收。
+1. Get 请求时，采用key/value格式请求，SpringMVC可采用基本类型的变量接收，也可以采用对象接收。
 2. Post请求时，可以提交form表单数据```（application/x-www-form-urlencoded）```和Json数据```（Content-
    Type=application/json）```，文件等多部件类型```（multipart/form-data）```三种数据格式.
 3. SpringMVC接收Json数据使用@RequestBody注解解析请求的json数据。
 4. 响应结果统一信息为：是否成功、操作代码、提示信息及自定义数据。
 5. 响应结果统一格式为json。
 
-### 6.6.2 API定义约束
+### 7.6.2 API定义约束
 
 1. @PathVariable 统一指定参数名称，如：@PathVariable("id") 
 
@@ -1157,19 +1157,19 @@ public class CmsPageController implements CmsPageControllerApi {
    }
    ```
 
-# 7. 接口测试工具
+# 8. 接口测试工具
 
 服务器端接口定义完毕后,根据接口规范前后台人员就可以并行开发了.
 
 接口文档就是描述接口定义规范
 
-## 7.1 Swagger
+## 8.1 Swagger
 
-### 7.1.1 介绍
+### 8.1.1 介绍
 
 根据接口定义,通过注解的方式快速生成对应的开发文档
 
-### 7.1.2 常用注解
+### 8.1.2 常用注解
 
 @Api：修饰整个类，描述Controller的作用 
 @ApiOperation：描述一个类的一个方法，或者说一个接口
@@ -1204,7 +1204,7 @@ public class CmsPageController implements CmsPageControllerApi {
 |              | false  | 值为非必填                                    |
 | defaultValue | 自定义 | 默认值                                        |
 
-### 7.1.3 描述接口规范
+### 8.1.3 描述接口规范
 
 * 描述接口
 
@@ -1245,7 +1245,7 @@ public class QueryPageRequest extends RequestData {
 }
 ```
 
-### 7.1.4 接口测试
+### 8.1.4 接口测试
 
 * Swagger原理分析:
 
@@ -1285,12 +1285,12 @@ public class QueryPageRequest extends RequestData {
 
   访问:[http://localhost:31001/swagger-ui.html](http://localhost:31001/swagger-ui.html)
 
-## 7.2 PostMan
+## 8.2 PostMan
 
-### 7.2.1 介绍
+### 8.2.1 介绍
 
 Postman是一款功能强大的http接口测试工具，使用postman可以完成http各种请求的功能测试。
 
-### 7.2.2 安装
+### 8.2.2 安装
 
 官方地址：[https://www.getpostman.com/](官方地址：https://www.getpostman.com/)

@@ -6,7 +6,7 @@
 
 Vue (读音 /vjuː/，类似于 view) 是一套用于构建用户界面的渐进式框架。与其它大型框架不同的是，Vue 被设计为可以自底向上逐层应用。Vue 的核心库只关注视图层，不仅易于上手，还便于与第三方库或既有项目整合。另一方面，当与现代化的工具链以及各种 支持类库结合使用时， Vue 也完全能够为复杂的单页应用提供驱动。
 
-**渐进式框架(Progressive)：**，说明vue.js的轻量，是指一个前端项目可以使用vue.js一两个特性也可以整个项目都用vue.js。
+**渐进式框架(Progressive)：**说明vue.js的轻量，是指一个前端项目可以使用vue.js一两个特性也可以整个项目都用vue.js。
 
 **自底向上逐层应用：**作为渐进式框架要实现的目标就是方便项目增量开发。
 
@@ -139,7 +139,8 @@ ES7 ：[http://www.ecma-international.org/ecma-262/7.0/](http://www.ecma-interna
      }
    })
    ```
-5. 组件化应用构建
+
+5. 组件化应用构建 
    组件系统是 Vue 的另一个重要概念，因为它是一种抽象，允许我们使用小型、独立和通常可复用的组件构建大型应用。仔细想想，几乎任意类型的应用界面都可以抽象为一个组件树：
    ![](img/vue1.png)
 ## 1.2 Vue.js基础
@@ -162,24 +163,15 @@ MVVM拆开来即为Model-View-ViewModel，有View，ViewModel，Model三部分�
 ### 1.2.2 入门程序
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>vue.js测试程序</title>
-    <script src="vue.min.js"></script>
-</head>
 <body>
-<!--实现在body区域显示一个传智播客名称-->
-<div id="app">
-    {{name}}<!--相当于MVVM的view视图-->
-</div>
+    <div id="app">
+        {{name}}
+    </div>
 </body>
 <script>
-    //编写MVVM中的model部分及VM（ViewModel）部分
     var VM = new Vue({
-        el:'#app',//vm接管了app区域的管理
-        data:{//model数据
+        el:'#app',		//vm接管了app区域的管理
+        data:{			//model数据
             name:'黑马程序员'
         }
     });
@@ -198,35 +190,28 @@ vue程序编写步骤:
 ### 1.2.3 vue事件定义
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>vue.js常用指令的测试</title>
-</head>
 <body>
-<!--实现在body区域显示一个传智播客名称-->
-<div id="app">
-    <!--相当于MVVM的view视图-->
-    <!--{{name}}-->
-    <a v-bind:href="url">
-        <span v-text="name"></span>
-    </a>
-    <input type="text" v-model="num1"/> +
-    <input type="text" v-model="num2"/>=
-    <!-- <span v-text="Number.parseInt(num1)+Number.parseInt(num2)"></span>-->
-    <span v-text="result"></span>
-    <!--{{Number.parseInt(num1)+Number.parseInt(num2)}}-->
-    <button v-on:click="change">计算</button>
-    <div v-bind:style="{ fontSize: size + 'px' }">javaEE培训</div>
-</div>
+    <div id="app">
+        
+        <a v-bind:href="url">
+            <!--输出变量值,v-text可以解决页面值闪烁问题-->
+            <span v-text="name"></span>
+        </a>
+        <!--绑定变量-->
+        <input type="text" v-model="num1"/> +
+        <input type="text" v-model="num2"/>=
+        <span v-text="result"></span>
+        <!--事件绑定-->
+        <button v-on:click="change">计算</button>
+        <!--v-bind-->
+        <div v-bind:style="{ fontSize: size + 'px' }">javaEE培训</div>
+    </div>
 </body>
 <script src="vue.min.js"></script>
 <script>
-    //编写MVVM中的model部分及VM（ViewModel）部分
     var VM = new Vue({
-        el: '#app',//vm接管了app区域的管理
-        data: {//model数据
+        el: '#app
+        data: {						//定义model数据
             name: '黑马程序员',
             num1: 0,
             num2: 0,
@@ -234,10 +219,9 @@ vue程序编写步骤:
             url: 'http://www.itcast.cn',
             size: 11
         },
-        methods: {
+        methods: {					//定义方法
             change: function () {
                 this.result = Number.parseInt(this.num1) + Number.parseInt(this.num2)
-                //alert("计算结果："+this.result)
             }
         }
     });
@@ -248,19 +232,16 @@ vue程序编写步骤:
 ### 1.2.4 判断和循环
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>vue.js常用指令的测试</title>
-</head>
 <body>
-<!--实现在body区域显示一个传智播客名称-->
+
 <div id="app">
-    <!--相当于MVVM的view视图-->
+   
     <ul>
-        <li v-for="(item,index) in list" :key="index" v-if="index % 2 ==0">{{index}}--{{item}}</li>
+        <!--遍历数组-->
+        <li v-for="(item,index) in list" :key="index" v-if="index % 2 ==0">{{index}}-{{item}}</li>
+        <!--遍历对象-->
         <li v-for="(value,key) in user">{{key}}--{{value}}</li>
+        <!--遍历对象数组-->
         <li v-for="(item,index) in userlist" :key="item.user.uname">
             <div v-if="item.user.uname == 'itheima'" style="background: #00f50c">
                 {{index}}--{{item.user.uname}}--{{item.user.age}}
@@ -268,20 +249,17 @@ vue程序编写步骤:
             <div v-else="">
                 {{index}}--{{item.user.uname}}--{{item.user.age}}
             </div>
-
         </li>
     </ul>
 </div>
 </body>
-<script src="vue.min.js"></script>
 <script>
-    //编写MVVM中的model部分及VM（ViewModel）部分
     var VM = new Vue({
-        el:'#app',//vm接管了app区域的管理
-        data:{//model数据
-            list:[1,2,3,4,5],
-            user:{uname:'itcast',age:10},
-            userlist:[
+        el:'#app',		
+        data:{			//model数据
+            list:[1,2,3,4,5],	//数组
+            user:{uname:'itcast',age:10},	//对象
+            userlist:[			//对象数组
                 {user:{uname:'itcast',age:10}},
                 {user:{uname:'itheima',age:11}}
             ]
@@ -293,7 +271,9 @@ vue程序编写步骤:
 
 ### 1.2.5 总结
 
-1. v-model:在表单控件或者组件上创建双向绑定,适用于如下元素
+1. {{XXX}}:输出XXX变量值
+
+2. v-model:在表单控件或者组件上创建双向绑定到Vue的变量上,适用于如下元素
 
    ```html
    input
@@ -302,11 +282,11 @@ vue程序编写步骤:
    components（Vue中的组件）
    ```
 
-2. v-text:解决插值表达式闪烁问题
+3. [v-text="XXX"]:输出XXX变量值,解决插值表达式闪烁问题
 
-3. v-on:绑定一个按钮的单击事件
+4. [v-on:事件的类型]:绑定一个按钮的事件
 
-4. v-bind:可以将数据对象绑定在dom的任意属性中
+5. v-bind:可以将数据对象绑定在dom的任意属性中
 
    ```html
    <!--举例-->
@@ -317,8 +297,11 @@ vue程序编写步骤:
    <div :style="{ fontSize: size + 'px' }"></div>
    ```
 
-5. v-if:判断
-6. v-for:循环
+   ![](img/vue3.png)
+
+6. v-if:判断
+
+7. v-for:循环
 
 # 2. Webpack
 
@@ -333,10 +316,11 @@ vue程序编写步骤:
 * 优点
 
 1. 模块化开发
-   程序员在开发时可以分模块创建不同的js、 css等小文件方便开发，最后使用webpack将这些小文件打包成一个文件，减少了http的请求次数。
-2. 编译typescript、ES6等高级js语法
+   程序员在开发时可以分模块创建不同的js、 css等小文件方便开发，最后'
+2. 使用webpack将这些小文件打包成一个文件，减少了http的请求次数。
+3. 编译typescript、ES6等高级js语法
    随着前端技术的强大，开发中可以使用javascript的很多高级版本，比如：typescript、ES6等，方便开发，webpack可以将打包文件转换成浏览器可识别的js语法。
-3. CSS预编译
+4. CSS预编译
    webpack允许在开发中使用Sass 和 Less等原生CSS的扩展技术，通过sass-loader、less-loader将Sass 和 Less的语法编译成浏览器可识别的css语法。
 
 * 不足
@@ -376,7 +360,7 @@ npm -v
 
 npm可以管理本地项目的所需模块并自动维护依赖情况，也可以管理全局安装的JavaScript工具
 
-#### 2.2.2.2 设置包路径
+#### 2.2.2.2 设置npm包路径
 
 包路径就是npm从远程下载的js包所存放的路径
 
@@ -388,7 +372,7 @@ npm config set prefix "C:\work\develop\nodejs\npm_modules"
 npm config set cache "C:\work\develop\nodejs\npm_cache"
 ```
 
-### 2.2.3 安装cnmp
+### 2.2.3 安装cnpm
 
 npm默认会去国外的镜像去下载js包，在开发中通常我们使用国内镜像，这里我们使用淘宝镜像下边我们来安装cnpm
 
@@ -420,7 +404,772 @@ nrm use XXX
 * 全局安装:使用于全局项目
 
 ```shell
-cnpm install webpack -g
+# 注意:安装时指定版本3.6.0,如果不指定会安装4.0(需要Webpack-cli依赖)
+cnpm install webpack@3.6.0 -g
 ```
 
-# 3. CMS前端工程
+## 2.3 入门程序
+
+需求:计算2个数之和
+
+### 2.3.1 定义模块
+
+* 定义model01.js,封装某个模块的JS代码
+
+```javascript
+var add = function (x, y) {
+    return x+y;
+}
+var add2 = function (x, y) {
+    return x+y+2;
+}
+module.exports.add = add;
+// module.exports ={add,add2};//如果有多个方法这样导出
+// module.exports.add2 = add2//如果有多个方法也可以这样导出
+```
+
+* 定义main.js,main.js是本程序的js主文件,相当于后台的入口程序
+
+
+```javascript
+//导入model01.js
+var {add} = require("./model01")	//引入mode101.js
+var Vue = require("./vue.min")		//引入vue.js
+var VM = new Vue({					//创建vue对象
+    el:'#app',
+    data:{
+        name:'黑马程序员',
+        num1:0,
+        num2:0,
+        result:0,
+        url:'http://www.itcast.cn',
+        size:11
+    },
+    methods:{
+        change:function () {
+            this.result = add(Number.parseInt(this.num1),Number.parseInt(this.num2));
+        }
+    }
+});
+```
+
+### 2.3.2 打包测试
+
+![](img/webpack03.png)
+
+* 打包main.js
+
+  在工程目录下打包
+
+```shell
+# 打包main.js 生成build.js
+webpack main.js build.js 
+```
+
+* html中引入打包生成的Js文件
+
+```html
+<body>
+<div id="app">
+    ...
+</div>
+</body>
+<!--引入打包后的js文件-->
+<script src="build.js"></script>
+
+</html>
+```
+
+## 2.4 webpack-dev-server
+
+webpack-dev-serve服务器可以实现代码调试及热部署功能
+
+### 2.4.1 准备工作
+
+1. 在工程目录下创建```src```和```dist```文件夹
+2. 将js源码文件(```main.js```和```model01.js```)拷贝到src下
+
+### 2.4.2 安装webpack-dev-server
+
+```shell
+# 在工程目录安装webpack webpack-dev-server html-webpack-plugin
+cnpm install webpack@3.6.0 webpack-dev-server@2.9.1 html-webpack-plugin@2.30.1 --save-dev
+```
+
+安装完毕后会在工程目录中生成package.json文件
+
+### 2.4.3 配置webpack-dev-server
+
+#### 2.4.3.1 package.json
+
+该文件类似于Maven的pom文件
+
+```json
+{
+  "scripts": {	# 可执行的命令
+    "dev": "webpack‐dev‐server ‐‐inline ‐‐hot ‐‐open ‐‐port 5008"
+              # inline：自动刷新
+			  # hot：热加载
+		      # port：指定端口
+		      # open：自动在默认浏览器打开
+		      # host：可以指定服务器的 ip，不指定则为127.0.0.1，如果对外发布则填写公网ip地址
+  },
+  "devDependencies": {	# 开发人员在开发过程中所需要的依赖。
+    "html‐webpack‐plugin": "^2.30.1",
+    "webpack": "^3.6.0",
+    "webpack‐dev‐server": "^2.9.1"
+  }
+}
+```
+
+#### 2.4.3.2 webpack.config.js
+
+在工程目录下创建webpack的配置文件,用于配置应用的入口文件\输出文件\插件等
+
+```javascript
+var htmlwp = require('html-webpack-plugin');	// 引入html-webpack-plugin插件
+module.exports={
+    entry:'./src/main.js',  		// 指定打包的入口文件
+    output:{
+        path : __dirname+'/dist',   // 注意：__dirname表示webpack.config.js所在目录的绝对路径
+        filename:'build.js'		    // 输出文件
+    },
+    
+    plugins:[						//创建插件对象
+        new htmlwp({
+            title: '首页',  		   // 生成的页面标题
+            filename: 'index.html', // webpack-dev-server在内存中生成的文件名称
+            template: 'vue_02.html' // 根据vue_02.html这个模板来生成(模板文件需要自己提供)
+        })
+    ]
+}
+```
+
+* 配置模板文件
+
+  模板文件不需要添加```build.js```,```webpack-dev-serve```会自动将build.js注入到生成的页面
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    	...
+    </head>
+    <body>
+    <div id="app">
+        <input type="text" v-model="num1"/> +
+        <input type="text" v-model="num2"/>=
+        <span v-text="result"></span>
+        <button v-on:click="change">计算</button>
+    </div>
+    </body>
+</html>
+```
+
+### 2.4.5 启动
+
+* 方式一:进入工程目录,执行```npm run dev```
+* 方式二:使用webstorm，右键```package.json```文件，选择```Show npm Scripts```,双击```dev```执行
+
+![](img/webpack04.png)
+
+### 2.4.6 debug调试
+
+webpack 将多个源文件打包成一个文件，并且文件的内容产生了很大的变化，webpack提供devtool进行调试，devtool是基于sourcemap的方式.
+
+* 配置```devtool```启用debug调试
+
+```javascript
+var htmlwp = require('html-webpack-plugin');	// 引入html-webpack-plugin插件
+module.exports={
+    entry:'./src/main.js',  		// 指定打包的入口文件
+    output:{
+        path : __dirname+'/dist',   // 注意：__dirname表示webpack.config.js所在目录的绝对路径
+        filename:'build.js'		    // 输出文件
+    },
+    devtool: "eval-source-map",		// 启用debugger
+    plugins:[						// 创建插件对象
+        new htmlwp({
+            title: '首页',  		   // 生成的页面标题
+            filename: 'index.html', // webpack-dev-server在内存中生成的文件名称
+            template: 'vue_02.html' // 根据vue_02.html这个模板来生成(模板文件需要自己提供)
+        })
+    ]
+}
+```
+
+* 在需要调试出添加```debugger```代码
+
+```javascript
+var add = function (x, y) {
+    debugger;
+    return x+y;
+}
+```
+
+* 刷新浏览器,即可自动进入debugger模式
+
+![](img/webpack05.png)
+
+# 3. CMS前端工程搭建
+
+前端工程使用```Vue```脚手架进行初始化.
+
+## 3.1 脚手架
+
+```Vue-cli```,脚手架是一个能够快速构建工程的工具.降低了项目的初始化和复杂配置的难度.
+
+### 3.1.1 安装脚手架
+
+```shell
+npm i vue-cli -g
+```
+
+* 常用命令
+
+```shell
+### 列出所有可用的官方模板
+vue list
+### 从指定模板中生成一个新的项目
+vue init
+### 查看帮助文档
+vue help
+```
+
+### 3.1.2 初始化项目
+
+#### 3.1.2.1 查看模板
+
+![](img/vue4.png)
+
+#### 3.1.2.2 创建项目
+
+* webpack-simple
+
+```shell
+# vue init 模板名称 自定义项目名称
+举例:vue init webpack-simple my-project
+```
+
+![](img/vue5.png)
+
+* webpack
+
+```shell
+# vue init 模板名称 自定义项目名称
+举例:vue init webpack my-project
+```
+
+![](img/vue8.jpg)
+
+#### 2.1.2.3 启动项目
+
+```shell
+# 安装项目依赖
+npm install
+# 启动项目
+npm run dev
+```
+
+![](img/vue6.jpg)
+
+## 3.2 导入前端工程
+
+项目中提供的初始化工程,是在```Vue```的```webpack```模板上进行了二次封装
+
+1. 将项目拷贝到```nginx中```
+2. 通过```WebStorm```打开
+
+### 3.2.1 工程结构
+
+![](img/vue7.jpg)
+
+### 3.2.2 配置文件说明
+
+#### package.json
+
+* 位置:工程根路径/package.json
+* 作用:描述工程的信息及可执行命令,依赖等
+
+![](img/vue9.png)
+
+```shell
+# 开发使用,运行项目
+npm run dev
+# 打包项目
+npm run build
+```
+
+#### webpack.base.conf.js
+
+* 位置:工程根路径/build/webpack.base.conf.js
+
+* 作用:配置应用的入口文件\输出文件\插件等
+
+#### main.js
+
+* 位置:工程根路径/src/main.js
+* 作用:加载了很多第三方组件;如:Element-UI、Base64、VueRouter
+
+#### src
+
+* 位置:工程根路径/src
+* 作用:存放页面及JS代码
+
+![](img/vue10.png)
+
+> assets：存放一些静态文件，如图片。
+> base：存放基础组件
+> base/api：基础api接口
+> base/component：基础组件，被各各模块都使用的组件
+> base/router：总的路由配置，加载各模块的路由配置文件。
+> common：工具类
+> component：组件目录，本项目不用。
+> mock：存放前端单元测试方法。
+> module：存放各业务模块的页面和api方法。下级目录以模块名命名
+> ​	下边以cms举例
+> ​		cms/api：cms模块的api接口
+> ​		cms/component：cms模块的组件
+> ​		cms/page： cms模块的页面
+> ​		cms/router ：cms模块的路由配置
+> statics：存放第三方组件的静态资源
+> vuex：存放vuex文件，本项目不使用
+
+#### static
+与src的平级目录，此目录存放静态资源它与assets的区别在于，static目录中的文件不被```webpack```打包处理，会原样拷贝到dist目录下
+
+## 3.3 单页面应用
+
+**单页应用**（英语：single-page application，缩写**SPA**）是一种[网络应用程序](https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F)或[网站](https://zh.wikipedia.org/wiki/%E7%B6%B2%E7%AB%99)的模型，它通过动态重写当前页面来与用户交互，而非传统的从服务器重新加载整个新页面。这种方法避免了页面之间切换打断[用户体验](https://zh.wikipedia.org/wiki/%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C)，使应用程序更像一个[桌面应用程序](https://zh.wikipedia.org/wiki/%E5%BA%94%E7%94%A8%E8%BD%AF%E4%BB%B6)。在单页应用中，所有必要的代码（[HTML](https://zh.wikipedia.org/wiki/HTML)、[JavaScript](https://zh.wikipedia.org/wiki/JavaScript)和[CSS](https://zh.wikipedia.org/wiki/%E5%B1%82%E5%8F%A0%E6%A0%B7%E5%BC%8F%E8%A1%A8)）都通过单个页面的加载而检索[[1\]](https://zh.wikipedia.org/wiki/%E5%8D%95%E9%A1%B5%E5%BA%94%E7%94%A8#cite_note-Flanagan2006-1)，或者根据需要（通常是为响应用户操作）[动态装载](https://zh.wikipedia.org/wiki/%E5%8B%95%E6%85%8B%E8%A3%9D%E8%BC%89)适当的资源并添加到页面。
+* 优点：
+  1. 用户操作体验好，用户不用刷新页面，整个交互过程都是通过Ajax来操作。
+  2. 适合前后端分离开发，服务端提供http接口，前端请求http接口获取数据，使用JS进行客户端渲染。
+
+* 缺点:
+
+  1. 首页加载慢
+
+     单页面应用会将js,css打包成一个文件,在加载页面显示的时候加载打包文件，如果打包文件较大或者网速慢则用户体验不好。
+
+  2. SEO不友好
+    SEO（Search Engine Optimization）为搜索引擎优化。它是一种利用搜索引擎的搜索规则来提高网站在搜索引擎排名的方法。目前各家搜索引擎对JS支持不好，所以使用单页面应用将大大减少搜索引擎对网站的收录。
+
+* 总结
+
+  本项目的门户、课程介绍不采用单页面应用架构去开发，对于需要用户登录的管理系统采用单页面开发。
+
+# 4. CMS前端页面查询开发
+
+## 4.1 搭建页面
+
+模块的位置
+
+![](img/vue11.png)
+
+### 4.1.1 创建页面
+
+#### 4.1.1.1 页面结构
+
+```html
+<template>
+  <!--template内容必须有一个根元素，否则vue会报错-->
+  <div>
+      <!--1.编写页面静态部分，即view部分-->
+  </div>
+</template>
+ 
+<script>
+  	  /*2.编写页面静态部分，即view部分*/
+</script>
+
+<style>
+     /*3.编写页面样式，不是必须*/
+</style>
+```
+
+#### 4.1.1.2 页面路由
+
+相当于管理系统的左侧树形菜单,点击后再右侧打开列表数据页面
+
+![](img/route1.png)
+
+1. 在cms的router目录下配置路由```index.js```
+
+```javascript
+import Home from '@/module/home/page/home.vue';
+import page_list from '@/module/cms/page/page_list.vue';
+export default [{
+    path: '/',
+    component: Home,
+    name: 'CMS',//菜单名称
+    hidden: false,
+    children:[
+      {path:'/cms/page/list',name:'页面列表',component: page_list,hidden:false}
+    ]
+  }
+]
+```
+
+2. 在src/base目录下的router中导入cms模块的路由
+
+```javascript
+//导入路由规则
+import HomeRouter from '@/module/home/router'
+import CmsRouter from '@/module/cms/router'
+//合并路由规则
+concat(HomeRouter)//加入home模块的路由
+concat(CmsRouter)//加入cms模块的路由
+export default routes;
+```
+
+3. 启动项目测试
+
+   访问:[http://localhost:11000/](http://localhost:11000/)
+
+![](img/route2.png)
+
+### 4.1.2 数据列表UI
+
+CMS前端工程的UI是基于Element-UI开发
+
+#### 4.1.2.1 Element-UI介绍
+
+Element，一套为开发者、设计师和产品经理准备的基于 Vue 2.0 的桌面端组件库
+
+官方站点:[http://element-cn.eleme.io/#/zh-CN/](http://element-cn.eleme.io/#/zh-CN/)
+
+#### 4.1.2.2 列表组件开发
+
+本功能实现的页面列表，用户可以进行分页查询、输入查询条件查询,需要引入3个组件
+
+1. Table表格
+
+   ![](img/table.png)
+
+2. Form表单
+
+   ![](img/form.png)
+
+3. Pagination分页
+
+![](img/paga.png)
+
+### 4.1.3 内容完善
+
+* page_list.vue
+
+```html
+<template>
+  <div>
+    <el‐button type="primary" v‐on:click="query"  size="small">查询</el‐button>
+  <el‐table
+    :data="list"
+    stripe
+    style="width: 100%">
+    <el‐table‐column type="index" width="60">
+    </el‐table‐column>
+    <el‐table‐column prop="pageName" label="页面名称" width="120">
+    </el‐table‐column>
+    <el‐table‐column prop="pageAliase" label="别名" width="120">
+    </el‐table‐column>
+    <el‐table‐column prop="pageType" label="页面类型" width="150">
+    </el‐table‐column>
+    <el‐table‐column prop="pageWebPath" label="访问路径" width="250">
+    </el‐table‐column>
+    <el‐table‐column prop="pagePhysicalPath" label="物理路径" width="250">
+    </el‐table‐column>
+    <el‐table‐column prop="pageCreateTime" label="创建时间" width="180" >
+    </el‐table‐column>
+  </el‐table>
+    <el‐pagination
+      layout="prev, pager, next"
+      :page‐size="this.params.size"
+       v‐on:current‐change="changePage"
+      :total="total" :current‐page="this.params.page" style="float:right;">
+    </el‐pagination>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        list:[],
+        total:50,
+        params:{
+          page:1,//页码
+          size:2//每页显示个数
+        }
+      }
+    },
+    methods:{
+      //分页查询
+      changePage:function () {
+        this.query()
+      },
+      //查询
+      query:function () {
+        alert("查询")
+      }
+    }
+  }
+</script>
+```
+
+## 4.2 API调用
+
+将列表中的数据从数据库动态查询
+
+### 4.2.1 Api方法定义
+
+* 位置:src/module/cms/api/cms.js
+
+```javascript
+//public是对axios的工具类封装，定义了http请求方法
+import http from './../../../base/api/public'
+export const page_list = (page,size,params) => {
+  return http.requestQuickGet('http://localhost:31001/cms/page/list/'+page+'/'+size)
+}
+```
+
+axios实现了http方法的封装，vue.js官方不再继续维护vue-resource,推荐使用 axios。
+
+### 4.2.2 Api的调用
+
+* src/module/cms/page/page_list.vue
+
+````html
+<template>
+  <div>
+    <!--编写页面静态部分，即view部分-->
+    ...
+  </div>
+</template>
+<script>
+  /*导入cms.js*/
+  import * as cmsApi from '../api/cms'
+  export default {
+    data() {
+      return {
+        list: [],
+        total:0,
+        params:{
+          page:1,
+          size:10
+        }
+      }
+    },
+    methods:{
+      query:function(){
+          //调用服务端的接口
+          cmsApi.page_list(this.params.page,this.params.size).then((res)=>{
+          //将res结果数据赋值给数据模型对象
+          this.list = res.queryResult.list;
+          this.total = res.queryResult.total;
+        })
+      }
+  }
+</script>
+````
+
+## 4.3 跨域问题解决
+
+### 4.3.1 问题分析
+
+* 跨域报错信息:
+
+```javascript
+No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin
+'http://localhost:11000' is therefore not allowed access.
+```
+
+* 解决方案:proxyTable
+
+* 解决原理:将跨域请求通过代理服务器访问,服务器与服务器之间不存在跨域问题
+
+![](img/proxyTable.jpg)
+
+### 4.3.2 proxyTable配置
+
+1. 修改api方法中url的定义,请求前加/api前缀
+
+   * src/module/cms/api/cms.js
+
+   ```javascript
+   import http from './../../../base/api/public'
+   let sysConfig = require('@/../config/sysConfig')
+   let apiUrl = sysConfig.xcApiUrlPre;
+   export const page_list = (page,size,params) => {
+     return http.requestQuickGet(apiUrl+'/cms/page/list/'+page+'/'+size)
+   }
+   ```
+
+2. 在config/index.js下配置proxyTable。
+
+   * config/index.js
+
+   ```javascript
+   //...
+   '/api/cms': {
+     target: 'http://localhost:31001',
+     pathRewrite: {
+       '^/api': ''
+     }
+   //...
+   ```
+
+## 4.4 分页查询
+
+### 4.4.1 定义分页视图
+
+* src/module/cms/page/page_list.vue
+
+```html
+<template>
+  <div>
+      ...
+      <el-pagination
+          layout="prev, pager, next"
+          :total="total"
+          :page-size="params.size"
+          :current-page="params.page"
+          v-on:current-change="changePage"
+          style="float:right">
+       </el-pagination>
+  </div>
+</template>
+```
+
+### 4.4.2 定义数据模型对象
+
+```html
+<script>
+    ...
+    data() {
+      return {
+        list: [],
+        total:0,
+        params:{
+          page:1,
+          size:10
+        }
+      }
+    }
+</script>
+```
+
+### 4.4.3 定义分页方法
+
+```html
+<script>
+    ...
+methods:{
+	changePage:function(page){//形参就是当前页码
+	  this.params.page = page;
+	  this.query()
+	}
+}
+</script>
+```
+
+## 4.5 钩子函数
+
+### 4.5.1 介绍
+
+目前实现的功能是进入页面点击查询按钮向服务端表求查询，实际的需求是进入页面立即查询。
+这要用到vue的钩子函数，每个 Vue 实例在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。同时在这个过程中也会运行一些叫做**生命周期钩子的函数**，这给了用户在不同阶段添加自己的代码的机会。
+
+![](img/mounted.webp)
+
+* 参考代码
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <script type="text/javascript" src="../assets/js/vue.js"></script>
+ <title>构造器的声明周期</title>
+</head>
+<body>
+ <h1>构造器的声明周期</h1>
+ <hr>
+ <div id="app">
+     {{message}}
+     <p><button @click="jia">加分</button></p>
+ </div>
+     <button onclick="app.$destroy()">销毁</button>
+
+ <script type="text/javascript">
+     var app=new Vue({
+         el:'#app',
+         data:{
+             message:1
+         },
+         methods:{
+             jia:function(){
+                 this.message ++;
+             }
+         },
+         beforeCreate:function(){
+             console.log('1-beforeCreate 初始化之后');
+         },
+         created:function(){
+             console.log('2-created 创建完成');
+         },
+         beforeMount:function(){
+             console.log('3-beforeMount 挂载之前');
+         },
+         mounted:function(){
+             console.log('4-mounted 被创建');
+         },
+         beforeUpdate:function(){
+             console.log('5-beforeUpdate 数据更新前');
+         },
+         updated:function(){
+             console.log('6-updated 被更新后');
+         },
+         activated:function(){
+             console.log('7 keep-alive组件激活时调用。该钩子在服务器端渲染期间不被调用 ');
+         },
+         deactivated:function(){
+             console.log('8 keep-alive组件停用时调用。该钩子在服务端渲染期间不被调用。');
+         },
+         beforeDestroy:function(){
+             console.log('9-beforeDestroy 销毁之前');
+         },
+         destroyed:function(){
+             console.log('10-destroyed 销毁之后')
+         }
+
+     })
+ </script>
+</body>
+</html>
+```
+
+### 4.5.2 应用
+
+* src/module/cms/page/page_list.vue
+
+```html
+<script>
+    methods:{
+      query:function(){
+        // alert('查询')
+        //调用服务端的接口
+        cmsApi.page_list(this.params.page,this.params.size).then((res)=>{
+          //将res结果数据赋值给数据模型对象
+          this.list = res.queryResult.list;
+          this.total = res.queryResult.total;
+        })
+
+      },
+      ...
+    },
+    mounted(){
+      //当DOM元素渲染完成后调用query
+      this.query()
+    }
+</script>
+```
+
