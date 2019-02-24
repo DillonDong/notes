@@ -484,6 +484,14 @@ db.createUser(
 5. 所有数据库角色：readAnyDatabase、readWriteAnyDatabase、userAdminAnyDatabase、dbAdminAnyDatabase
 6. 超级用户角色：root
 
+注意:如果要以用户名/密码的身份登录数据库,配置文件需要打开权限认证
+
+```conf
+auth=true
+```
+
+重启数据库
+
 ### 5.3.2 查询用户
 
 ```shell
