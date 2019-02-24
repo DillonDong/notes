@@ -26,8 +26,7 @@ ES7 ：[http://www.ecma-international.org/ecma-262/7.0/](http://www.ecma-interna
 
 1. 在html页面使用script引入vue.js的库即可使用。
 2. 使用Npm管理依赖，使用webpack打包工具对vue.js应用打包。
-3. Vue-CLI脚手架
-4. 使用 vue.js官方提供的CLI脚本架很方便去创建vue.js工程雏形。
+3. Vue-CLI脚手架,使用 vue.js官方提供的CLI脚本架很方便去创建vue.js工程雏形。
 
 ### 1.1.4 Vue.js的功能
 
@@ -524,7 +523,7 @@ cnpm install webpack@3.6.0 webpack-dev-server@2.9.1 html-webpack-plugin@2.30.1 -
 
 #### 2.4.3.2 webpack.config.js
 
-在工程目录下创建webpack的配置文件,用于配置应用的入口文件\输出文件\插件等
+在工程目录下创建webpack的配置文件,用于配置应用的入口文件\输出文件\插件参数等
 
 ```javascript
 var htmlwp = require('html-webpack-plugin');	// 引入html-webpack-plugin插件
@@ -704,7 +703,7 @@ npm run build
 
 * 位置:工程根路径/build/webpack.base.conf.js
 
-* 作用:配置应用的入口文件\输出文件\插件等
+* 作用:配置应用的入口文件\输出文件\插件参数等
 
 #### main.js
 
@@ -741,6 +740,7 @@ npm run build
 ## 3.3 单页面应用
 
 **单页应用**（英语：single-page application，缩写**SPA**）是一种[网络应用程序](https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F)或[网站](https://zh.wikipedia.org/wiki/%E7%B6%B2%E7%AB%99)的模型，它通过动态重写当前页面来与用户交互，而非传统的从服务器重新加载整个新页面。这种方法避免了页面之间切换打断[用户体验](https://zh.wikipedia.org/wiki/%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C)，使应用程序更像一个[桌面应用程序](https://zh.wikipedia.org/wiki/%E5%BA%94%E7%94%A8%E8%BD%AF%E4%BB%B6)。在单页应用中，所有必要的代码（[HTML](https://zh.wikipedia.org/wiki/HTML)、[JavaScript](https://zh.wikipedia.org/wiki/JavaScript)和[CSS](https://zh.wikipedia.org/wiki/%E5%B1%82%E5%8F%A0%E6%A0%B7%E5%BC%8F%E8%A1%A8)）都通过单个页面的加载而检索[[1\]](https://zh.wikipedia.org/wiki/%E5%8D%95%E9%A1%B5%E5%BA%94%E7%94%A8#cite_note-Flanagan2006-1)，或者根据需要（通常是为响应用户操作）[动态装载](https://zh.wikipedia.org/wiki/%E5%8B%95%E6%85%8B%E8%A3%9D%E8%BC%89)适当的资源并添加到页面。
+
 * 优点：
   1. 用户操作体验好，用户不用刷新页面，整个交互过程都是通过Ajax来操作。
   2. 适合前后端分离开发，服务端提供http接口，前端请求http接口获取数据，使用JS进行客户端渲染。
