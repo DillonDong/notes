@@ -1014,8 +1014,13 @@ public class Consumer03_routing_sms {
 1. 每个消费者监听自己的队列，并且设置带统配符的routingkey。
 2. 生产者将消息发给broker，由交换机根据routingkey来转发消息到指定的队列。
 
+通配符规则:
+
+1. '#'号:匹配0个或者多个字符
+2. '*'号:匹配1个字符
+
 案例：
-	根据用户的通知设置去通知用户，设置接收Email的用户只接收Email，设置接收sms的用户		只接收sms，设置两种通知类型都接收的则两种通知都有效。
+	根据用户的通知设置去通知用户，设置接收Email的用户只接收Email，设置接收sms的用户只接收sms，设置两种通知类型都接收的则两种通知都有效。
 
 
 #### 2.5.4.1 生产者
@@ -1418,7 +1423,7 @@ public class RabbitmqConfig {
     public static final String QUEUE_INFORM_EMAIL = "queue_inform_email";
     public static final String QUEUE_INFORM_SMS = "queue_inform_sms";
     public static final String EXCHANGE_TOPICS_INFORM="exchange_topics_inform";
-    public static final String ROUTINGKEY_EMAIL="inform.#.email.#";
+    public static final String ROUTINGKEY_EMAIL="inform.#.email.#";	//inform.email
     public static final String ROUTINGKEY_SMS="inform.#.sms.#";
 
     //声明交换机
