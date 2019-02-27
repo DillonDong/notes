@@ -628,7 +628,7 @@ $('.indicators').find('span').eq(num).addClass('active').siblings().removeClass(
    index_banner.ftl
 
 ```html
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF‐8">
