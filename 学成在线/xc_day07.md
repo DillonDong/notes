@@ -10,9 +10,29 @@
 
 上边的查询要实现分页、会存在多表关联查询，所以建议使用mybatis实现我的课程查询。
 
-## 1.2 PageHelper
+## 1.2 接口
 
-### 1.2.1 PageHelper介绍
+输入参数：
+	页码、每页显示个数、查询条件
+
+输出结果类型：
+
+​	QueryResponseResult<自定义类型>
+
+在api工程创建course包，创建CourseControllerApi接口。
+
+```java
+@ApiOperation("查询我的课程列表")
+public QueryResponseResult<CourseInfo> findCourseList(
+        int page,
+        int size,
+        CourseListRequest courseListRequest
+);
+```
+
+## 1.3 课程管理服务
+
+### 1.3.1 PageHelper
 
 PageHelper是mybatis的通用分页插件，通过mybatis的拦截器实现分页功能，拦截sql查询请求，添加分页语句，最终实现分页查询功能。
 
@@ -26,7 +46,7 @@ PageHelper的使用方法及原理如下：
 
 ![](img/page4.png)
 
-### 1.2.2 PageHelper配置
+#### 配置
 
 1. 添加依赖
 
@@ -45,7 +65,7 @@ pagehelper:
   helper‐dialect: mysql
 ```
 
-### 1.2.3 PageHelper测试
+### 1.3.2 Dao
 
 1. 定义mapper 接口
 
@@ -66,7 +86,7 @@ public interface CourseMapper {
     course_base.*,
     (SELECT pic FROM course_pic WHERE courseid = course_base.id) pic
     FROM
-    course_base
+    course_base 
 </select>
 ```
 
@@ -86,13 +106,73 @@ public void testPageHelper(){
 
 测试前修改日志级别为debug，并跟踪运行日志，发现sql语句中已经包括分页语句。
 
-## 1.3 前端说明
+### 1.3.3 Service
 
-我的课程列表使用element 的card组件，如下：
+定义CourseService.java类，用于课程管理的service定义：
+
+```java
+//课程列表分页查询
+public QueryResponseResult<CourseInfo> findCourseList(int page,int size,
+                                                      CourseListRequest courseListRequest) {
+    if(courseListRequest == null){
+        courseListRequest = new CourseListRequest();
+    }
+    if(page<=0){
+        page = 0;
+    }
+    if(size<=0){
+        size = 20;
+    }
+    //设置分页参数
+    PageHelper.startPage(page, size);
+    //分页查询
+    Page<CourseInfo> courseListPage = courseMapper.findCourseListPage(courseListRequest);
+    //查询列表
+    List<CourseInfo> list = courseListPage.getResult();
+    //总记录数
+    long total = courseListPage.getTotal();
+    //查询结果集
+    QueryResult<CourseInfo> courseIncfoQueryResult = new QueryResult<CourseInfo>();
+    courseIncfoQueryResult.setList(list);
+    courseIncfoQueryResult.setTotal(total);
+    return new QueryResponseResult<CourseInfo>(CommonCode.SUCCESS, courseIncfoQueryResult);
+}
+```
+
+### 1.3.4 Controller
+
+```java
+@RestController
+@RequestMapping("/course")
+public class CourseController implements CourseControllerApi 
+    @Autowired
+    CourseService courseService;
+    @Override
+    @GetMapping("/coursebase/list/{page}/{size}")
+    public QueryResponseResult<CourseInfo> findCourseList(
+            @PathVariable("page") int page,
+            @PathVariable("size") int size,
+            CourseListRequest courseListRequest) {
+        return courseService.findCourseList(page,size,courseListRequest);
+    }
+}
+```
+
+### 1.3.5 测试
+
+使用postman或swagger-ui测试课程列表接口。
+
+## 1.4 前端说明
+
+### 1.4.1 页面
+
+创建course_list.vue
+
+#### card组件
+
+1. 使用element 的card组件
 
 ![](img/course17.png)
-
-页面:src/module/course/page/course_list.vue
 
 * UI
 
@@ -244,24 +324,71 @@ public void testPageHelper(){
 </style>
 ```
 
-## 1.4 API接口
+#### 路由
 
-输入参数：
-	页码、每页显示个数、查询条件
+```javascript
+import course_list from '@/module/course/page/course_list.vue';
+import Home from '@/module/home/page/home.vue';
+export default [
+  {   
+	path: '/course',
+    component: Home,
+    name: '课程管理',
+    hidden: false,
+    iconCls: 'el‐icon‐document',
+    children: [
+      { path: '/course/list', name: '我的课程',component: course_list,hidden: false }
+    ]
+  }
+]
+```
 
-输出结果类型：
+### 1.4.2 API调用
 
-​	QueryResponseResult<自定义类型>
-
-在api工程创建course包，创建CourseControllerApi接口。
+1. 定义Api方法
 
 ```java
-@ApiOperation("查询我的课程列表")
-public QueryResponseResult<CourseInfo> findCourseList(
-        int page,
-        int size,
-        CourseListRequest courseListRequest
-);
+//我的课程列表
+export const findCourseList = (page,size,params) => {
+     //对于查询条件，向服务端传入key/value串。
+     //使用工具类将json对象转成key/value
+     let queries = querystring.stringify(params)
+     return http.requestQuickGet(apiUrl+"/course/coursebase/list/"+page+"/"+size+"?"+queries);
+}
+```
+
+2. 在页面调用findCourseList方法：
+
+```java
+//获取课程列表
+getCourse() {
+  courseApi.findCourseList(this.page,this.size,{}).then((res) => {
+          console.log(res);
+          if(res.success){
+            this.total = res.queryResult.total;
+            this.courses = res.queryResult.list;
+          }
+  });
+}
+```
+
+3. 在mounted钩子中调用getCourse方法
+
+```javascript
+mounted() {
+  //查询我的课程
+  this.getCourse();
+}
+```
+
+4. 在分页方法中调用getCourse方法
+
+```javascript
+//分页方法
+handleCurrentChange(val) {
+  this.page = val;
+  this.getCourse();
+}
 ```
 
 #2. 新增课程
@@ -420,6 +547,126 @@ public interface CategoryControllerApi {
 }
 ```
 
+### 2.2.5 Dao
+
+根据数据格式的分析，此查询需要返回树型数据格式，为了开发方便我们使用mybatis实现查询 。
+
+1. 定义mapper
+
+```java
+@Mapper
+public interface CategoryMapper {
+    //查询分类
+    public CategoryNode selectList();
+}
+```
+
+2. 定义mapper映射文件
+
+   采用表的自连接方式输出树型结果集。
+
+```java
+<?xml version="1.0" encoding="UTF‐8" ?>
+<!DOCTYPE mapper PUBLIC "‐//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis‐3‐
+mapper.dtd" >
+<mapper namespace="com.xuecheng.manage_course.dao.CategoryMapper" >
+    <resultMap type="com.xuecheng.framework.domain.course.ext.CategoryNode" id="categoryMap" >
+        <id property="id" column="one_id"/>
+        <result property="name" column="one_name"/>
+        <result property="label" column="one_label"/>
+        <result property="isshow" column="one_isshow"/>
+        <result property="isleaf" column="one_isleaf"/>
+        <result property="orderby" column="one_orderby"/>
+        <result property="parentid" column="one_parentid"/>
+        <collection property="children" 
+    ofType="com.xuecheng.framework.domain.course.ext.CategoryNode">
+            <id property="id" column="two_id"/>
+            <result property="name" column="two_name"/>
+            <result property="label" column="two_label"/>
+                        <result property="isshow" column="two_isshow"/>
+            <result property="isleaf" column="two_isleaf"/>
+            <result property="orderby" column="two_orderby"/>
+            <result property="parentid" column="two_parentid"/>
+            <collection property="children" 
+    ofType="com.xuecheng.framework.domain.course.ext.CategoryNode">
+                <id property="id" column="three_id"/>
+                <result property="name" column="three_name"/>
+                <result property="label" column="three_label"/>
+                <result property="isshow" column="three_isshow"/>
+                <result property="isleaf" column="three_isleaf"/>
+                <result property="orderby" column="three_orderby"/>
+                <result property="parentid" column="three_parentid"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="selectList" resultMap="categoryMap" >
+        SELECT
+          a.id one_id,
+          a.name one_name,
+          a.label one_label,
+          a.isshow one_isshow,
+          a.isleaf one_isleaf,
+          a.orderby one_orderby,
+          a.parentid one_parentid,
+          b.id two_id,
+          b.name two_name,
+          b.label two_label,
+          b.isshow two_isshow,
+          b.isleaf two_isleaf,
+          b.orderby two_orderby,
+          b.parentid two_parentid,
+          c.id three_id,
+          c.name three_name,
+          c.label three_label,
+          c.isshow three_isshow,
+          c.isleaf three_isleaf,
+          c.orderby three_orderby,
+          c.parentid three_parentid
+        FROM
+          category a LEFT JOIN category b
+            ON a.id = b.parentid
+          LEFT JOIN category c
+            ON b.id = c.parentid
+        WHERE a.parentid = '0'
+      
+        ORDER BY a.orderby,
+          b.orderby,
+          c.orderby
+   </select>
+</mapper>
+```
+
+### 2.2.6 Service
+
+```java
+@Service
+public class CategoryService {
+    @Autowired
+    CategoryMapper categoryMapper;
+    //查询分类
+    public CategoryNode findList(){
+        return categoryMapper.selectList();
+    }
+}
+```
+
+### 2.2.7 Controller 
+
+```java
+@RestController
+@RequestMapping("/category")
+public class CategoryController implements CategoryControllerApi {
+    @Autowired
+    CategoryService categoryService;
+   
+    @Override
+    @GetMapping("/list")
+    public CategoryNode list() {
+        return categoryService.findList();
+    }
+}
+```
+
 ## 2.3 数据字典
 
 ### 2.3.1 介绍
@@ -505,6 +752,353 @@ public interface SysDicthinaryControllerApi {
     public SysDictionary getByType(String type);
 }
 ```
+
+### 2.3.4 Dao
+
+```java
+@Repository
+public interface SysDictionaryDao extends MongoRepository<SysDictionary,String> {
+     //根据字典分类查询字典信息
+     SysDictionary findBydType(String dType);
+}
+```
+
+### 2.3.5 Service
+
+```java
+@Service
+public class SysdictionaryService {
+    @Autowired
+    SysDictionaryDao sysDictionaryDao;
+//根据字典分类type查询字典信息    
+   public SysDictionary findDictionaryByType(String type){
+       return sysDictionaryDao.findBydType(type);
+   }
+}
+```
+
+### 2.3.6 Controller
+
+```java
+@RestController
+@RequestMapping("/sys/dictionary")
+public class SysDictionaryController implements SysDictionaryControllerApi {
+    @Autowired
+    SysdictionaryService sysdictionaryService;
+    //根据字典分类id查询字典信息
+    @Override
+    @GetMapping("/get/{type}")
+    public SysDictionary getByType(@PathVariable("type") String type) {
+        return sysdictionaryService.findDictionaryByType(type);
+    }
+}
+```
+
+## 2.4 新增课程完善
+
+### 2.4.1 新增课程页面
+
+1. 页面效果
+
+![](img/course28.png)
+
+2. 创建course_add.vue页面
+
+```html
+ <template>
+  <div>
+    <el‐form :model="courseForm" label‐width="80px" :rules="courseRules" ref="courseForm">
+      <el‐form‐item label="课程名称" prop="name">
+        <el‐input v‐model="courseForm.name" auto‐complete="off" ></el‐input>
+      </el‐form‐item>
+      <el‐form‐item label="适用人群" prop="users">
+        <el‐input type="textarea" v‐model="courseForm.users" auto‐complete="off" ></el‐input>
+      </el‐form‐item>
+      <el‐form‐item label="课程分类" prop="categoryActive">
+        <el‐cascader
+          expand‐trigger="hover"
+          :options="categoryList"
+          v‐model="categoryActive"
+          :props="props">
+        </el‐cascader>
+      </el‐form‐item>
+      <el‐form‐item label="课程等级" prop="grade">
+        <b v‐for="grade in gradeList">
+          <el‐radio v‐model="courseForm.grade" :label="grade.sdId" >{{grade.sdName}}</el‐
+radio>&nbsp;&nbsp;
+        </b>
+      </el‐form‐item>
+      <el‐form‐item label="学习模式" prop="studymodel">
+        <b v‐for="studymodel_v in studymodelList">
+          <el‐radio v‐model="courseForm.studymodel" :label="studymodel_v.sdId" >
+{{studymodel_v.sdName}}</el‐radio>&nbsp;&nbsp;
+        </b>
+      </el‐form‐item>
+      <el‐form‐item label="课程介绍" prop="description">
+        <el‐input type="textarea" v‐model="courseForm.description" ></el‐input>
+      </el‐form‐item>
+    </el‐form>
+    <div slot="footer" class="dialog‐footer">
+      <el‐button type="primary"  @click.native="save" >提交</el‐button>
+    </div>
+  </div>
+</template>
+<script>
+  import * as courseApi from '../api/course';
+  import utilApi from '../../../common/utils';
+  import * as systemApi from '../../../base/api/system';
+  export default {
+    data() {
+      return {
+                  studymodelList:[],
+        gradeList:[],
+        props: {
+          value: 'id',
+          label:'label',
+          children:'children'
+        },
+        categoryList: [],
+        categoryActive:[],
+        courseForm: {
+          id:'',
+          name: '',
+          users: '',
+          grade:'',
+          studymodel:'',
+          mt:'',
+          st:'',
+          description: ''
+        },
+        courseRules: {
+          name: [
+            {required: true, message: '请输入课程名称', trigger: 'blur'}
+          ],
+          category: [
+            {required: true, message: '请选择课程分类', trigger: 'blur'}
+          ],
+          grade: [
+            {required: true, message: '请选择课程等级', trigger: 'blur'}
+          ],
+          studymodel: [
+            {required: true, message: '请选择学习模式', trigger: 'blur'}
+          ]
+        }
+      }
+    },
+    methods: {
+      save () {
+      }
+    },
+    created(){
+    },
+    mounted(){
+    }
+  }
+</script>
+<style scoped>
+</style>
+```
+
+3. 路由
+
+```javascript
+import course_add from '@/module/course/page/course_add.vue'; 
+{ path: '/course/add/base', name: '添加课程',component: course_add,hidden: true }
+```
+
+4. 添加课程链接
+
+   在我的课程页面添加“新增课程”链接
+
+   在course_list.vue 中添加：	
+
+```javascript
+<router‐link class="mui‐tab‐item" :to="{path:'/course/add/base'}"> 
+    <el‐button type="text" class="button" >新增课程</el‐button>
+</router‐link>
+```
+
+### 2.4.2 查询数据字典
+
+课程添加页面中课程等级、学习模式需要从数据字典查询字典信息。
+
+1. 定义方法
+
+   数据字典查询 为公用方法，所以定义在/base/api/system.js中
+
+```java
+let sysConfig = require('@/../config/sysConfig') 
+let apiUrl = sysConfig.xcApiUrlPre;
+/*数据字典 */
+export const sys_getDictionary= dType => {
+  return http.requestQuickGet(apiUrl+'/sys/dictionary/get/'+dType)
+}
+```
+
+2. 在页面获取数据字典
+
+   在mounted钩子中定义方法如下：
+
+```javascript
+// 查询数据字典字典
+systemApi.sys_getDictionary('201').then((res) => {
+this.studymodelList = res.dvalue;
+});
+systemApi.sys_getDictionary('200').then((res) => {
+this.gradeList = res.dvalue;
+});
+```
+
+3. 效果
+
+![](img/course29.png)
+
+### 2.4.3 课程分类
+
+1. 页面
+
+```javascript
+<el‐form‐item label=" 课程分类" prop="categoryActive">
+  <el‐cascader
+    expand‐trigger="hover"
+    :options="categoryList"
+    v‐model="categoryActive"
+    :props="props">
+  </el‐cascader>
+</el‐form‐item>
+```
+
+2. 定义方法
+
+```javascript
+/* 查询课程分类 */
+export const category_findlist= () => {
+  return http.requestQuickGet(apiUrl+'/category/list')
+}
+```
+
+3. 在页面获取课程分类
+
+   在mounted钩子中定义
+
+```javascript
+// 取课程分类
+courseApi.category_findlist({}).then((res) => {
+  this.categoryList = res.children;
+});
+```
+
+4. 效果
+
+![](img/course30.png)
+
+5.  如何获取选择的分类
+
+   用户选择课程分类后，所选分类 ID绑定到categoryActive（数组）中，选择了一级、二级分类，分别存储在categoryActive数组的第一个、第二个元素中
+
+## 2.5 API接口
+
+创建课程添加提交接口：
+
+```java
+@Api(value = " 课程管理",description = "课程管理",tags = {"课程管理"})
+public interface CourseControllerApi {
+  
+    @ApiOperation("添加课程基础信息")
+    public AddCourseResult addCourseBase(CourseBase courseBase);
+}
+```
+
+## 2.6 新增该页面服务端
+
+### 2.5.1 Dao
+
+```java
+public interface CourseBaseRepository extends JpaRepository<CourseBase, String> { 
+       
+}
+```
+
+### 2.6.2 Service
+
+```java
+// 添加课程提交
+@Transactional
+public AddCourseResult addCourseBase(CourseBase courseBase) {
+    //课程状态默认为未发布
+    courseBase.setStatus("202001");
+    courseBaseRepository.save(courseBase);
+   return new AddCourseResult(CommonCode.SUCCESS,courseBase.getId());
+}
+```
+
+### 2.6.3 Controller
+
+```java
+@Override 
+@PostMapping("/coursebase/add")
+public AddCourseResult addCourseBase(@RequestBody CourseBase courseBase) {
+    return courseService.addCourseBase(courseBase);
+}
+```
+
+## 2.7 新增课程前端
+
+### 2.7.1 API方法定义
+
+在前端定义请求服务端添加课程的api的方法，在course模块中定义方法如下：
+
+```javascript
+/* 添加课程基础信息*/
+export const addCourseBase = params => {
+  return http.requestPost(apiUrl+'/course/coursebase/add',params)
+}
+```
+
+### 2.7.2 API方法调用
+
+在course_add.vue 调用api提交课程信息
+
+```javascript
+methods: { 
+      save () {
+          this.$refs.courseForm.validate((valid) => {
+            if (valid) {
+              this.$confirm('确认提交吗？', '提示', {}).then(() => {
+                //当前选择的分类
+                let mt = this.categoryActive[0];
+                let st = this.categoryActive[1];
+                this.courseForm.mt = mt;
+                this.courseForm.st = st;
+                //请求服务接口
+                courseApi.addCourseBase(this.courseForm).then((res) => {
+                  if(res.success){
+                    this.$message.success('提交成功');
+                    //跳转到课程图片
+                    //this.$router.push({ path: '/course/add/picture/1/'+this.courseid})
+                  }else{
+                    if(res.message){
+                      this.$message.error(res.message);
+                    }else{
+                      this.$message.error('提交失败');
+                    }
+                  }
+                });
+              });
+            }
+          });
+      }
+    },
+```
+
+### 2.7.3 测试
+
+注意：将course_base表中的company_id改为非必填，待认证功能开发完成再修改为必填
+
+测试流程：
+
+1. 进入我的课程，点击“新增课程”打开新增课程页面
+2. 输入课程信息，点击提交
 
 # 3. 修改课程
 
@@ -702,3 +1296,4 @@ public ResponseResult updateCourseMarket(String id,CourseMarket courseMarket
 ```
 
 接口实现可采用先查询课程营销，如果存在则更新信息，否则添加课程营销信息的方法。
+

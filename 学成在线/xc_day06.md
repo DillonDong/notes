@@ -886,7 +886,7 @@ public class Teachplan implements Serializable {
 }]
 ```
 
-自定义课程计划结点类如下：
+自定义课程计划结点类如下：		
 
 ```java
 @Data
@@ -924,7 +924,7 @@ SELECT
 FROM
   teachplan a
   LEFT JOIN teachplan b
-    ON a.id = b.parentid
+    ON b.parentid = a.id
   LEFT JOIN teachplan c
     ON b.id = c.parentid
 WHERE a.parentid = '0'
@@ -963,7 +963,6 @@ public interface TeachplanMapper {
                 <result column="three_pname" property="pname"></result>
             </collection>
         </collection>
-
     </resultMap>
 
     <select id="selectList" parameterType="java.lang.String"

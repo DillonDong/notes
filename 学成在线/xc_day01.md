@@ -228,7 +228,12 @@ MongoDB优点:
 
 1. 基本步骤安装文档
 2. 将Mongo注册到本地服务
-3. 启动关闭/命令
+
+```shell
+mongod.exe --config "XXX/mongo.conf" --install
+```
+
+1. 启动关闭/命令
 
 ```shell
 # 启动mongo
