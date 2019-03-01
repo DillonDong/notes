@@ -1343,6 +1343,3 @@ this.testpromise(3).then(res=>{// 在then中对成功结果进行处理
     })
 }
 ```
-
-
-
