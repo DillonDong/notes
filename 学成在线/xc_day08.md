@@ -31,7 +31,7 @@
 
 分布式文件系统是面对互联网的需求而产生，互联网时代对海量数据如何存储？靠简单的增加硬盘的个数已经满足不了我们的要求，因为硬盘传输速度有限但是数据在急剧增长，另外我们还要要做好数据备份、数据安全等。
 
-采用分布式文件系统可以将多个地点的文件系统通过网络连接起来，组成一个文件系统网络，结点之间通过网络进行通信，一台文件系统的存储和传输能力有限，我们让文件在多台计算机上存储，通过多台计算共同传输。如下图：
+采用分布式文件系统可以将多个地点的文件系统通过**网络**连接起来，组成一个文件系统网络，结点之间通过网络进行通信，一台文件系统的存储和传输能力有限，我们让文件在多台计算机上存储，通过多台计算共同传输。如下图：
 
 ![](img/dfs1.png)
 
@@ -197,7 +197,7 @@ FastDFS是C语言开发，建议在linux上运行，本教程使用CentOS7作为
 
 安装细节请参考 “fastDFS安装教程.doc”。
 
-### 3.3 Tracker配置
+## 3.3 Tracker配置
 
 fastDFS的配置文件目录 ：/etc/fdfs
 
@@ -815,8 +815,9 @@ public class FileSystemController implements FileSystemControllerApi {
   :on‐success="handleSuccess"
   :file‐list="fileList"
   :limit="picmax"
+  :name="multipartFile"
   :on‐exceed="rejectupload"
-  :data="uploadval">
+  :data="{"key":value,"key":""}">
   <i class="el‐icon‐plus"></i>
 </el‐upload>
 ```
@@ -1032,4 +1033,316 @@ handleError(err, file, fileList){
   this.fileList = []
 }
 ```
+
+# 5. 图片查询
+
+## 5.1 需求分析
+
+课程图片上传成功，再次进入课程上传页面应该显示出来已上传的图片。
+
+### 5.1.1 API
+
+在课程管理服务定义查询方法
+
+```java
+@ApiOperation("获取课程基础信息")
+public CoursePic findCoursePic(String courseId);
+```
+
+### 5.1.2 课程管理服务开发
+
+#### 5.1.2.1 Dao
+
+使用CoursePicRepository即可，无需再开发。
+
+#### 5.1.2.2 Service
+
+根据课程 id查询课程图片
+
+```java
+public CoursePic findCoursepic(String courseId) {
+	return coursePicRepository.findOne(courseId);    
+}
+```
+
+#### 5.1.2.3 Controller
+
+ ```java
+@Override
+@GetMapping("/coursepic/list/{courseId}")
+public CoursePic findCoursePic(@PathVariable("courseId") String courseId) {
+    return courseService.findCoursepic(courseId);
+}
+ ```
+
+### 5.1.3 前端开发
+
+#### 5.1.3.1 API方法
+
+```javascript
+//查询课程图片
+export const findCoursePicList = courseId => {
+  return http.requestQuickGet(apiUrl+'/course/coursepic/list/'+courseId)
+}
+```
+
+#### 5.1.3.2 页面
+
+在课程图片页面的mounted钩子方法 中查询课程图片信息，并将图片地址赋值给数据对象
+
+1. 定义图片查询方法
+
+```javascript
+ //查询图片
+list(){
+  courseApi.findCoursePicList(this.courseid).then((res) => {
+    console.log(res)
+    if(res.pic){
+      let name = '图片';
+      let url = this.imgUrl+res.pic;
+      let fileId = res.courseid;
+      //先清空文件列表，再将图片放入文件列表
+      this.fileList = []
+      this.fileList.push({name:name,url:url,fileId:fileId});
+    }
+    console.log(this.fileList);
+  });
+ }
+```
+
+2. mounted钩子方法
+
+   在mounted钩子方法中调用服务端查询文件列表并绑定到数据对象。
+
+```javascript
+mounted(){
+   //课程id
+   this.courseid = this.$route.params.courseid;
+   //查询图片
+   this.list()
+}
+```
+
+#### 5.1.3.3 测试
+
+测试流程：
+
+1. 上传图片成功
+2. 进入上传图片页面，观察图片是否显示
+
+# 6. 课程图片删除
+
+## 6.1 需求分析
+
+课程图片上传成功后，可以重新上传，方法是先删除现有图片再上传新图片。
+
+注意：此删除只删除课程数据库的课程图片信息，不去删除文件数据库的文件信息及文件系统服务器上的文件，由于课程图片来源于该用户的文件库，所以此图片可能存在多个地方共用的情况，所以要删除文件系统中的文件需要到图片库由用户确认后再删除。
+
+## 6.2 API
+
+```java
+@ApiOperation("删除课程图片")
+public ResponseResult deleteCoursePic(String courseId);
+```
+
+## 6.3 服务端开发
+
+#### 6.3.1 Dao
+
+CoursePicRepository父类提供的delete方法没有返回值，无法知道是否删除成功，这里我们在CoursePicRepository下边自定义方法：
+
+```java
+//删除成功返回1否则返回0
+long deleteByCourseid(String courseid);
+```
+
+### 6.3.2 Service
+
+```java
+//删除课程图片
+@Transactional
+public ResponseResult deleteCoursePic(String courseId) {
+    //执行删除，返回1表示删除成功，返回0表示删除失败
+    long result = coursePicRepository.deleteByCourseid(courseId);
+    if(result>0){
+        return new ResponseResult(CommonCode.SUCCESS);
+    }
+    return new ResponseResult(CommonCode.FAIL);
+}
+```
+
+### 6.3.3 Controller
+
+```java
+@Override
+@DeleteMapping("/coursepic/delete")
+public ResponseResult deleteCoursePic(@RequestParam("courseId") String courseId) {
+    return courseService.deleteCoursePic(courseId);
+}
+```
+
+## 6.4 前端开发
+
+### 6.4.1 API 调用
+
+```javascript
+//删除课程图片
+export const deleteCoursePic= courseId => {
+  return http.requestDelete(apiUrl+'/course/coursepic/delete?courseId='+courseId)
+}
+```
+
+### 6.4.2 页面测试
+
+1. before-remove钩子方法
+
+   在upload组件的before-remove钩子方法 中实现删除动作。
+
+```html
+<el‐upload
+  action="/filesystem/upload"
+  list‐type="picture‐card"
+  :before‐remove="handleRemove">
+  <i class="el‐icon‐plus"></i>
+</el‐upload>
+```
+
+​	before-remove说明：删除文件之前的钩子，参数为上传的文件和文件列表，若返回 false 或者返回 Promise 且被reject，则停止删除。
+
+2. 定义handleRemove方法进行测试：
+
+   handleRemove 返回true则删除页面的图片，返回false则停止删除页面的图片。
+
+```javascript
+//删除图片
+handleRemove(file, fileList) {
+        console.log(file)
+        alert('删除成功')
+      return true;   
+｝
+```
+
+### 6.4.3 promise异步调用
+
+在handleRemove方法调用删除图片的api方法，删除成功时return true，删除失败时return false;
+
+```javascript
+// 删除图片
+handleRemove(file, fileList) {
+  console.log(file)
+//alert('删除')
+//return true;
+  //删除图片
+    courseApi.deleteCoursePic('1').then((res) => {
+      if(res.success){
+        this.$message.success('删除成功');
+        return true;
+      }else{
+        this.$message.error(res.message);
+        return false;
+      }
+    });
+},
+```
+
+在上边代码中将提交的课程id故意写错，按照我们预期应该是删除失败，而测试结果却是图片在页面上删除成功。
+
+问题原因：
+
+通过查询deleteCoursePic方法的底层代码，deleteCoursePic最终返回一个promise对象。
+
+Promise 是ES6提供的用于异步处理的对象，因为axios提交是异步提交，这里使用promise作为返回值。
+
+Promise的使用方法如下
+
+Promise对象在处理过程中有三种状态：
+
+1. pending：进行中
+2. resolved：操作成功
+3. rejected: 操作失败
+
+Promise的构建方法如下：
+
+```javascript
+const promise = new Promise(function(resolve,reject){
+     //...TODO...
+    if(操作成功){
+        resolve(value);
+    }else{
+        reject(error);
+    }
+})
+```
+
+上边的构造方法function(resolve,reject)执行流程如下：
+
+1. 方法执行一些业务逻辑。
+2. 如果操作成功将Promise的状态由pending变为resolved，并将操作结果传出去
+3. 如果操作失败会将promise的状态由pending变为rejected，并将失败结果传出去。
+
+上边说的操作成功将操作结果传给谁了呢？操作失败将失败结果传给谁了呢？
+
+通过promise的then、catch来指定
+
+```javascript
+promise.then(function (result) {
+    console.log('操作成功：' + result);
+});
+promise.catch(function (reason) {
+    console.log('操作失败：' + reason);
+});
+```
+
+#### 举例
+
+1. 定义一个方法，返回promise对象
+
+```javascript
+testpromise(i){
+  return new Promise((resolve,reject)=>{
+    if(i % 2==0){
+      resolve('成功了')
+    }else{
+      reject('拒绝了')
+    }
+  })
+}
+```
+
+2. 调用此方法
+
+   向方法传入偶数、奇数进行测试。
+
+```javascript
+this.testpromise(3).then(res=>{// 在then中对成功结果进行处理
+    alert(res)
+}).catch(res=>{//在catch中对操作失败结果进行处理
+    alert(res)
+})
+```
+
+3. 最终将handleRemove方法修改如下
+
+   handleRemove方法返回promise对象，当删除成功则resolve，删除失败则reject。
+
+```java
+// 删除图片
+  handleRemove(file, fileList) {
+    console.log(file)
+    return new Promise((resolve,reject)=>{
+    //删除图片
+      courseApi.deleteCoursePic(this.courseid).then((res) => {
+        if(res.success){
+          this.$message.success('删除成功');
+          resolve()//通过
+        }else{
+          this.$message.error(res.message);
+          reject()//拒绝
+        }
+      });
+    })
+}
+```
+
+
 
