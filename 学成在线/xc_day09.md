@@ -400,8 +400,8 @@ Feign是Netflix公司开源的轻量级rest客户端，使用Feign可以非常�
 
 ```xml
 <dependency>
-<groupId>org.springframework.cloud</groupId>    
-<artifactId>spring‐cloud‐starter‐openfeign</artifactId>    
+	<groupId>org.springframework.cloud</groupId>    
+	<artifactId>spring‐cloud‐starter‐openfeign</artifactId>    
 </dependency>
 <dependency>
     <groupId>com.netflix.feign</groupId>
@@ -475,7 +475,7 @@ SpringCloud对Feign进行了增强兼容了SpringMVC的注解 ，我们在使用
 
 ### 4.2.2 解决方案
 
-如何在保证SEO的前提下提高页面的访问速度 
+如何在**保证SEO**的前提下提高页面的**访问速度** 
 
 **方案1：**
 
@@ -729,7 +729,7 @@ Access-Control-Allow-Methods：允许客户端跨域访问的方法
 </html>
 ```
 
-本页面使用vue.js动态获取信息，vue实例创建的代码如下：
+本页面使用vue.js动态获取信息，vue实例创建的代码如下：	
 
 主要查看 created钩子函数的内容。
 
@@ -856,7 +856,7 @@ public CourseView getCoruseView(String id) {
     Optional<CoursePic> picOptional = coursePicRepository.findById(id);
     if(picOptional.isPresent()){
         CoursePic coursePic = picOptional.get();
-        courseView.setCoursePic(picOptional.get());
+        courseView.setCoursePic(coursePic);
     }
     //查询课程计划信息
     TeachplanNode teachplanNode = teachplanMapper.selectList(id);
@@ -1136,14 +1136,14 @@ response.setHeader("Content‐type","text/html;charset=utf‐8");
 
 ## 6.3 CMS 添加页面接口
 
-cms服务对外提供添加页面接口，实现：如果不存在页面则添加，否则就更新页面信息。
+cms服务对外提供添加页面接口，实现：如果不存在页面则在MongoDB的cms_page集合中添加页面，否则就更新页面信息。
 
 此接口由课程管理服务在课程预览时调用。
 
 ### 6.3.1 Api接口
 
 ```java
-@ApiOperation(" 保存页面")
+@ApiOperation("保存页面")
 public CmsPageResult save(CmsPage cmsPage);
 ```
 
@@ -1369,4 +1369,3 @@ preview(){
   });
 }
 ```
-
