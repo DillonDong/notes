@@ -1,4 +1,4 @@
-# 全文检索 Elasticearch 研究
+# 全文检索 Elasticsearch 研究
 
 # 教学目标
 
@@ -417,25 +417,6 @@ ES中的文档相当于MySQL数据库表中的记录。
 
 访问:http://localhost:9200/xc_course/doc/4028e58161bcf7f40161bcf8b77c0000
 
-参数:
-
-```json
-{
-    "_index": "xc_course",
-    "_type": "doc",
-    "_id": "i5c0R2kBvET-EWpazR_T",
-    "_version": 1,
-    "result": "created",
-    "_shards": {
-        "total": 1,
-        "successful": 1,
-        "failed": 0
-    },
-    "_seq_no": 0,
-    "_primary_term": 1
-}
-```
-
 使用PostMan测试:
 
 ![](img/search15.png)
@@ -507,7 +488,7 @@ hits.max_score：文档匹配得分，这里为最高分
 _score：每个文档都有一个匹配度得分，按照降序排列。
 _source：显示了文档的原始内容。
 
-# 4.IK分词器
+# 4. IK分词器
 
 ## 4.1 测试分词器
 
@@ -1191,28 +1172,28 @@ put http://localhost:9200/xc_course/doc/3
 ### 6.3.2 Java Client
 
 ```java
-    @Test
-    public void testAddDoc() throws IOException {
-        //文档内容
-        //准备json数据
-        Map<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("name", "spring cloud实战");
-        jsonMap.put("description", "本课程主要从四个章节进行讲解： 1.微服务架构入门 2.spring cloud 基础入门 3.实战Spring Boot 4.注册中心eureka。");
-        jsonMap.put("studymodel", "201001");
-        SimpleDateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        jsonMap.put("timestamp", dateFormat.format(new Date()));
-        jsonMap.put("price", 5.6f);
+@Test
+public void testAddDoc() throws IOException {
+    //文档内容
+    //准备json数据
+    Map<String, Object> jsonMap = new HashMap<>();
+    jsonMap.put("name", "spring cloud实战");
+    jsonMap.put("description", "本课程主要从四个章节进行讲解： 1.微服务架构入门 2.spring cloud 基础入门 3.实战Spring Boot 4.注册中心eureka。");
+    jsonMap.put("studymodel", "201001");
+    SimpleDateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    jsonMap.put("timestamp", dateFormat.format(new Date()));
+    jsonMap.put("price", 5.6f);
 
-        //创建索引创建对象
-        IndexRequest indexRequest = new IndexRequest("xc_course","doc");
-        //文档内容
-        indexRequest.source(jsonMap);
-        //通过client进行http的请求
-        IndexResponse indexResponse = client.index(indexRequest);
-        DocWriteResponse.Result result = indexResponse.getResult();
-        System.out.println(result);
+    //创建索引创建对象
+    IndexRequest indexRequest = new IndexRequest("xc_course","doc");
+    //文档内容
+    indexRequest.source(jsonMap);
+    //通过client进行http的请求
+    IndexResponse indexResponse = client.index(indexRequest);
+    DocWriteResponse.Result result = indexResponse.getResult();
+    System.out.println(result);
 
-    }
+}
 ```
 
 ## 6.4 查询文档
@@ -1891,7 +1872,7 @@ searchSourceBuilder.query(matchQueryBuilder);
 {
     "query": {
         "multi_match": {
-            "query": "springcss",
+            "query": "spring css",
             "minimum_should_match": "50%",
             "fields": [
                 "name",
