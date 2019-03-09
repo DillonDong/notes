@@ -173,7 +173,7 @@ ffmpeg -i lucene.avi lucene.gif
 
 使用ffmpeg生成 m3u8的步骤如下：
 
-第一步：先将avi视频转成mp4
+**第一步：先将avi视频转成mp4**
 
 ```shell
 ffmpeg.exe ‐i  lucene.avi ‐c:v libx264 ‐s 1280x720 ‐pix_fmt yuv420p ‐b:a 63k ‐b:v 753k ‐r 18 .\lucene.mp4
@@ -191,7 +191,7 @@ ffmpeg.exe ‐i  lucene.avi ‐c:v libx264 ‐s 1280x720 ‐pix_fmt yuv
 
 -r：帧率，表示每秒更新图像画面的次数，通常大于24肉眼就没有连贯与停顿的感觉了。
 
-第二步：将mp4生成m3u8
+**第二步：将mp4生成m3u8**
 
 ```shell
 ffmpeg ‐i  lucene.mp4   ‐hls_time 10 ‐hls_list_size 0  ‐hls_segment_filename ./hls/lucene_%05d.ts ./hls/lucene.m3u8
@@ -843,7 +843,7 @@ public interface MediaUploadControllerApi {
 
     //文件上传前的准备工作,校验文件是否存在
     @ApiOperation("文件上传注册")
-    public ResponseResult register(String fileMd5,
+    public ResponseResult register( String fileMd5,
                                     String fileName,
                                     Long fileSize,
                                     String mimetype,
