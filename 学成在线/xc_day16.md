@@ -667,7 +667,9 @@ JWT令牌生成采用非对称加密算法
 
    下边命令生成密钥证书，采用RSA 算法每个证书包含公钥和私钥
 
+   ```shell
    keytool -genkeypair -alias xckey -keyalg RSA -keypass xuecheng -keystore xc.keystore -storepass xuechengkeystore
+   ```
 
    Keytool 是一个java提供的证书管理工具
 
