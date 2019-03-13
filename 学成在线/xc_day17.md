@@ -522,7 +522,7 @@ cookieDomain: xuecheng.com
 
 sessionStorage ：
 
-​	sessionStorage 是H5的一个会话存储对象，在SessionStorage中保存的数据只在同一窗口或同一标签页中有效，在关闭窗口之后将会删除SessionStorage中的数据。
+​	sessionStorage 是**H5**的一个会话存储对象，在SessionStorage中保存的数据只在同一窗口或同一标签页中有效，在关闭窗口之后将会删除SessionStorage中的数据。
 
 ​	seesionStorage的存储方式采用key/value的方式，可保存5M左右的数据（不同的浏览器会有区别）。
 
