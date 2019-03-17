@@ -1,8 +1,8 @@
-[TOC]
+
 
 # 1. SpringSecurity权限框架
 
-### 1.1 概念
+## 1.1 概念
 
 SpringSecurity控制系统的访问权限
 
@@ -16,7 +16,9 @@ Role Base Access Controller
 
 权限授予给角色,角色授予给用户
 
-### 1.2 入门Demo
+![](pic/rbac.jpg)
+
+## 1.2 入门Demo
 
 * POM依赖
 
@@ -97,7 +99,7 @@ Role Base Access Controller
   </filter-mapping>
   ```
 
-  ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/SpringSecurity.png?raw=true)
+  ![](pic/SpringSecurity.png)
 
 * spring-security.xml
 
@@ -131,10 +133,17 @@ Role Base Access Controller
       </authentication-provider>
   </authentication-manager>
   ```
+## 1.3 跨站请求伪造
 
-  跨站请求伪造
+作用:为了阻止其他站点的请求
 
-  ![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0.png?raw=true)
+原理:
+
+1. 在服务器端生成身份验证的标识码,并存放在Session中
+2. 在JSP动态页面通过EL表达式获得标识码
+3. 其他站点的页面访问时,没有携带身份验证的标识码,就被视作是非法请求
+
+  ![](pic/跨站请求伪造.png)
 
 * 自定义登录页
 
@@ -154,6 +163,12 @@ Role Base Access Controller
           </tr>
       </table>
   </form>
+  ```
+
+  ```xml
+  <form-login login-page="/login.html" 
+              default-target-url="/index.html" 
+              authentication-failure-url="/login_failur.html"/>
   ```
 
 # 2. 运营商系统集成SpringSecurity
@@ -285,7 +300,7 @@ Role Base Access Controller
 
 # 3. 商家入驻
 
-其实就是在pinyougou-shop-web系统中完成商家保存功能
+在pinyougou-shop-web系统中完成商家保存功能
 
 | Field                | Type                  | Comment          |
 | -------------------- | --------------------- | ---------------- |

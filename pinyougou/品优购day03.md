@@ -1,10 +1,14 @@
-[TOC]
-
 # 1. JavaScript的分层设计
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/AngularJS%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1.png?raw=true)
+分层的目的是解耦合,为了方便代码的维护和功能的扩展
 
-* 服务层:负责和后台进行交互
+![](pic/AngularJS分层设计.png)
+
+## 1.1 服务层
+
+服务层负责提供某一个方面的服务.
+
+本项目中服务层主要负责和后台进行数据交互
 
 ```javascript
 app.service('brandService',function($http){
@@ -18,13 +22,13 @@ app.service('brandService',function($http){
 });
 ```
 
-* 控制层:负责控制页面数据显示
+## 1.2 控制层
+
+控制层负责控制页面数据显示
 
 ```javascript
-app.controller('brandController' ,function($scope,$controller,brandService){	//注入服务层
+app.controller('brandController' ,function($scope,brandService){	//注入服务层
 	
-    $controller('baseController',{$scope:$scope});//继承
-    
 	$scope.findAll=function(){
         //调用服务层,请求服务器获得数据
 		brandService.findAll().success(
@@ -37,7 +41,9 @@ app.controller('brandController' ,function($scope,$controller,brandService){	//�
 });	
 ```
 
-* baseController:抽取controller层公共的业务逻辑
+## 1.3 baseController
+
+公共控制层:负责各个controller层的公共业务逻辑,例如分页逻辑等
 
 ```javascript
 app.controller('baseController' ,function($scope){	
@@ -61,7 +67,19 @@ app.controller('baseController' ,function($scope){
 });	
 ```
 
-* 页面加载JS文件顺序
+## 1.4 Controller继承
+
+```javascript
+app.controller('brandController' ,function($scope,$controller,brandService){	//注入服务
+    
+    $controller('baseController',{$scope:$scope});//继承
+	
+});	
+```
+
+## 1.5 页面加载JS文件顺序
+
+分层后,引入JS文件有严格的顺序.
 
 ```html
 <script type="text/javascript" src="../js/base_pagination.js"></script>
@@ -72,11 +90,21 @@ app.controller('baseController' ,function($scope){
 
 # 2. 代码生成器的使用
 
-* 注意
-  1. 代码生成器不能放在中文目录下执行
-  2. 指定生成的代码所在的包名(3级)
+## 2.1 原理
+
+1. 完成一个模块的CURD开发
+2. 将文件(包含.java文件/.html页面等)将模块名用关键字符替代,即得到模板文件
+3. 连接数据库获得模块的数据库表名
+4. 使用表名替换模版文件中的关键字符
+
+## 2.2 注意事项
+
+1. 代码生成器不能放在中文目录下执行
+2. 指定生成的代码所在的包名(3级)
 
 # 3. 规格管理
+
+## 3.1 表结构
 
 **规格表**
 
@@ -94,7 +122,7 @@ app.controller('baseController' ,function($scope){
 | spec_id     | bigint(30) NULL     |所属规格|
 | orders      | int(11) NULL        |排序|
 
-### 3.1 规格列表
+## 3.2 规格列表
 
 ```html
 <script type="text/javascript" src="../plugins/angularjs/angular.min.js"></script>
@@ -125,31 +153,58 @@ app.controller('baseController' ,function($scope){
 </body>
 ```
 
-### 3.2 新增规格
+## 3.2 新增规格
 
-#### 3.2.1 新增规格选项
+### 3.2.1 新增规格选项
 
 * HTML
 
 ```html
 <!--弹框时,初始化规格选项数组-->
 <button type="button"  
-        title="新建" 
-        data-toggle="modal" data-target="#editModal" ng-click="entity={specificationOptionList:[]}">		新建
+    	title="新建" 
+     data-toggle="modal" data-target="#editModal" ng-click="entity={specificationOptionList:[]}">		新建
 </button>
 
-<!--点击新增按钮,给数组中添加JSON对象-->
-<button type="button"  title="新建" ng-click="addTableRow()">新增规格选项</button>
-
---------------------------------------------------------------------------------
-<tr ng-repeat="pojo in entity.specificationOptionList">
-	<td>
-		<input   placeholder="规格选项" ng-model="pojo.optionName"> 
-	</td>
-	<td>
-		<input   placeholder="排序" ng-model="pojo.orders"> 
-	</td>
-</tr>
+<div id="editModal">			
+		<table>
+		  	 <tr>
+		  	 	<td>规格名称</td>
+		  	 	<td><input ng-model="entity.specification.specName"></td>
+		  	 </tr>
+		 </table>				
+		 
+		 <!-- 规格选项 -->
+		 <div class="btn-group">
+          	  <button type="button"  title="新建" ng-click="addTableRow()"> 新增规格选项</button>
+         </div>
+			 
+		 <table>
+		     <thead>
+		    	<th class="sorting">规格选项</th>
+		    	<th class="sorting">排序</th>											
+		      	<th class="sorting">操作</th>	
+		     </thead>
+		     <tbody>
+		      	<tr ng-repeat="pojo in entity.specificationOptionList">
+		  	  		<td>
+		  				<input   placeholder="规格选项" ng-model="pojo.optionName"> 
+		  			</td>
+		  			<td>
+		  				<input   placeholder="排序" ng-model="pojo.orders"> 
+		  			</td>
+					<td>
+						<button title="删除" ng-click="deleTableRow($index)" >删除</button>
+					</td>
+		     	</tr>
+             </tbody>
+	    </table> 
+    
+						
+		<button ng-click="save()">保存</button>
+		<button data-dismiss="modal">关闭</button>
+		
+</div>
 ```
 
 * Javascript
@@ -160,7 +215,7 @@ $scope.addTableRow=function(){
 }
 ```
 
-#### 3.2.2 删除行
+### 3.2.2 删除规格选项
 
 * HTML
 
@@ -170,8 +225,6 @@ $scope.addTableRow=function(){
     
     <button type="button" title="删除" ng-click="deleTableRow($index)" >删除</button>
 </tr>
-
-
 ```
 
 * Javascript
@@ -182,7 +235,7 @@ $scope.deleTableRow=function(index){
 }
 ```
 
-#### 3.2.3 保存规格
+### 3.2.3 保存规格数据
 
 同时需要给2张表(规格和规格选项表中保存数据)
 
@@ -225,6 +278,7 @@ public class Specification implements Serializable{
 * Javascript
 
 ```javascript
+//Controller
 $scope.save=function(){				
 	var serviceObject;//服务层对象  				
 	if($scope.entity.specification.id!=null){//如果有ID
@@ -243,6 +297,7 @@ $scope.save=function(){
 	);				
 }
 
+//Service
 //增加 
 this.add=function(entity){
 	return  $http.post('../specification/add.do',entity );
@@ -286,9 +341,9 @@ public void add(Specification specification) {
 }
 ```
 
-### 3.3 修改规格
+## 3.3 修改规格
 
-#### 3.3.1 数据回显 
+### 3.3.1 数据回显 
 
 * HTML 
 
@@ -411,7 +466,9 @@ public void delete(Long[] ids) {
 
 # 4. 模板管理
 
-模板用于关联规格和品牌信息
+模板用于关联规格和品牌
+
+![](pic/模板.png)
 
 | Field                  | Type                | Comment    |
 | ---------------------- | ------------------- | ---------- |
@@ -548,7 +605,7 @@ select2是一种增强的下拉列表,支持下拉项的多选.
 
 同品牌下拉列表
 
-#### 4.2.4 保存模板
+#### 4.2.4 保存模板数据
 
 * 页面提交的数据格式
 

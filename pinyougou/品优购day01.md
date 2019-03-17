@@ -1,10 +1,8 @@
-[TOC]
-
 # 1. 了解电商行业特点并理解常见电商的模式
 
-### [大型网站演变过程](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%BC%94%E5%8F%98%E8%BF%87%E7%A8%8B.png?raw=true)
+### [大型网站演变过程](./pic/大型网站演变过程.png)
 
-### 电商技术特点
+### 1.1 电商技术特点
 
 1. 用户多,高并发
 1. 高可用:7*24小时不间断访问
@@ -12,9 +10,9 @@
 1. 安全要求性高
 1. 一路演变而来,技术发展的目的是更好的处理业务.
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%A0%87%E5%87%86.png?raw=true)
+![](pic/高可用标准.png)
 
-### 电商模式
+### 1.2 电商模式
 
   * B2B:企业2企业;	阿里巴巴
   * B2C:企业2个人;     苏宁
@@ -26,22 +24,22 @@
 
 # 2. 了解整体品优购的架构特点
 
-### 分布式架构优点
+### 2.1 分布式架构优点
 
     1. 解耦
     2. 提高服务的复用和扩展
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%93%81%E4%BC%98%E8%B4%AD%E6%9E%B6%E6%9E%84.png?raw=true)
+![](pic/品优购架构.png)
 
- ### 品优购架构
+ ### 2.2 品优购架构
   后台:SSM+Dubbo
   前台:AngularJS+Bootstrap
   数据交互:Ajax
   数据格式:JSON
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%93%81%E4%BC%98%E8%B4%AD%E5%89%8D%E5%90%8E%E5%8F%B0%E7%B3%BB%E7%BB%9F%E5%85%B3%E7%B3%BB.png?raw=true)
+![](pic/品优购前后台系统关系.png)
 
-###Dubbo组件的运行原理
+###2.3 Dubbo组件的运行原理
 
   1.  启动服务的提供方
 
@@ -62,7 +60,7 @@
   Monitor: 监控中心。
   Container: 容器。
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/dubbo%E5%8E%9F%E7%90%86%E5%9B%BE.png?raw=true)
+![](pic/dubbo原理图.png)
 
 # 3. Dubbo入门案例
 
@@ -350,7 +348,7 @@
 
 # 4. 初始化品优购工程
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B9%E7%9B%AE%E5%9B%BE.png?raw=true)
+![](pic/初始化项目图.png)
 
 # 5. 查询品牌数据
 

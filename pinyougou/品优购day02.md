@@ -1,19 +1,17 @@
 
 
-[TOC]
-
 # 1.AngularJS介绍
 
-###  四大特征
+###  1.1 四大特征
 
 	MVC
 	数据双向绑定
 	依赖注入
 	模块化
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/angular%E7%89%B9%E5%BE%81.png?raw=true)
+![](pic/angular特征.png)
 
-### 指令
+### 1.2 指令
 
 ```javascript
 ng-app:定义angular的模块
@@ -24,7 +22,7 @@ ng-repeat:遍历  XX in list
 ng-init:初始化
 ```
 
-### 内置对象
+### 1.3 内置对象
 
 ```javascript
 $scope:在控制器中获得ng-model绑定的变量
@@ -196,7 +194,7 @@ public void add(TbBrand brand) {
 }
 ```
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%89%8D%E5%90%8E%E5%8F%B0%E6%95%B0%E6%8D%AE%E4%BA%A4%E4%BA%92.png?raw=true)
+![](pic/前后台数据交互.png)
 
 ### 2.4 修改品牌
 
