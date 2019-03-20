@@ -1,10 +1,14 @@
-[TOC]
-
 # 1. 录入商品分类和模板ID
 
-进入页面显示一级分类,选择一级分类,级联出二级分类,选择二级分类,级联出三级分类
+页面加载后显示一级分类
 
-### 1.1 一级分类显示
+选择一级分类,级联出二级分类
+
+选择二级分类,级联出三级分类
+
+选择三级分类,级联出模板ID
+
+## 1.1 一级分类显示
 
 * 页面
 
@@ -57,7 +61,7 @@ public List<TbItemCat> findByParentId(Long parentId) {
 }
 ```
 
-### 1.2 二级分类
+## 1.2 二级分类
 
 * goodsController.js
 
@@ -78,7 +82,8 @@ $scope.$watch('entity.goods.category1Id',function(newValue,oldValue){
         ng-options="item.id as item.name for item in itemCat2List">	    <!--遍历数据-->
 </select>
 ```
-### 1.3 三级分类
+## 1.3 三级分类
+
 * goodsController.js
 
 ```javascript
@@ -99,14 +104,20 @@ $scope.$watch('entity.goods.category2Id',function(newValue,oldValue){
 </select>
 ```
 
-### 1.4 显示模板ID
+## 1.4 显示模板ID
 
 选择三级分类,级联显示出模板ID
 
 * 页面
 
 ```html
-模板ID:{{entity.goods.typeTemplateId}}
+<!--三级分类-->
+<select 
+        ng-model="entity.goods.category3Id"   							<!--绑定变量--> 
+        ng-options="item.id as item.name for item in itemCat3List">		<!--遍历数据-->
+</select>
+<!--模板ID-->
+{{entity.goods.typeTemplateId}}
 ```
 
 * goodsController.js
@@ -140,13 +151,13 @@ public TbTypeTemplate findOne(Long id){
 
 # 2. 录入商品品牌
 
-模板ID确定后,根据模板查询其对应的品牌信息
+监控模板ID变化后,根据模板ID查询其对应的品牌信息
 
 * 页面
 
 ```html
 <select 
-            ng-model="entity.goods.brandId"  
+        ng-model="entity.goods.brandId"  
         ng-options="brand.id as brand.text for brand in typeTemplate.brandIds">
 </select>
 ```
@@ -168,7 +179,7 @@ $scope.$watch('entity.goods.typeTemplateId',function(newValue,oldValue){
 
 # 3. 录入扩展属性
 
-模板ID确定后,根据模板查询其对应的扩展属性
+监控模板ID变化后,根据模板ID查询其对应的扩展属性
 
 * 页面
 
@@ -199,9 +210,9 @@ $scope.$watch('entity.goods.typeTemplateId',function(newValue,oldValue){
 
 # 4. 录入商品规格
 
-模板确定后,根据模板查询其对应的规格信息,需要封装每种规格的规格选项
+监控模板ID变化后,根据模板查询其对应的规格信息,需要封装每种规格的规格选项
 
-### 4.1 显示规格
+## 4.1 显示规格
 
 * 页面
 
@@ -278,7 +289,43 @@ public List<Map> findSpecList(Long id) {
 }
 ```
 
-### 4.2 记录选择规格
+## 4.2 记录选择规格
+
+### 4.2.1 选择规格的数据格式
+
+```json
+[
+    {
+        "attributeName": "网络制式",
+        "attributeValue": [
+            "移动4G"
+        ]
+    },
+    {
+        "attributeName": "屏幕尺寸",
+        "attributeValue": [
+            "5.5寸",
+            "4.5寸"
+        ]
+    }
+]
+```
+
+### 4.2.2 思路分析
+
+```
+1. 定义规格数组
+2. 勾选规格的checkbox框时,传递当前规格名称和对应选项
+3. 在规格数组中判断当前规格是否存在
+   3.1 不存在:封装当前规格名称和选项,并添加到规格数组中
+   3.2 存在
+   	3.2.1 判断当前checkbox事件类型
+   		 3.2.1.1 选中:将规格选项添加到当前规格的选项数组中
+   		 3.2.1.2 取消选中:将规格选项从当前规格的选项数组中移除
+   		 				 判断如果所有的规格选项均被移除,则删除当前规格对象
+```
+
+### 4.2.3 编码实现
 
 * 页面
 
@@ -342,13 +389,37 @@ $scope.updateSpecAttribute=function($event,name,value){
 
 # 5. 录入SKU信息
 
-通过克隆对象的方式实现在SKU中添加规格信息
+## 5.1 技术分析
 
-> 浅克隆:对象不克隆,创建变量,指向同一个对象.
->
-> 深克隆:对象克隆,创建变量指向新的对象.
+通过克隆对象的方式,根据勾选的规格动态生成SKU对象
 
-### 5.1 构建SKU集合
+```
+浅克隆:对象不克隆,创建变量,指向同一个对象.
+深克隆:对象克隆,创建变量指向新的对象.
+```
+
+## 5.2 思路分析
+
+构建SKU数据
+
+```
+1. 在entity中初始化sku集合
+2. 获得所有勾选的规格集合
+3. 遍历规格集合
+	3.1 获得每个规格名称和选项数组
+ 	3.2 定义新的sku集合
+ 	3.3 遍历entity中sku集合
+ 		3.3.1 获得每个sku对象
+ 		3.3.3 遍历当前规格选项数组
+ 			3.3.3.1 克隆原sku对象
+ 			3.3.3.1 规格和选项到克隆的sku对象
+ 			3.3.3.1 将新的sku对象添加到sku集合中
+ 		3.3.4 将entity中的sku集合替换为新的sku集合
+```
+
+## 5.3 代码实现
+
+### 5.3.1 构建SKU集合
 
 ```html
 <div ng-repeat="pojo in specList">
@@ -395,7 +466,7 @@ $scope.createItemList=function(){
 }
 ```
 
-### 5.2 显示SKU集合
+### 5.3.2 显示SKU集合
 
 ```html
 <td ng-repeat="item in entity.goodsDesc.specificationItems">
@@ -417,12 +488,13 @@ $scope.createItemList=function(){
        		<input type="checkbox"  ng-model="pojo.status" ng-true-value="1" ng-false-value="0" >
       </td>
       <td>
-          	<input type="checkbox" ng-model="pojo.isDefault" ng-true-value="1" ng-false-value="0">
+          	<input type="checkbox" ng-model="pojo.isDefault" ng-true-value="1" ng-false-
+                   value="0">
       </td>
 </tr>
 ```
 
-### 5.3 保存SKU
+### 5.3.3 保存SKU
 
 ``` java
 /**
@@ -487,9 +559,9 @@ private void setItemValues(TbItem item,Goods goods){
 
 # 6. 是否启用规格
 
-启用规格:根据用户勾选的规格信息生成SKU列表
+启用规格:允许用户根据规格动态生成SKU对象
 
-不启动规格:后台自动生成一个SKU
+不启动规格:后台自动生成一个默认的SKU对象
 
 * 页面
 

@@ -1,6 +1,6 @@
-[TOC]
-
 # 1. 商品分类管理
+
+表结构
 
 | Field     | Type                | Comment                          |
 | --------- | ------------------- | -------------------------------- |
@@ -9,9 +9,11 @@
 | name      | varchar(50) NULL    | 类目名称                         |
 | type_id   | bigint(11) NULL     | 类型id                           |
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%88%86%E7%B1%BB%E5%92%8C%E6%A8%A1%E6%9D%BF%E5%92%8C%E5%93%81%E7%89%8C%E5%8F%8A%E8%A7%84%E6%A0%BC%E5%85%B3%E7%B3%BB.png?raw=true)
+商品分类与模板及品牌和规格的关系
 
-### 1.1 查询商品分类
+![](pic/分类和模板和品牌及规格关系.png)
+
+## 1.1 分类列表
 
  ```sql
 --一级分类
@@ -22,7 +24,7 @@ SELECT * FROM tb_item_cat WHERE parent_id=161;
 SELECT * FROM tb_item_cat WHERE parent_id=162;
  ```
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%95%86%E5%93%81%E5%88%86%E7%B1%BB%E5%85%B3%E7%B3%BB.png?raw=true)
+![](pic/商品分类关系.png)
 
 * item_cat.html
 
@@ -88,9 +90,16 @@ public List<TbItemCat> findByParentId(Long parentId) {
 }
 ```
 
-### 1.2 面包屑
+## 1.2 面包屑
 
-面包屑的作用记录用户在页面的浏览足迹
+面包屑的作用记录用户在页面的浏览足迹,页面导航
+
+思路分析:
+
+1. 顶级分类不变的文字不会改变,使用2个变量分别代表二级和三级分类,变量的类型是对象类型;`{id:xxx,name:xxx}`
+2. 点击`查询下级`按钮的时候完成2件事情,更新分类列表数据和更新面包屑
+   * setGrade(grade+1):此方法的目的是确定更新分类的级别
+   * selectList(entity):此方法的目的是更新分类列表数据和更新面包屑
 
 * item_cat.html
 
@@ -141,7 +150,6 @@ $scope.selectList=function(p_entity){
 	}
 	
 	$scope.findByParentId(p_entity.id);
-	
 }
 
 //根据上级分类ID查询列表
@@ -156,26 +164,32 @@ $scope.findByParentId=function(parentId){
 
 # 2. 电商概念
 
-### 2.1 SPU
+## 2.1 SPU
 
 SPU = Standard Product Unit  （标准产品单位）
 
-### 2.2 SKU
+## 2.2 SKU
 
 SKU=stock keeping unit（库存量单位）
 
-| 名词                  | 类型                                       |
-| --------------------- | ------------------------------------------ |
-| 手机                  | 分类                                       |
-| Iphone X              | SPU      （土豪金、黑色 \|  移动、联通  ） |
-| 联通版+土豪金Iphone X | SKU                                        |
-| 移动版+黑色Iphone X   | SKU                                        |
-| 联通版+黑色Iphone X   | SKU                                        |
-| 移动版+土豪金Iphone X | SKU                                        |
+![](pic/spu和sku.png)
 
-### 2.3 表结构
+一个SPU下有多个SKU
 
-**商品表(SPU):Tb_goods**
+| 名词                  | 类型                                      |
+| --------------------- | ----------------------------------------- |
+| 手机                  | 分类                                      |
+| Iphone X              | SPU      （土豪金、黑色 \|  移动、联通 ） |
+| 联通版+土豪金Iphone X | SKU                                       |
+| 移动版+黑色Iphone X   | SKU                                       |
+| 联通版+黑色Iphone X   | SKU                                       |
+| 移动版+土豪金Iphone X | SKU                                       |
+
+## 2.3 表结构
+
+### SPU
+
+tb_goods:商品基本表
 
 | Field            | Type                | Comment      |
 | ---------------- | ------------------- | ------------ |
@@ -196,7 +210,7 @@ SKU=stock keeping unit（库存量单位）
 | is_enable_spec   | varchar(1) NULL     | 是否启用规格 |
 | is_delete        | varchar(1) NULL     | 是否删除     |
 
-**商品详情表:tb_goods_desc**
+tb_goods_desc:商品详情表
 
 | Field                  | Type                | Comment                              |
 | ---------------------- | ------------------- | ------------------------------------ |
@@ -208,7 +222,9 @@ SKU=stock keeping unit（库存量单位）
 | package_list           | varchar(3000) NULL  | 包装列表                             |
 | sale_service           | varchar(3000) NULL  | 售后服务                             |
 
-**SKU表:tb_item**
+### SKU
+
+tb_item
 
 | Field          | Type                   | Comment                          |
 | -------------- | ---------------------- | -------------------------------- |
@@ -236,7 +252,11 @@ SKU=stock keeping unit（库存量单位）
 | spec           | varchar(200) NULL      | 规格                             |
 | seller         | varchar(200) NULL      | 所属商家                         |
 
-### 2.4 组合实体类
+## 2.4 组合实体类
+
+由于保存商品的时候,需要同时添加SPU和对应的SKU数据,所以定义组合实体类来接受页面提交的数据
+
+一个商品对应一个SPU,对应多个SKU
 
 ```java
 public class Goods implements Serializable{
@@ -246,7 +266,7 @@ public class Goods implements Serializable{
 }
 ```
 
-### 2.5 entity结构
+## 2.5 JSON结构
 
 ```
 {
@@ -256,7 +276,7 @@ public class Goods implements Serializable{
 }
 ```
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/%E5%95%86%E5%93%81%E5%BD%95%E5%85%A5%E8%A1%A8%E5%85%B3%E7%B3%BB.png?raw=true)
+![](pic/商品录入表关系.png)
 
 # 3. 商品基本信息录入
 
@@ -333,9 +353,9 @@ public void add(Goods goods) {
 
 # 3. 富文本编辑器
 
-编辑丰富的文本信息，达到所写即所得的效果。
+编辑页面内容时达到所写即所得的效果。
 
-### 3.1 如何使用
+## 3.1 使用方法
 
 * 页面
 
@@ -360,7 +380,7 @@ KindEditor.ready(function(K) {
 });
 ```
 
-### 3.2 保存商品详情
+## 3.2 保存商品详情
 
 ```javascript
 $scope.add=function(){		
@@ -387,17 +407,19 @@ $scope.add=function(){
 * Tracker server：调度服务器；负责负载均衡和任务调度，管理所有的存储服务器。
 * Storage server：存储服务器；负责文件的存储。
 
-原理图
+![](pic/fastdfs.jpg)
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastDFS%E5%8E%9F%E7%90%86%E5%9B%BE.png?raw=true)
+文件上传
 
-时序图
+![](pic/fastdfs上传.jpg)
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastdfs%E6%97%B6%E5%BA%8F%E5%9B%BE1.png?raw=true)
+文件名:
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastdfs%E6%97%B6%E5%BA%8F%E5%9B%BE2.png?raw=true)
+![](pic/fast文件名.jpg)
 
-### 4.1 上传文件
+![](pic/fastdfs下载.png)
+
+## 4.1 上传文件
 
 * 配置文件
 
@@ -442,13 +464,13 @@ M00/00/00/wKgZhVwlqxGABYyFAAEKGFTDYoc324.jpg
 访问:http://ip/group1/M00/00/00/wKgZhVwlqxGABYyFAAEKGFTDYoc324.jpg
 ```
 
-图片访问
+fastdfs与nginx的关系
 
-![](https://github.com/fudingcheng/teaching-notes/blob/master/diagrams/pinyougou/%E5%BC%80%E5%8F%91/fastDFS%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE.png?raw=true)
+![](pic/fastDFS文件访问.png)
 
 # 5. 商品图片录入
 
-### 5.1 商品图片录入
+## 5.1 图片录入
 
 * goods_edit.html
 
@@ -546,7 +568,7 @@ public Result upload(MultipartFile file){
 </bean>
 ```
 
-### 5.2 商品列表
+## 5.2 图片列表
 
 * goods_edit.html
 
@@ -570,13 +592,15 @@ public Result upload(MultipartFile file){
     <img  	 src="{{image_entity.url}}" width="200px" height="200px">		      	
 </table>
 
-<button class="btn btn-primary" ng-click="add()"><i class="fa fa-save"></i>保存</button>
+<button ng-click="add_image_entity()"><i class="fa fa-save"></i>保存</button>
 ```
 
 * goodsController.js
 
 ```javascript
+//在entity中初始化图片数组
 $scope.entity={ goodsDesc:{itemImages:[],specificationItems:[]}};
+//在entity中绑定图片信息
 $scope.add_image_entity=function(){
 	$scope.entity.goodsDesc.itemImages.push($scope.image_entity);			
 }
