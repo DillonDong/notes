@@ -1,10 +1,8 @@
-[TOC]
-
 # 1. 商家系统显示商品列表
 
-商家只能查询自己的商品,条件查询
+条件查询:商家只能查询自己的商品
 
-### 1.1 显示商品列表
+## 1.1 显示商品列表
 
 * 页面
 
@@ -133,7 +131,7 @@ public PageResult findPage(TbGoods goods, int pageNum, int pageSize) {
 }
 ```
 
-### 1.2 显示商品状态
+## 1.2 显示商品状态
 
 将所有状态存在在数组中,页面通过状态值在数组中获得对应状态信息
 
@@ -152,9 +150,9 @@ public PageResult findPage(TbGoods goods, int pageNum, int pageSize) {
 $scope.status=['未审核','已审核','审核未通过','已关闭'];
 ```
 
-### 1.3 显示分类信息
+## 1.3 显示分类信息
 
-在页面加载后,查询所有分类信息,以分类的ID作为索引将分类名称存放在数组中,页面通过分类ID在数组中获得对应分类信息
+在页面加载后,查询所有分类数组,以分类的ID作为索引将分类名称存放在数组中,页面通过分类ID在数组中获得对应分类信息
 
 * 页面
 
@@ -204,7 +202,7 @@ public List<TbItemCat> findAll() {
 }
 ```
 
-### 1.4 条件查询
+## 1.4 条件查询
 
 * 页面
 
@@ -244,9 +242,9 @@ public class Goods implements Serializable{
 }
 ```
 
-请求地址:http://localhost:9102/admin/goods_edit.html#?id=149187842867962
+![](pic/修改商品回显.png)
 
-### 2.1 基本信息回显
+## 2.1 基本信息回显
 
 * 页面good_edit.html
 
@@ -264,7 +262,7 @@ $scope.findOne=function(){
 	var id=$location.search()['id'];
 	if(id==null){
 		return ;
-	}		
+	}	
 	goodsService.findOne(id).success(
 		function(response){
 			$scope.entity= response;
@@ -305,25 +303,25 @@ public Goods findOne(Long id){
 }
 ```
 
-### 2.2 富文本编辑器内容回显
+## 2.2 富文本编辑器内容回显
 
 ```javascript
-	$scope.findOne=function(){	
-		var id=$location.search()['id'];
-		if(id==null){
-			return ;
-		}		
-		goodsService.findOne(id).success(
-			function(response){
-				$scope.entity= response;
-                //商品介绍 
-				editor.html($scope.entity.goodsDesc.introduction);
-			}
-		);		
-	}
+$scope.findOne=function(){	
+	var id=$location.search()['id'];
+	if(id==null){
+		return ;
+	}		
+	goodsService.findOne(id).success(
+		function(response){
+			$scope.entity= response;
+            //商品介绍 
+			editor.html($scope.entity.goodsDesc.introduction);
+		}
+	);		
+}
 ```
 
-### 2.3 回显商品图片列表
+## 2.3 回显商品图片列表
 
 ```javascript
 $scope.findOne=function(){	
@@ -343,7 +341,7 @@ $scope.findOne=function(){
 }
 ```
 
-### 2.4 回显商品扩展属性
+## 2.4 回显商品扩展属性
 
 ```javascript
 $scope.findOne=function(){	
@@ -383,7 +381,7 @@ $scope.$watch('entity.goods.typeTemplateId',function(newValue,oldValue){
 });
 ```
 
-### 2.5 回显商品规格信息
+## 2.5 回显商品规格信息
 
 主要回显规格勾选的状态
 
@@ -422,7 +420,7 @@ $scope.checkAttributeValue=function(specName,optionName){
 }
 ```
 
-### 2.6 回显SKU列表信息
+## 2.6 回显SKU列表信息
 
 ```javascript
 $scope.findOne=function(){	
@@ -452,7 +450,7 @@ $scope.findOne=function(){
 }
 ```
 
-### 2.7 修改商品
+## 2.7 修改商品
 
 * goodsController.html
 
@@ -568,7 +566,7 @@ private void saveItemList(Goods goods){
 }
 ```
 
-### 2.8 页面跳转
+## 2.8 页面跳转
 
 * 商品列表跳转到商品编辑页面
 
@@ -584,7 +582,7 @@ private void saveItemList(Goods goods){
 
 # 3. 运营商系统审核商品
 
-### 3.1 商品审核列表
+## 3.1 商品审核列表
 
 条件查询,查询未审核的商品列表
 
@@ -625,7 +623,7 @@ $scope.findItemCatList=function(){
 }
 ```
 
-### 3.2 审核商品
+## 3.2 审核商品
 
 * goodsController.html
 
@@ -746,7 +744,7 @@ public void delete(Long[] ids) {
 <bean id="transactionManager"
       class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
     <property name="dataSource" ref="dataSource" />  
-</bean>  
+</bean>
   
 <!-- 开启事务控制的注解支持 -->  
 <tx:annotation-driven transaction-manager="transactionManager"/>
