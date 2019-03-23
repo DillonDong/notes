@@ -1,38 +1,42 @@
-[TOC]
-
 # 1. 品优购前台分析
 
-### 1.1 广告模块表结构
+## 1.1 广告模块表结构
 
-* 广告分类表
+广告和广告分类表是一对多的关系
 
-| Field | Type                | Comment  |
-| ----- | ------------------- | -------- |
-| id    | bigint(20) NOT NULL | 类目ID   |
-| name  | varchar(50) NULL    | 分类名称 |
+### 1.1.1 广告分类表
 
-* 广告内容表
+tb_content_category
 
-| Field       | Type                | Comment      |
-| ----------- | ------------------- | ------------ |
-| id          | bigint(20) NOT NULL |              |
-| category_id | bigint(20) NOT NULL | 内容类目ID   |
-| title       | varchar(200) NULL   | 内容标题     |
-| url         | varchar(500) NULL   | 链接         |
-| pic         | varchar(300) NULL   | 图片绝对路径 |
-| status      | varchar(1) NULL     | 状态         |
-| sort_order  | int(11) NULL        | 排序         |
+| Field | Type                | Comment |
+| ----- | ------------------- | ------- |
+| id    | bigint(20) NOT NULL | 类目ID    |
+| name  | varchar(50) NULL    | 分类名称    |
+
+### 1.1.2 广告内容表
+
+tb_content
+
+| Field       | Type                | Comment |
+| ----------- | ------------------- | ------- |
+| id          | bigint(20) NOT NULL |         |
+| category_id | bigint(20) NOT NULL | 内容类目ID  |
+| title       | varchar(200) NULL   | 内容标题    |
+| url         | varchar(500) NULL   | 链接      |
+| pic         | varchar(300) NULL   | 图片绝对路径  |
+| status      | varchar(1) NULL     | 状态      |
+| sort_order  | int(11) NULL        | 排序      |
 
 # 2. 广告模块管理
 
-### 2.1 基本CURD
+## 2.1 基本CURD
 
 * 创建广告模块接口工程	pinyougou-content-interface
 * 创建广告模块服务工程 pinyougou-content-service
 * 在运营商后台系统引入广告接口依赖
 * 拷贝广告模块相关代码完成基本CURD功能
 
-### 2.2 广告图片上传
+## 2.2 广告图片上传
 
 * 页面
 
@@ -104,7 +108,7 @@ public Result upload(MultipartFile file){
 </bean>
 ```
 
-### 2.3 广告分类选择下拉框
+## 2.3 广告分类下拉框
 
 * 页面
 
@@ -147,7 +151,7 @@ public List<TbContentCategory> findAll() {
 }
 ```
 
-### 2.4 广告状态选择
+## 2.4 广告状态选择
 
 * contentController.js中定义状态数组
 
@@ -170,11 +174,15 @@ $scope.status=["无效","有效"];
 
 # 3. 前台广告轮播显示
 
-### 3.1 广告轮播显示
+## 3.1 广告轮播显示
 
 * 创建前台Web工程 pinyougou-portal-web
 
-  前台系统,用户访问量大,不同的页面使用不同服务器运行.
+  pinyougou-portal-web：负责首页的显示
+
+  前台系统特点：面向互联网用户，访问量大，不同的功能页面使用不同服务器运行.
+
+## 3.2 编码实现
 
 * 页面
 
@@ -239,7 +247,7 @@ public List<TbContent> findByCategoryId(Long categoryId) {
 
 # 4. SpringDataRedis
 
-### 4.1 概念介绍
+## 4.1 概念介绍
 
 **Redis:**是一个no-sql数据库.典型的key-value;
 
@@ -247,7 +255,9 @@ public List<TbContent> findByCategoryId(Long categoryId) {
 
 **SpringDataRedis:**针对常见的Redis客户端进行了封装,简化操作.
 
-### 4.2 数据结构
+![](./pic/springdataredis.png)
+
+## 4.2 数据结构
 
 ```
 String:字符串;
@@ -257,7 +267,7 @@ ZSet:集合;元素有序;
 Hash:哈希;
 ```
 
-### 4.3 ops对象
+## 4.3 ops对象
 
 ```
 BoundValueOperations
@@ -267,9 +277,9 @@ BoundZSetOperations
 BoundHashOperations		
 ```
 
-### 4.4 常用操作
+## 4.4 常用操作
 
-#### 4.4.0 环境准备
+### 4.4.1 环境准备
 
 * pom.xml
 
@@ -367,16 +377,16 @@ BoundHashOperations
 ```
 
 ```properties
-redis.host=127.0.0.1 
-redis.port=6379 
+redis.host=127.0.0.1
+redis.port=6379
 redis.pass=
-redis.database=0 
+redis.database=0
 redis.maxIdle=300
 redis.maxWait=3000
 redis.testOnBorrow=true
 ```
 
-#### 4.4.1 字符串操作
+### 4.4.2 字符串操作
 
 ```java
 //添加元素
@@ -389,7 +399,7 @@ String str = (String) redisTemplate.boundValueOps("name").get();
 redisTemplate.delete("name");
 ```
 
-#### 4.4.2 List操作
+### 4.4.3 List操作
 
 ```java
 //添加元素-左压栈
@@ -412,7 +422,7 @@ redisTemplate.delete("namelist1");
 redisTemplate.boundListOps("namelist1").remove(1, "刘备");
 ```
 
-#### 4.4.3 Set操作
+### 4.4.4 Set操作
 
 ```java
 //添加元素
@@ -433,7 +443,7 @@ redisTemplate.boundSetOps("nameset").remove("孙权");
 redisTemplate.delete("nameset");
 ```
 
-#### 4.4.4 ZSet操作
+### 4.4.5 ZSet操作
 
 ```java
 //添加元素
@@ -451,7 +461,7 @@ redisTemplate.boundZSetOps("namezset").removeRange(0,10);
 redisTemplate.delete("namezset");
 ```
 
-#### 4.4.5 Hash操作
+### 4.4.6 Hash操作
 
 ```java
 //添加元素
@@ -478,7 +488,7 @@ redisTemplate.boundHashOps("namehash").delete();
 
 # 5. 广告内容缓存
 
-### 5.1 查询广告时缓存
+## 5.1 查询广告时缓存
 
 ```java
 public List<TbContent> findByCategoryId(Long categoryId) {
@@ -502,7 +512,7 @@ public List<TbContent> findByCategoryId(Long categoryId) {
 }
 ```
 
-### 5.2 缓存无效处理
+## 5.2 缓存失效处理
 
 * 增
 
