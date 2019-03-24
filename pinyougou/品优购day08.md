@@ -187,7 +187,7 @@ $scope.status=["无效","有效"];
 * 页面
 
 ```html
-<body ng-app="pinyougou" ng-controller="contentController" ng-init="findByCategoryId(1);">
+<body ng-app="pinyougou" ng-controller="contentController" ng-init="findByCategoryId(1)">
     <!--圆点-->
     <ol>
         <li data-slide-to="{{$index}}" 
@@ -219,7 +219,7 @@ $scope.findByCategoryId=function(categoryId){
 		function(response){
 			$scope.contentList[categoryId]=response;
 		}
-	);		
+	);
 }
 ```
 
@@ -263,7 +263,7 @@ public List<TbContent> findByCategoryId(Long categoryId) {
 String:字符串;
 List:双向链表
 Set:集合;值不会重复,无序.
-ZSet:集合;元素有序;
+ZSet:集合;值不会重复,元素有序;
 Hash:哈希;
 ```
 
