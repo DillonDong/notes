@@ -1,10 +1,8 @@
-[TOC]
-
 # 1. 完成solr环境搭建
 
-### 1.1 全文检索背景
+## 1.1 全文检索背景
 
-#### 1.1.1 解决的问题
+### 1.1.1 解决的问题
 
 * 问题
 
@@ -16,26 +14,42 @@ SELECT * FROM tb_item WHERE title LIKE '%手机%' OR brand LIKE '%apple%';
 1. 查询效率低,模糊查询数据库不会使用索引.
 2. 查询的准确率不高;
 
-#### 1.1.2 全文检索的原理
+### 1.1.2 全文检索的原理
 
 1. 文档进行分词处理
 2. 清洗词条,去掉文档中的标点符号和空格
 3. 清洗词条,去掉无意义的词(叹词,语气词,介词等)
-4. 建立词条与文档之间的映射关系(索引库)
+4. 建立词条与文档之间的映射关系(索引库)，**倒排索引表**
 5. 用户在进行条件查询时,将条件与词条进行匹配
 6. 匹配到词条后,将词条对应的文档返回
 
-#### 1.1.3 相关概念
+![](./pic/倒排索引1.jpg)
 
-**luence:**是全文检索的类库(框架).
+倒排索引表：
 
-**solr:**是搜索引擎服务器,底层依赖于luence.提供了Restful风格的访问,能够实现跨语言和跨平台访问.
+![](./pic/倒排索引2.jpg)
+
+### 1.1.3 相关概念
+
+**lucene:**是全文检索的类库(框架).
+
+**solr:**是搜索引擎服务器,底层依赖于lucene.提供了Restful风格的访问,能够实现跨语言和跨平台访问.
 
 **solr与Luence的关系:**solr的底层依赖luence实现全文检索.
 
 **solr与springdataSolr的关系:**Spring提供了简化solr操作的API.
 
-### 1.2 solr安装
+![](./pic/apache_lucene_vs_solr.png)
+
+
+
+### 1.1.4 Solr数据的来源
+
+Solr中的数据来自于数据库
+
+![](./pic/solr.png)
+
+## 1.2 solr安装
 
 1. 安装Tomcat
 2. 解压 solr安装包
@@ -55,7 +69,7 @@ SELECT * FROM tb_item WHERE title LIKE '%手机%' OR brand LIKE '%apple%';
 </env-entry>
 ```
 
-### 1.3 中文分词器IK
+## 1.3 中文分词器IK
 
 中文分词器ik能够更好的按照中文的语义进行分词
 
@@ -69,23 +83,21 @@ SELECT * FROM tb_item WHERE title LIKE '%手机%' OR brand LIKE '%apple%';
 </fieldType>
 ```
 
-### 1.4 配置域
+## 1.4 配置域
 
-配置域相当于是在数据库中创建表
+配置域相对于solr相当于是在表相对于关系型数据库
 
-1. 字段是否分词?  type
+### 1.4.1 field属性介绍
 
-   文本类型的数据通常要进行分词.
+1.  name：字段名称
+2.  type：字段类型；决定了分词的逻辑；
+3.  index：是否建立索引
 
-2. 字段值是否建立索引? index
+4.  stored：是否在Solr中存储
 
-   需要进行搜索的域要建立索引
+### 1.4.2 域的种类
 
-3. 字段值是否存储?     stored
-
-   需要显示的搜索的结果要进行存储
-
-* 普通域
+1. 普通域
 
 ```xml
 <field name="item_goodsid" type="long" indexed="true" stored="true"/>
@@ -98,7 +110,7 @@ SELECT * FROM tb_item WHERE title LIKE '%手机%' OR brand LIKE '%apple%';
 <field name="item_updatetime" type="date" indexed="true" stored="true" />
 ```
 
-* 组合域
+2. 组合域
 
 ```xml
 <field name="item_keywords" type="text_ik" indexed="true" stored="false" multiValued="true"/>
@@ -108,7 +120,7 @@ SELECT * FROM tb_item WHERE title LIKE '%手机%' OR brand LIKE '%apple%';
 <copyField source="item_brand" dest="item_keywords"/>
 ```
 
-* 动态域
+3. 动态域
 
 ```xml
 <dynamicField name="item_spec_*" type="string" indexed="true" stored="true" />
@@ -116,7 +128,11 @@ SELECT * FROM tb_item WHERE title LIKE '%手机%' OR brand LIKE '%apple%';
 
 # 2. SpringDataSolr的使用
 
-### 2.1 准备环境
+SpringDataSolr的作用是简化Solr的操作
+
+![](./pic/SpringDataSolr.png)
+
+## 2.1 准备环境
 
 * pom文件
 
@@ -151,7 +167,7 @@ SELECT * FROM tb_item WHERE title LIKE '%手机%' OR brand LIKE '%apple%';
 </bean>
 ```
 
-### 2.2 配置实体类
+## 2.2 配置实体类
 
 ```java
 public class TbItem implements Serializable{
@@ -185,7 +201,7 @@ public class TbItem implements Serializable{
 }
 ```
 
-### 2.4 增加和修改
+## 2.4 增加和修改
 
 ```java
 @Test
@@ -203,7 +219,7 @@ public void testAdd(){
 }
 ```
 
-### 2.5 主键查询
+## 2.5 主键查询
 
 ```java
 public void testFindOne(){
@@ -212,7 +228,7 @@ public void testFindOne(){
 }
 ```
 
-### 2.6 主键删除
+## 2.6 主键删除
 
 ```java
 public void testDelete(){
@@ -221,7 +237,7 @@ public void testDelete(){
 }
 ```
 
-### 2.7 批量插入
+## 2.7 批量插入
 
 ```java
 public void testAddList(){
@@ -242,7 +258,7 @@ public void testAddList(){
 }
 ```
 
-### 2.8 分页查询
+## 2.8 分页查询
 
 ```java
 public void testPageQuery(){
@@ -262,7 +278,7 @@ private void showList(List<TbItem>list){
 }
 ```
 
-### 2.9 条件查询
+## 2.9 条件查询
 
 ```java
 public void testPageQueryMutil(){
@@ -276,7 +292,11 @@ public void testPageQueryMutil(){
 }
 ```
 
-### 2.10 全部删除
+* 注意
+  * is：查询条件进行分词，然后用分词的词条和文档的词条匹配查询
+  * contains：查询条件不会进行分词，直接查询
+
+## 2.10 全部删除
 
 ```java
 public void testDeleteAll(){
@@ -410,7 +430,7 @@ public class SolrUtil {
 
 创建独立的pinyougou-search-interface、pinyougou-search-service、pinyougou-search-web工程
 
-### 4.1 服务层接口
+## 4.1 服务层接口
 
 ```java
 /**
@@ -427,7 +447,7 @@ public Map search(Map searchMap);
 
 ​	后台:{"rows":[...],"brands":[...],"specs":[...]}
 
-### 4.2 服务层实现
+## 4.2 服务层实现
 
 ```java
 @Autowired
@@ -449,7 +469,7 @@ public Map search(Map searchMap) {
 }
 ```
 
-### 4.3 Web层
+## 4.3 Web层
 
 ```java
 @Reference
