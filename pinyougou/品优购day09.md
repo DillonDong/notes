@@ -441,11 +441,19 @@ public class SolrUtil {
 public Map search(Map searchMap);
 ```
 
-举例:
+## 4.2 数据格式
 
-​	前台:{"keywords":"XXX","brand":"XXX","category":"XXX"}
+* 前台传输给后台
 
-​	后台:{"rows":[...],"brands":[...],"specs":[...]}
+```json
+{"keywords":"XXX","brand":"XXX","category":"XXX"}
+```
+
+* 后台返回给前台
+
+```json
+{"rows":[...],"brands":[...],"specs":[...]}
+```
 
 ## 4.2 服务层实现
 

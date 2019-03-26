@@ -1,17 +1,15 @@
-[TOC]
-
 # 1. 搜索结果高亮显示
 
-### 1.1 思路分析
+## 1.1 思路分析
 
-页面的高亮显示,本质是对搜索的关键字进行了样式处理
+搜索结果的高亮显示,其实是在指定的域中对搜索的关键字使用样式进行颜色设置
 
-### 1.2 实现步骤
+## 1.2 实现步骤
 
-1. 后台指定在哪些域中进行高亮显示
-2. 后台确定高亮域中包裹关键字的HTML标签(开始表现和结束标签)和样式
+1. 指定在哪些域中进行高亮显示，可以是一个域也可以是多个域
+2. 指定包裹关键字的HTML标签(开始标签和结束标签)和颜色的样式
 
-### 1.3 代码实现
+## 1.3 代码实现
 
 * 后台
 
@@ -35,6 +33,7 @@ private Map searchList(Map searchMap){
 	HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
 	//高亮入口集合(每条记录的高亮入口)
 	List<HighlightEntry<TbItem>> entryList = page.getHighlighted();		
+  	//entry=实体+高亮片段
 	for(HighlightEntry<TbItem> entry:entryList  ){
 		//获取高亮列表(高亮域的个数)
 		List<Highlight> highlightList = entry.getHighlights();		
@@ -79,28 +78,29 @@ app.filter('trustHtml',function($sce){
 });
 ```
 
-# 2. 搜索页面过滤面板的实现思路分析
+# 2. 搜索页面过滤面板
 
-* 思路分析
+过滤面板的作用是用来根据指定的条件过滤搜索的结果
 
-过滤面板的数据来自于搜索的商品,目的是对搜索结果进行过滤
-
-- 过滤面板的显示
+## 2.1 过滤面板的显示
 
 1. 针对搜索条件,对商品数据进行按照分类进行分组查询
-2. 将分组的结果(分类信息)封装到结果集
+2. 将分组的结果(分类信息)封装到响应数据集合中
 3. 默认根据第一个分类信息,查询其对应的模板
 4. 根据模板查询其对应的品牌信息,封装到结果集
 5. 根据模板查询其对应的规格信息,封装到结果集
 
-* 过滤查询
-  1. 用户点击过滤面板的分类、品牌和规格等过滤条件时，将条件封装到searchEntity中
-  2. 后台根据过滤条件筛选结果
-  3. 前台隐藏用户已点击的条件
+## 2.2 过滤的过滤查询
+
+1. 用户点击过滤面板的分类、品牌和规格等过滤条件时，将条件封装到searchEntity中
+2. 后台根据过滤条件筛选结果
+3. 前台隐藏用户已点击的条件
 
 # 3. 显示过滤面板中分类信息
 
-### 3.1 重构代码
+## 3.1 重构代码
+
+由于后台搜索方法中要同时封装商品、分类、品牌和规格的数据，所以对该方法进行重构，方便后期维护。
 
 * 控制层
 
@@ -117,34 +117,53 @@ public Map search(@RequestBody Map searchMap){
 public Map search(Map searchMap) {
 	Map map=new HashMap();
 	
-	//1.查询SKU列表
+	//1.封装商品集合
 	map.put(...);
-	//2.分组查询 商品分类列表
+	//2.封装分类集合
 	map.put(...);
-	//3.查询品牌和规格列表
+	//3.封装品牌和规格集合
 	map.put(...);
     
 	return map;
 }
 ```
 
-### 3.2 类型分组查询
+## 3.2 按照类型分组查询
+
+分组就是将具有相同属性值得数据放置在同一组
+
+### 3.2.1 思路分析
+
+类比数据库的分组查询
+
+```sql
+--查询商品的种类信息
+SELECT category FROM tb_item GROUP BY category
+```
+
+显示结果：
+
+![](./pic/分组查询.png)
+
+Solr支持类似于数据库的分组查询，可以通过solr提供的API指定分组的域
+
+### 3.2.2 代码实现
 
 * 业务层search方法
 
 ```java
 public Map search(Map searchMap) {
 	Map map=new HashMap();
-	//1.查询列表
+	//1.封装商品集合
 	map.putAll(searchList(searchMap));
-	//2.分组查询 商品分类列表
+	//2.封装分类集合
 	List<String> categoryList = searchCategoryList(searchMap);
 	map.put("categoryList", categoryList);
 	return map;
 }
 ```
 
-* 业务层分组查询
+* 业务层按照分类进行分组查询
 
 ```java
 private List<String> searchCategoryList(Map searchMap){
@@ -165,9 +184,9 @@ private List<String> searchCategoryList(Map searchMap){
 	Page<GroupEntry<TbItem>> groupEntries = groupResult.getGroupEntries();
 	//获取分组入口集合
 	List<GroupEntry<TbItem>> entryList = groupEntries.getContent();
-	
+	//entry=分类名称+分类结果（商品数量等）
 	for(GroupEntry<TbItem> entry:entryList  ){
-		list.add(entry.getGroupValue()	);	//将分组的结果添加到返回值中
+		list.add(entry.getGroupValue()	);	//将分类名称添加到集合中
 	}
 	return list;
 }
@@ -197,9 +216,9 @@ private List<String> searchCategoryList(Map searchMap){
 
 # 4. 缓存品牌和规格信息
 
-### 4.1 缓存分析
+## 4.1 过滤面板数据分析
 
-过滤面板的数据:
+过滤面板的数据显示逻辑:
 
 1. 分类---->模板
 2. 模板---->品牌
@@ -207,13 +226,29 @@ private List<String> searchCategoryList(Map searchMap){
 
 如果查询数据库会导致数据库访问压力太大,所以将数据缓存到Redis中.
 
-### 4.2 缓存数据
+## 4.2 缓存数据
 
-#### 4.2.1 缓存分类与模板
+1. 在哪个系统缓存？
 
-* 分类服务层ItemCatServiceImpl
+   在运行商后台管理系统中进行数据缓存
 
-  缓存分类-->模板
+2. 缓存哪些数据？
+
+   在Redis中缓存两部分的数据
+
+   ​	分类集合
+
+   ​	模板集合
+
+3. 什么时候缓存？
+
+   在数据库的数据发生变化的时候，就要将最新的数据缓存到redis中
+
+   由于分类和模板的数据更改后都会进行查询操作，所以可以在查询方法处进行缓存
+
+### 4.2.1 缓存分类与模板
+
+* ItemCatServiceImpl
 
 ```java
 /**
@@ -243,13 +278,10 @@ public List<TbItemCat> findAll() {
 }
 ```
 
-#### 4.2.2 缓存品牌与规格
+### 4.2.2 缓存品牌与规格
 
-* 模板服务层TypeTemplateServiceImpl
+* TypeTemplateServiceImpl
 
-  缓存模板---->品牌
-
-  缓存模板---->规格
 
 ```java
 /**
@@ -290,7 +322,12 @@ private void saveToRedis(){
 
 # 5. 显示品牌和规格信息
 
-默认根据第一个分类查询其对应的品牌和规格信息
+## 5.1 思路分析
+
+* 搜索页面加载后，默认根据集合中第一个分类查询对应的品牌和规格信息
+* 如果用户在过滤面板上点击某个分类，根据用户点击的分类查询对应的品牌和规格信息
+
+## 5.2 编码实现
 
 * 页面
 
@@ -413,7 +450,7 @@ private Map searchBrandAndSpecList(String category){
 
 # 6. 过滤查询
 
-### 6.1 思路分析
+## 6.1 思路分析
 
 构建查询实体,当用户点击过滤面板的[分类|品牌|规格]时,在searchMap中绑定查询条件
 
@@ -421,7 +458,7 @@ private Map searchBrandAndSpecList(String category){
 $scope.searchMap={'keywords':'','category':'','brand':'','spec':{}};
 ```
 
-### 6.2 绑定查询条件
+## 6.2 绑定查询条件
 
 * HTML
 
@@ -479,7 +516,7 @@ $scope.addSearchItem=function(key,value){
 }
 ```
 
-### 6.3 撤销查询条件
+## 6.3 撤销过滤条件
 
 * HTML
 
@@ -514,7 +551,7 @@ $scope.removeSearchItem=function(key){
 }
 ```
 
-### 6.4 后台过滤查询
+## 6.4 后台过滤查询
 
 ```java
 private Map searchList(Map searchMap){
@@ -558,7 +595,6 @@ private Map searchList(Map searchMap){
 	...
 	map.put("rows", page.getContent());
 	return map;
-	
 }
 ```
 
