@@ -462,7 +462,7 @@ public Map search(Map searchMap);
 private SolrTemplate solrTemplate;
 
 @Override
-public Map search(Map searchMap) {
+public Map search(Map searchMap) {	
 	Map map=new HashMap();
 	
 	Query query=new SimpleQuery("*:*");
