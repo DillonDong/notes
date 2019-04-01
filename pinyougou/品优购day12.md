@@ -1,24 +1,32 @@
-[TOC]
-
 # 1. FreeMarker介绍
 
-### 1.1 静态化页面的特点
+## 1.1 静态化页面的特点
 
 1. 访问量比较大
 2. 页面的数据基本不会改变
 
-### 1.2 页面静态化处理原理
+## 1.2 页面静态化处理原理
 
-​	模板+数据=静态页面
+模板+数据=静态页面
 
-### 1.3 静态化技术好处
+![](./pic/freemarker.png)
+
+## 1.3 静态化技术好处
 
 1. 减少了数据库的访问的压力
-2. 可以很好的实现网站的动静分离
+2. 有利于SEO优化
+3. 可以很好的实现网站的动静分离
 
 # 2. 入门案例
 
-### 2.1 模板的定义
+## 2.1 步骤分析
+
+1. 创建模板文件
+2. 使用数据填充模板，生成静态页面
+
+## 2.2 编码实现
+
+### 2.2.1 模板文件
 
 ```html
 <html>
@@ -71,7 +79,7 @@
 </html>
 ```
 
-### 2.2 数据的填充
+### 2.2.2 填充数据
 
 ```java
 public static void main(String[] args) throws IOException, TemplateException {
@@ -120,9 +128,33 @@ public static void main(String[] args) throws IOException, TemplateException {
 }
 ```
 
+## 2.3 指令
+
+```html
+<#assign name="value">
+<#include "xxx.ftl">
+<#if value=XXX>
+<#list list as item>
+```
+
+## 2.4 内建函数 
+
+```shell
+# 时间
+日期${today?date}
+时间${today?time}
+日期时间${today?datetime}
+格式化时间${today?string("yyyy 年 MM 月")}
+# 数字格式化	
+${point?c}
+# 非空判断
+aaa??
+${aaa!'-'}
+```
+
 # 3. 商品详情页显示
 
-### 3.1 配置文件
+## 3.1 配置文件
 
 * Spring配置文件
 
@@ -142,7 +174,7 @@ public static void main(String[] args) throws IOException, TemplateException {
 pagedir=C:\\Users\\fudingcheng\\Desktop\\html\\
 ```
 
-### 3.2 基本数据生成
+## 3.2 基本数据生成
 
 * 后台数据填充
 
@@ -196,7 +228,7 @@ ${goodsDesc.packageList}
 ${goodsDesc.saleService}
 ```
 
-### 3.3 显示图片列表
+## 3.3 显示图片列表
 
 ```html
 <!--图片列表集合-->
@@ -210,10 +242,10 @@ ${goodsDesc.saleService}
 <!--小图列表-->
 <#list imageList as item>
 	<li><img src="${item.url}" bimg="${item.url}" onmousemove="preview(this)" /></li>
-</#list>     
+</#list>    
 ```
 
-### 3.4 扩展属性列表
+## 3.4 扩展属性列表
 
 ```html
 <!--扩展属性-->
@@ -226,7 +258,7 @@ ${goodsDesc.saleService}
 </#list>
 ```
 
-### 3.5 规格列表
+## 3.5 规格列表
 
 ```xml
 <#assign specificationList=goodsDesc.specificationItems?eval>
@@ -247,7 +279,7 @@ ${goodsDesc.saleService}
 </#list>
 ```
 
-### 3.6 商品分类面包屑
+## 3.6 商品分类面包屑
 
 * 后台
 
@@ -272,7 +304,7 @@ dataModel.put("itemCat3", itemCat3);
 
 # 4. 页面逻辑处理
 
-### 4.1 商品数量增减
+## 4.1 商品数量增减
 
 * 模板
 
@@ -296,7 +328,7 @@ $scope.addNum=function(x){
 }
 ```
 
-### 4.2 规格选择高亮
+## 4.2 规格选择高亮
 
 * 模板
 
@@ -332,7 +364,7 @@ $scope.isSelected=function(key,value){
 
 # 5. 读取SKU
 
-### 5.1 生成SKU列表
+## 5.1 生成SKU列表
 
 * 后台
 
@@ -384,12 +416,12 @@ var skuList=[
 ------------------------生成数据-----------------------------------
 ```
 
-### 5.2 选择SKU
+## 5.2 选择SKU
 
 * 模板
 
 ```html
-<body ng-app="pinyougou"ng-controller="itemController"ng-init="num=1;loadSku ()">
+<body ng-app="pinyougou"ng-controller="itemController"ng-init="num=1;loadSku()">
 	<!--SKU名称-->
     <div class="sku-name"><h4>{{sku.title}}</h4></div>
     <!--SKU价格-->
@@ -451,7 +483,7 @@ matchObject=function(map1,map2){
 }
 ```
 
-### 5.3 添加购物车
+## 5.3 添加购物车
 
 * 页面
 
@@ -469,8 +501,6 @@ $scope.addToCart=function(){
 ```
 
 # 6. 系统对接
-
-
 
 
 

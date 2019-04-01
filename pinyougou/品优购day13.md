@@ -1,19 +1,31 @@
-[TOC]
-
 # 1.  消息服务概述
 
-### 1.1 优点
+##1.1 优点
 
-* 耦合
-* 异步
+* 解耦合
+
+![](./pic/mq-1.png)
+
+![](./pic/mq-2.png)
+
+* 异步，缩短请求的处理时间
+
+![](./pic/mq-3.png)
+
+![](./pic/mq-4.png)
+
 * 削峰
 
-### 1.2 JMS
+![](./pic/mq-5.png)
+
+![](./pic/mq-6.png)
+
+## 1.2 JMS
 
 * JMS:Java针对消息机制提出的一套规范
 * ActiveMQ:是JMS一种实现
 
-### 1.3 消息正文格式
+## 1.3 消息正文格式
 
 * TextMessage:字符串
 * MapMessage:Map类型
@@ -21,23 +33,27 @@
 * BytesMessage:字节数据
 * StreamMessage:原始流对象
 
-### 1.4 两种消息类型
+## 1.4 两种消息类型
 
-* 点对点
+### 1.4.1 点对点
+
+![](./pic/Queue.png)
 
 1.  一个消息的生产者对应一个消费者
-2. 如果当前的消费方不存在,那么消息就会存储在消息队列中.
+2.  如果当前的消费方不存在,那么消息就会存储在消息队列中.
 
-* 发布/订阅
+### 1.4.2 发布/订阅
+
+![](./pic/Topic.png)
 
 1. 一个消息的消息生产者可以对应多个消费者
 2. 如果当前的消费方不存在,那么消息就会过期了
 
 # 2.JMS原生开发
 
-### 2.1 点对点
+## 2.1 点对点
 
-#### 2.1.1 消息生产者
+### 2.1.1 消息生产者
 
 ```java
 //1.创建连接工厂
@@ -63,7 +79,7 @@ session.close();
 connection.close();
 ```
 
-#### 2.1.2 消息消费者
+### 2.1.2 消息消费者
 
 ```java
 //1.创建连接工厂
@@ -101,9 +117,9 @@ System.in.read();
 //connection.close();
 ```
 
-### 2.2 发布订阅
+## 2.2 发布订阅
 
-#### 消息生产者
+### 2.2.1 消息生产者
 
 ```java
 //1.创建连接工厂
@@ -128,7 +144,7 @@ session.close();
 connection.close();
 ```
 
-#### 消息消费者
+### 2.2.2 消息消费者
 
 ```java
 //1.创建连接工厂
@@ -167,9 +183,9 @@ connection.close();
 
 # 3. SpringJMS
 
-### 3.1 点对点
+## 3.1 点对点
 
-#### 消息生产者
+### 3.1.1 消息生产者
 
 * ```spring```配置文件
 
@@ -238,7 +254,7 @@ public class TestQueue {
 }
 ```
 
-#### 消息消费者
+### 3.1.2 消息消费者
 
 * ```spring```配置文件
 
@@ -306,9 +322,9 @@ public class TestQueue {
 }
 ```
 
-### 3.2 发布/订阅
+## 3.2 发布/订阅
 
-#### 消息生产者
+### 3.2.1 消息生产者
 
 * ```Spring```配置文件
 
@@ -380,7 +396,7 @@ public class TestTopic {
 }
 ```
 
-#### 消息消费者
+### 3.2.2 消息消费者
 
 - ```Spring```配置文件
 
@@ -627,7 +643,7 @@ public class ItemDeleteListener implements MessageListener {
 
 # 5. 优化商品审核之生成静态页面 
 
-### 消息生产者
+## 5.1 消息生产者
 
 * 配置文件
 
@@ -655,7 +671,7 @@ for(final Long goodsId:ids){
 }
 ```
 
-### 消息消费者
+## 5.2 消息消费者
 
 * 配置文件
 
@@ -695,7 +711,7 @@ public class PageListener implements MessageListener {
 
 # 6. 优化删除静态页面 
 
-### 消息生产者
+## 6.1 消息生产者
 
 * ```Spring```配置
 
@@ -719,7 +735,7 @@ jmsTemplate.send(topicPageDeleteDestination, new MessageCreator() {
 });
 ```
 
-### 消息消费者
+## 6.2 消息消费者
 
 * ```spring```配置文件
 

@@ -1,14 +1,11 @@
-[TOC]
-
 # 1. 价格区间筛选
 
-### 1.1 思路分析
+## 1.1 思路分析
 
-查询在某个价格区间的商品，前台给后台传递【价格下限-价格上限】参数
+1. 查询在某个价格区间的商品，前台给后台传递【价格下限-价格上限】参数
+2. 后台获得价格区间的参数，过滤查询商品价格大于下限，小于上线的集合。
 
-后台获得价格区间的参数，过滤查询商品价格大于下限，小于上线的集合。
-
-### 1.2 代码实现
+## 1.2 代码实现
 
 * html页面
 
@@ -107,33 +104,37 @@ private Map searchList(Map searchMap){
 
 # 2. 搜索结果分页
 
-### 2.1 思路分析
+## 2.1 思路分析
 
-前台给后台传递
+前台给后台传递数据：
 
- 	1. 当前页码:pageNo
- 	2. 每页记录数:pageSize
+```
+1. 当前页码:pageNo
+2. 每页记录数:pageSize
+```
 
-后台给前台返回
+后台给前台返回：
 
+```
 1. 总记录数:total
 2. 总页数:totalPages
 3. 数据集合:rows
+```
 
+实现步骤：
 
-实现步骤:
+```
+1. 显示分页的工具栏
+2. 点击分页工具栏查询数据
+3. 前后省略点
+```
 
- 	1. 显示分页的工具栏
- 	2. 点击分页工具栏查询数据
- 	3. 前后省略点
-
-### 2.2 代码实现
+## 2.2 代码实现
 
 * HTML
 
 ```html
-<body ng-app="pinyougou" ng-controller="searchController">
-    
+<body ng-app="pinyougou" ng-controller="searchController"> 
     <!--搜索框-->
     <input type="text" id="autocomplete" ng-model="searchMap.keywords"  />
     <button ng-click="searchMap.pageNo=1;search()" type="button">搜索</button>
@@ -153,7 +154,7 @@ private Map searchList(Map searchMap){
             <a href="#" ng-click="queryByPage(page)">{{page}}</a>
         </li>
 
-        <!--前省略点-->
+        <!--后省略点-->
         <li ng-if="lastDot==true"><span>...</span></li>
 
         <!--下一页-->
@@ -199,7 +200,7 @@ $scope.search=function(){
 //构建分页工具栏
 buildPageLabel=function(){
 	//构建分页栏
-	$scope.pageLabel=[];
+	$scope.pageLabel=[];	//存放页码
 
 	//开始页码默认值
 	var begin=1;
@@ -302,14 +303,14 @@ private Map searchList(Map searchMap){
 ```java
 //空格处理
 String keywords= (String)searchMap.get("keywords");
-searchMap.put("keywords", keywords.replace(" ", ""));//关键字去掉空格 
+searchMap.put("keywords", keywords.replace(" ", ""));//关键字去掉空格
 ```
 
 # 4. 多维度排序
 
 order by 【字段名称】 【排序方式】
 
-### 4.1 价格排序和新品排序
+## 4.1 价格排序和新品排序
 
 * HTML
 
@@ -380,34 +381,38 @@ private Map searchList(Map searchMap){
 }
 ```
 
-### 4.2 销量排序
+## 4.2 销量排序
 
 * 思路分析
 
-> 1. 在索引库中添加表示销量的域
-> 2. 以某个固定的周期(月/周)统计销量
-> 3. 通过定时任务在更新索引库
+```
+1. 在索引库中添加表示销量的域
+2. 以某个固定的周期(月/周)统计销量
+3. 通过定时任务在更新索引库
+```
 
-### 4.3 评价排序思路
+## 4.3 评价排序思路
 
 * 思路分析
 
-> 1. 将用户的评价进行量化处理(好评:3分;中评:1分;差评:-3)
-> 2. 在索引库中添加表示评价的域
-> 3. 通过定时任务定期统计每个商品的评价分数更新到索引库
+```
+1. 将用户的评价进行量化处理(好评:3分;中评:1分;差评:-3)
+2. 在索引库中添加表示评价的域
+3. 通过定时任务定期统计每个商品的评价分数更新到索引库
+```
 
 # 5. 搜索系统与首页系统对接
 
-### 5.1 思路分析
+## 5.1 思路分析
 
 1. 用户在首页输入关键字,点击搜索按钮
 2. 首页跳转到搜索页,并将搜索关键字传递到搜索页
 3. 搜索页通过$location对象获得首页传递的搜索关键字
 4. 搜索页将获取到搜索关键字传递到后台进行搜索
 
-### 5.2 代码实现
+## 5.2 代码实现
 
-#### 5.2.1 首页
+### 5.2.1 首页
 
 * html
 
@@ -425,7 +430,7 @@ $scope.search=function(){
 }
 ```
 
-#### 5.2.2 搜索页
+### 5.2.2 搜索页
 
 * html
 
@@ -447,7 +452,7 @@ $scope.loadkeywords=function(){
 
 # 6. 索引库更新和删除
 
-### 6.1 更新
+## 6.1 更新
 
 更新时机:在运营商后台审核通过商品的时候后才更新solr索引库
 
@@ -455,7 +460,7 @@ $scope.loadkeywords=function(){
 
 ```java
 @RequestMapping("/updateStatus")
-public Result updateStatus(Long[] ids,String status){
+public Result updateStatus(Long[] ids,String status){	
 	try {
 		goodsService.updateStatus(ids, status);
 		if("1".equals(status)){//如果是审核通过 
@@ -472,10 +477,12 @@ public Result updateStatus(Long[] ids,String status){
 }
 ```
 
-* 搜索服务-search-service
+* 运营商服务-sellergoods-service
+
+  从数据库中查询审核通过的商品集合
 
 ```java
-public List<TbItem>	findItemListByGoodsIdListAndStatus(Long []goodsIds,String status){
+public List<TbItem>	findItemListByGoodsIdListAndStatus(Long[]goodsIds,String status){
 	TbItemExample example=new TbItemExample();
 	com.pinyougou.pojo.TbItemExample.Criteria criteria = example.createCriteria();
 	criteria.andStatusEqualTo(status);//状态
@@ -484,7 +491,9 @@ public List<TbItem>	findItemListByGoodsIdListAndStatus(Long []goodsIds,String st
 }
 ```
 
-* 运营商服务-sellergoods-service
+* 搜索服务-search-service
+
+  导入审核通过的商品集合到Solr中
 
 ```java
 public void importList(List list) {
@@ -493,7 +502,7 @@ public void importList(List list) {
 }
 ```
 
-### 6.2 删除
+## 6.2 删除
 
 * 运行商后台GoodsController.java
 
