@@ -1,24 +1,26 @@
-[TOC]
-
 # 1. SpringBoot介绍
 
-### 1.1 解决的问题
+## 1.1 解决的问题
 
-Spring集成太多的第三方框架时,项目的依赖就会非常复杂,配置文件也会非常的繁琐
+Spring的代码是轻量级的，但是Spring的配置是重量级的。
 
-### 1.2 原理
+1. 项目的依赖较多，依赖关系也变得复杂
+2. 核心配置文件配置会非常繁琐
 
-针对常用的第三方JavaEE框架进行了配置和依赖的封装
+## 1.2 原理
 
-SpringBoot不是Spring的增强,而是简化了Spring的开发
+1. Spring通过**起步依赖**简化了项目依赖的复杂
+2. Spring通过**自动配置**简化了核心配置文件的配置
 
-### 1.3 优点
+**SpringBoot不是Spring的增强,而是简化了Spring的开发**
+
+## 1.3 优点
 
 简化了Spring应用的开发
 
 # 2. SpringBoot入门
 
-### 2.1 基本使用
+## 2.1 基本使用
 
 * 配置文件
 
@@ -82,7 +84,7 @@ url=http://www.baidu.com
 private Environment env;
 ```
 
-### 2.2 整合ActiveMQ
+## 2.2 整合ActiveMQ
 
 * 配置文件
 
@@ -155,9 +157,11 @@ spring.activemq.broker-url=tcp://192.168.25.135:61616
 4. 下载SDK并安装到本地仓库
 5. 使用Demo类进行测试
 
-# 3. SpringBoot搭建短信微服务
+# 4. SpringBoot搭建短信微服务
 
-**监听短信消息,发送短信**
+![](./pic/cloud1.png)
+
+作用：发送短信
 
 ```java
 @Component
@@ -179,7 +183,7 @@ public class SmsListener {
 }
 ```
 
-# 4. 前台用户注册
+# 5. 用户注册
 
 * HTML页面
 
@@ -231,9 +235,9 @@ public void add(TbUser user) {
 }
 ```
 
-# 5. 短信验证
+# 6. 短信验证码
 
-### 5.1 发送验证码
+## 6.1 发送验证码
 
 * 前台
 
@@ -241,7 +245,8 @@ public void add(TbUser user) {
 //发送验证码
 $scope.sendCode=function(){
 
-    var reg_telephone = new RegExp("^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$");
+    var reg_telephone = 
+        new RegExp("^(13[09]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$");
 
 	if($scope.entity.phone==null || $scope.entity.phone==""){
 		alert("请填写手机号码");
@@ -300,7 +305,7 @@ public void createSmsCode(final String phone) {
 		public Message createMessage(Session session) throws JMSException {
 			MapMessage message = session.createMapMessage();
 			message.setString("mobile", phone);//手机号
-			message.setString("template_code", template_code);//验证码
+			message.setString("template_code", template_code);//模板码
 			message.setString("sign_name", sign_name);//签名
 			Map map=new HashMap();
 			map.put("number", smscode);				
@@ -336,7 +341,7 @@ public class SmsListener {
 }
 ```
 
-### 5.2 校验验证码
+## 6.2 校验验证码
 
 * UserController
 

@@ -1,16 +1,43 @@
-[TOC]
-
 # 1. 了解单点登录SSO
 
-### 1.1 解决问题
+## 1.1 问题
 
-分布式系统中,登录状态不能共享的问题
+分布式系统中,登录状态(session)不能共享的问题
 
-### 1.2 原理
+## 1.2 解决方案 
 
-将登录的模块使用第三方的CAS服务完成,每个应用系统都与CAS进行对接.
+分布式系统下的session共享
 
-### 1.3 CAS实现细节
+### 1.2.1 粘滞session
+
+![](./pic/session粘滞.png)
+
+### 1.2.2 session复制
+
+![](./pic/session复制.png)
+
+### 1.2.3 客户端保存session数据
+
+![](./pic/基于cookie实现Session共享.png)
+
+### 1.2.4 session的集中式管理
+
+![](./pic/session服务器.png)
+
+## 1.3 SSO原理
+
+将登录的模块使用第三方的单点登录服务器（例如：CAS）完成，每个应用系统都与CAS进行对接。由CAS系统负责登录以及身份的校验。
+
+**作用：**
+
+1. 登录功能
+2. 票据验证功能
+
+![](./pic/cas2.gif)
+
+## 1.4 CAS实现细节
+
+![](./pic/cas.jpg)
 
 1. 访问服务：SSO 客户端发送请求访问应用系统提供的服务资源。
 2. 定向认证：SSO 客户端会重定向用户请求到 SSO 服务器。
@@ -22,13 +49,13 @@
 
 # 2. 搭建CAS服务器
 
-### 2.1 部署cas
+## 2.1 部署cas
 
 将cas的war包发布在Tomcat
 
-### 2.2 配置cas
+## 2.2 配置cas
 
-#### 2.2.1 修改服务访问端口号
+### 2.2.1 修改服务访问端口号
 
 * tomcat/conf/server.xml
 
@@ -44,7 +71,7 @@
 server.name=http://localhost:9100
 ```
 
-#### 2.2.2 去除 https
+### 2.2.2 去除 https
 
 *  cas/WEB-INF/deployerConfigContext.xml
 
@@ -74,7 +101,7 @@ p:cookieName="CASPRIVACY"
 p:cookiePath="/cas" />
 ```
 
-#### 2.2.3 对接数据库
+### 2.2.3 对接数据库
 
 ```xml
 <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager">
@@ -110,7 +137,7 @@ p:cookiePath="/cas" />
 
 # 3. CAS入门案例
 
-### 3.1 客户端依赖
+## 3.1 客户端依赖
 
 ```xml
 <!-- cas -->  
@@ -128,8 +155,14 @@ p:cookiePath="/cas" />
 </dependency>
 ```
 
-### 3.2 客户端配置
+## 3.2 客户端配置
 
+配置包括4个方面
+
+	1.登录
+	2.获得登录名
+	3.票据验证
+	4.登出有关
 ```xml
 <!-- ======================== 单点登录开始 ======================== -->
 <!-- 用于单点退出，该过滤器用于实现单点登出功能，可选配置 -->  
@@ -209,24 +242,26 @@ p:cookiePath="/cas" />
 
 # 4. 更换CAS登录页面
 
-### 4.1 更换登录页面
+## 4.1 更换登录页面
 
 ```jsp
 <form:form class="sui-form" method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 									
   <form:input id="username" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" 	htmlEscape="true" placeholder="邮箱/用户名/手机号" class="span2 input-xfat" />
   
-  <form:password id="password" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" placeholder="请输入密码" class="span2 input-xfat" />
+<form:password id="password" tabindex="2" path="password" accesskey="${passwordAccessKey}" 
+               htmlEscape="true" autocomplete="off" placeholder="请输入密码" class="span2 input-xfat" />
   
-  <input type="hidden" name="lt" value="${loginTicket}" />
-  <input type="hidden" name="execution" value="${flowExecutionKey}" />
-  <input type="hidden" name="_eventId" value="submit" />
-  <input class="sui-btn btn-block btn-xlarge btn-danger" accesskey="l" value="登陆" type="submit" />
-  <form:errors path="*" style="color:red" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+	<input type="hidden" name="lt" value="${loginTicket}" />
+	<input type="hidden" name="execution" value="${flowExecutionKey}" />
+	<input type="hidden" name="_eventId" value="submit" />
+	<input class="sui-btn btn-block btn-xlarge btn-danger" accesskey="l" value="登陆" type="submit" />
+	<form:errors path="*" style="color:red" id="msg" cssClass="errors" element="div" 
+                 htmlEscape="false" />
 </form:form>
 ```
 
-### 4.2 错误提示
+## 4.2 错误提示
 
 * cas\WEB-INF\classes\ messages_zh_CN.properties
 
@@ -237,7 +272,7 @@ authenticationFailure.AccountNotFoundException=\u7528\u6237\u4E0D\u5B58\u5728.
 authenticationFailure.FailedLoginException=\u5BC6\u7801\u9519\u8BEF.
 ```
 
-### 4.3 设置中文简体为默认语言
+## 4.3 设置中文简体为默认语言
 
 * cas-servlet.xml
 
@@ -247,12 +282,20 @@ authenticationFailure.FailedLoginException=\u5BC6\u7801\u9519\u8BEF.
 
 # 5. CAS与SpringSecurity集成
 
-### 5.1 集成思路
+## 5.1 集成思路
 
-* SpringSecurity:负责权限控制
+* Spring Security:负责权限控制
 * cas:负责单点登录
 
-### 5.2 配置
+## 5.2 配置
+
+完成以下4个方面的事情
+
+```
+1.登录
+2.票据验证
+3.登出有关
+```
 
 * web.xml
 
@@ -271,13 +314,13 @@ authenticationFailure.FailedLoginException=\u5BC6\u7801\u9519\u8BEF.
 
 ```xml
 <!--登录的入口-->
-  <http use-expressions="false" entry-point-ref="casProcessingFilterEntryPoint">  
-      <intercept-url pattern="/**" access="ROLE_USER"/>   
-      <csrf disabled="true"/>         
-      <custom-filter ref="casAuthenticationFilter"  position="CAS_FILTER" />      
-      <custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>  
-      <custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>  
-  </http>
+<http use-expressions="false" entry-point-ref="casProcessingFilterEntryPoint">  
+    <intercept-url pattern="/**" access="ROLE_USER"/>   
+    <csrf disabled="true"/>         
+    <custom-filter ref="casAuthenticationFilter"  position="CAS_FILTER" />      
+    <custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>  
+    <custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>  
+</http>
 
 <beans:bean id="casProcessingFilterEntryPoint"
             class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
@@ -322,7 +365,7 @@ authenticationFailure.FailedLoginException=\u5BC6\u7801\u9519\u8BEF.
 <beans:bean id="userDetailsService" class="cn.itcast.demo.service.UserDetailServiceImpl"/>
 ```
 
-### 5.3 认证类
+## 5.3 认证类
 
 作用是给用户赋权
 
@@ -342,7 +385,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 }
 ```
 
-###  5.4 单点登出
+## 5.4 单点登出
 
 ```xml
 <!-- 单点登出  开始  -->     
@@ -358,12 +401,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
 <!-- 单点登出  结束 --> 
 ```
 
-### 5.5 获得用户信息
+## 5.5 获得用户信息
 
 ```java
 String name = SecurityContextHolder.getContext().getAuthentication().getName();
 ```
 
-# 6. 品优购继承CAS
+# 6. 品优购集成CAS
 
 同上

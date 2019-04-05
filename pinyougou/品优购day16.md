@@ -1,27 +1,53 @@
-[TOC]
-
 # 1. 购物车实现思路
 
-### 1.1 思路分析
+## 1.1 思路分析
 
 * 购物车中数据的特征:用户想要购买的商品
 
 
 * 如何存储购物车的数据(私人数据)
 
-  未登录:Cookie
+  未登录:存入Cookie
 
-  登录后:Redis[用户的信息-购物车]
+  登录后:存入Redis[用户的信息-购物车]
 
-### 1.2 实体分析
+## 1.2 实体分析
 
 品优购是B2B2C模式,每个商家的商品对应存储到一个购物车
+
+### 1.2.1 购物车
 
 ```java
 public class Cart implements Serializable{
 	private String sellerId;//商家ID
 	private String sellerName;//商家名称
 	private List<TbOrderItem> orderItemList;//购物车明细集合
+}
+```
+
+### 1.2.2 购物项 
+
+```java
+public class TbOrderItem implements Serializable{
+    private Long id;
+
+    private Long itemId;
+
+    private Long goodsId;
+
+    private Long orderId;
+
+    private String title;
+
+    private BigDecimal price;
+
+    private Integer num;
+
+    private BigDecimal totalFee;
+
+    private String picPath;
+
+    private String sellerId;
 }
 ```
 
@@ -170,9 +196,9 @@ private TbOrderItem createOrderItem(TbItem item,Integer num){
 }
 ```
 
-# 3. 前端显示购物车页面
+# 3. 显示购物车列表
 
-### 3.1 列表
+## 3.1 列表页面
 
 * HTML
 
@@ -209,7 +235,7 @@ this.sum=function(cartList){
 }
 ```
 
-### 3.2 数量加减
+## 3.2 数量加减
 
 * HTML
 
@@ -236,7 +262,7 @@ $scope.addGoodsToCartList=function(itemId,num){
 
 # 4. Redis存储购物车
 
-### 4.1 获得用户信息
+## 4.1 获得用户信息
 
 * 代码
 
@@ -254,12 +280,14 @@ SecurityContextHolder.getContext().getAuthentication().getName();
 
 * 解决
 
+  未登录的身份统一是匿名身份
+
 ```xml
 <intercept-url pattern="/cart/*.do" access="IS_AUTHENTICATED_ANONYMOUSLY"></intercept-url> 
 <intercept-url pattern="/**" access="ROLE_USER"/>  
 ```
 
-### 4.2 购物车存取
+## 4.2 购物车存取
 
 * CartController
 
@@ -340,7 +368,7 @@ public void saveCartListToRedis(String username, List<Cart> cartList) {
 }
 ```
 
-### 4.3 合并Cookie购物车
+## 4.3 合并Cookie购物车
 
 * CartController.java
 
