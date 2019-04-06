@@ -83,6 +83,8 @@ public Result addGoodsToCartList(Long itemId,Integer num){
 @RequestMapping("/findCartList")
 public List<Cart> findCartList(){	
 	String cartListString = util.CookieUtil.getCookieValue(request, "cartList", "UTF-8");
+
+  
 	if(cartListString==null || cartListString.equals("")){
 		cartListString="[]";
 	}
@@ -148,7 +150,6 @@ public List<Cart> addGoodsToCartList(List<Cart> cartList, Long itemId, Integer n
 				cartList.remove(cart);
 			}				
 		}
-		
 	}
 	
 	return cartList;
