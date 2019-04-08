@@ -1,20 +1,26 @@
-[TOC]
-
 # 1. 页面跨域请求
 
-### 1.1 浏览器同源策略
+## 1.1 浏览器同源策略
+
+浏览器JS的ajax请求有同源限制，协议、端口或者域名不一样都属于非同源，默认是不可以跨域访问非同源服务器
 
 	协议
 	端口
 	域名
 
-### 1.2 跨域请求的解决方案
+![](./pic/跨域.png)
 
-#### 1.2.1 JSONP
+## 1.2 跨域请求的解决方案
+
+### 1.2.1 JSONP
 
 ```Javascript```创建```<script>```标签请求跨域服务器,通过回调函数接受服务器返回的数据
 
-#### 1.2.2 CORS
+###1.2.2 CORS
+
+![](./pic/cors.png)
+
+#### 1.2.2.1 服务端编码
 
 服务器端设置响应头允许客户端跨域请求
 
@@ -28,8 +34,25 @@ response.setHeader("Access-Control-Allow-Credentials", "true");
 或者
 
 ```java
-@CrossOrigin(origins="http://localhost:9105")
+@CrossOrigin(origins="http://localhost:9105",allowCredentials ="true")
 ```
+
+#### 1.2.2.2 客户端编码
+
+```javascript
+$http.get('http://localhost:9107/cart/addGoodsToCartList.do?itemId='
+		+$scope.sku.id+'&num='+$scope.num ,{'withCredentials':true} ).success(
+			function(response){
+				if(response.success){
+					location.href='http://localhost:9107/cart.html';						
+				}else{
+					alert(response.message);
+				}					
+			}						
+);	
+```
+
+
 
 # 2. 结算页收获地址显示 
 
@@ -75,7 +98,7 @@ $scope.findAddressList=function(){
 ```javascript
 //选择地址
 $scope.selectAddress=function(address){
-	$scope. =address;		
+	$scope.address =address;		
 }
 //确定高亮
 $scope.isSeletedAddress=function(address){
@@ -142,7 +165,7 @@ $scope.selectPayType=function(type){
 
 # 5. 保存订单
 
-### 5.1 雪花算法
+## 5.1 雪花算法
 
 * 解决的问题
 
@@ -160,7 +183,7 @@ $scope.selectPayType=function(type){
 
   [github地址](https://github.com/souyunku/SnowFlake)
 
-### 5.2 代码实现
+##5.2 代码实现
 
 * HTML
 
@@ -255,3 +278,4 @@ public void add(TbOrder order) {
 	redisTemplate.boundHashOps("cartList").delete(order.getUserId());
 }
 ```
+
