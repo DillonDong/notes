@@ -1,6 +1,25 @@
-[TOC]
-
 # 1. 二维码生成插件Qrious
+
+## 1.1 二维码
+
+二维码也称为二维条码，是指在一维条码的基础上扩展出另一维具有可读性的条码，使用黑白矩形图案表示二进制数据，被设备扫描后可获取其中所包含的信息。一维条码的宽度记载着数据，而其长度没有记载数据。二维条码的长度、宽度均记载着数据。
+
+![](./pic/一维码.png)
+
+![](./pic/二维码.png)
+
+## 1.2 容错级别
+
+| 等级   | 说明         |
+| ---- | ---------- |
+| L等级  | 7%的字码可被修正  |
+| M等级  | 15%的字码可被修正 |
+| Q等级  | 25%的字码可被修正 |
+| H等级  | 30%的字码可被修正 |
+
+## 1.2 Qrious使用
+
+Qrious是前端的二维码插件。
 
 * HTML
 
@@ -24,10 +43,13 @@
 
 # 2. 微信支付开发流程
 
-### 2.1 扫码支付
+## 2.1 扫码支付
 
 * 模式一
 
+  ![](./pic/qq1.png)
+
+  ```
   1. 商户按照规则生成二维码
   2. 用户扫码
   3. 微信调用商户服务器,商户生成订单
@@ -35,11 +57,15 @@
   5. 微信提示用户输入密码进行支付
   6. 微信给用户返回支付结果
   7. 微信异步通信商户通知支付结果
+  ```
 
   应用场景:无人售货商店扫码支付
 
 * 模式二
 
+  ![](./pic/qq2.png)
+
+  ```
   1. 商户生成订单
   2. 商户调用统一下单API
   3. 微信返回二维码链接
@@ -48,10 +74,11 @@
   6. 微信提示用户输入密码进行支付
   7. 微信给用户返回支付结果
   8. 微信异步通信商户通知支付结果
+  ```
 
   应用场景:PC应用扫码支付
 
-### 2.2 接口信息
+## 2.2 接口信息
 
 * 下单接口
 
@@ -59,7 +86,7 @@
 https://api.mch.weixin.qq.com/pay/unifiedorder
 ```
 
-* 参数配置
+* 环境参数配置
 
 ```properties
 appid=wx8397f8696b538317
@@ -219,7 +246,6 @@ public Result queryPayStatus(String out_trade_no){
         
 		if(map.get("trade_state").equals("SUCCESS")){//支付成功
 			result=new Result(true, "支付成功");				
-			orderService.updateOrderStatus(out_trade_no, map.get("transaction_id"));//修改订单状态
 			break;
 		}
 		
@@ -277,21 +303,21 @@ public Map queryPayStatus(String out_trade_no) {
 
 # 5. 记录支付日志
 
-### 5.1 日志记录表
+## 5.1 支付记录表
 
-| Field          | Type                 | Comment        |
-| -------------- | -------------------- | -------------- |
-| out_trade_no   | varchar(30) NOT NULL | 支付订单号     |
-| create_time    | datetime NULL        | 创建日期       |
-| pay_time       | datetime NULL        | 支付完成时间   |
+| Field          | Type                 | Comment |
+| -------------- | -------------------- | ------- |
+| out_trade_no   | varchar(30) NOT NULL | 支付订单号   |
+| create_time    | datetime NULL        | 创建日期    |
+| pay_time       | datetime NULL        | 支付完成时间  |
 | total_fee      | bigint(20) NULL      | 支付金额（分） |
-| user_id        | varchar(50) NULL     | 用户ID         |
-| transaction_id | varchar(30) NULL     | 交易号码       |
-| trade_state    | varchar(1) NULL      | 交易状态       |
-| order_list     | varchar(200) NULL    | 订单编号列表   |
-| pay_type       | varchar(1) NULL      | 支付类型       |
+| user_id        | varchar(50) NULL     | 用户ID    |
+| transaction_id | varchar(30) NULL     | 交易号码    |
+| trade_state    | varchar(1) NULL      | 交易状态    |
+| order_list     | varchar(200) NULL    | 订单编号列表  |
+| pay_type       | varchar(1) NULL      | 支付类型    |
 
-### 5.2 记录日志
+## 5.2 记录日志
 
 支付日志的目的是记录用户支付的行为,当生成订单后就立即生成支付记录,并缓存到缓存中.
 
@@ -377,15 +403,17 @@ public Map createNative(){
 }
 ```
 
-### 5.3 支付完成
+## 5.3 支付完成
 
-* 支付成功需要执行:
+* 支付成功需要执行
 
+```
 1. 更新支付日志表
 2. 更新订单状态
 3. 删除缓存
+```
 
-* 查询订单支付成功
+* 查询订单支付状态
 
 ```java
 if(map.get("trade_state").equals("SUCCESS")){//支付成功
