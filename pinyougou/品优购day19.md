@@ -1,17 +1,17 @@
 # 1. 秒杀系统思路
 
-* 描述
+## 1.1 描述
 
 在有限的时间内很多人抢购低价商品
 
-* 问题
+## 1.2 问题分析
 
 1. 对原业务的影响
 2. 网络带宽的限制
 3. 应用服务器并发访问压力大
 4. 数据库的压力大
 
-* 解决思路
+## 1.3 解决方案
 
 1. 和原业务进行分离
 2. 和运营商租借带宽
@@ -203,7 +203,6 @@ public Result submitOrder(Long seckillId){
 	}
 	
 }
-
 ```
 * 业务层
 
@@ -248,7 +247,7 @@ public void submitOrder(Long seckillId, String userId) {
 
 # 5. 秒杀支付
 
-### 5.1 显示支付二维码
+## 5.1 显示支付二维码
 
 * HTML
 
@@ -301,7 +300,7 @@ public Map createNative(){
 }
 ```
 
-### 5.1 查询支付状态
+## 5.2 查询支付状态
 
 * JS
 
@@ -384,7 +383,7 @@ public Result queryPayStatus(String out_trade_no){
 }
 ```
 
-### 5.2 支付成功
+## 5.3 支付成功
 
 * 业务层,将订单数据保存在数据库,删除缓存
 
@@ -414,7 +413,7 @@ public void saveOrderFromRedisToDb(String userId, Long orderId, String transacti
 }
 ```
 
-### 5.3 支付超时
+## 5.4 支付超时
 
 删除缓存,重新抢购
 
