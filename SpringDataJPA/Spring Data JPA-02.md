@@ -1,12 +1,12 @@
-# 1.SpringDataJPA概述
+# 1.SpringDataJPA
 
-SpringDataJPA是Spring针对JPA进行封装的框架,目的是<font style="color:red">简化</font>JPA针对DB持久层的操作.
+作用：SpringDataJPA是Spring针对JPA进行封装的框架，目的是简化JPA针对DB持久层的操作。
 
-![](../diagrams/jpa/SpringDataJPA.png)
+![](./pic/springdatajpa.jpg)
 
 # 2.SpringDataJPA入门操作
 
-### 2.1引入依赖
+## 2.1引入依赖
 
 ```xml
 <properties>
@@ -155,7 +155,7 @@ SpringDataJPA是Spring针对JPA进行封装的框架,目的是<font style="color
 </dependencies>
 ```
 
-### 2.2 编写配置文件
+## 2.2 编写配置文件
 
 * applicationContext.xml
 
@@ -210,7 +210,7 @@ SpringDataJPA是Spring针对JPA进行封装的框架,目的是<font style="color
 <context:component-scan base-package="cn.itcast"/>
 ```
 
-### 2.3 配置实体类映射关系
+## 2.3 配置实体类映射关系
 
 ```java
 @Entity
@@ -227,7 +227,7 @@ public class Customer {
 }
 ```
 
-### 2.4 编写Dao接口
+## 2.4 编写Dao接口
 
 ```java
 /**
@@ -240,9 +240,9 @@ public interface CustomerDao extends JpaRepository<Customer,Long> ,JpaSpecificat
     
 ```
 
-### 2.5 CURD基本操作
+## 2.5 CURD基本操作
 
-#### 2.5.1 增
+### 2.5.1 增
 
 ```java
 /**
@@ -258,7 +258,7 @@ public void testSave() {
 }
 ```
 
-#### 2.5.2 删
+### 2.5.2 删
 
 ```java
 /**
@@ -270,7 +270,7 @@ public void testDelete () {
 }
 ```
 
-#### 2.5.3 改
+### 2.5.3 改
 
 ```java
 /**
@@ -285,9 +285,9 @@ public void testUpdate() {
 }
 ```
 
-#### 2.5.4 查
+### 2.5.4 查
 
-##### 2.5.4.1 根据ID查询
+#### 2.5.4.1 根据ID查询
 
 ```java
 /**
@@ -310,7 +310,7 @@ public void  testGetOne() {
 }
 ```
 
-##### 2.5.4.2 查询所有
+#### 2.5.4.2 查询所有
 
 ```java
 /**
@@ -325,7 +325,7 @@ public void testFindAll() {
 }
 ```
 
-##### 2.5.4.3 判断某条数据是否存在
+#### 2.5.4.3 判断某条数据是否存在
 
 ```java
 /**
@@ -338,7 +338,7 @@ public void  testExists() {
 }
 ```
 
-##### 2.5.4.4 统计查询
+#### 2.5.4.4 统计查询
 
 ```java
 /**
@@ -353,14 +353,16 @@ public void testCount() {
 
 # 3.SpringDataJPA原理分析
 
-1. 在调用接口的CURD方法时,SpringDataJPA会使用JDK动态代理生成Dao接口的代理对象
-2. 代理对象的内部调用SimpleJpaRepository类的实现方法
+1. 在调用接口的CURD方法时,SpringDataJPA会使用JDK动态代理生成Dao接口的实现类对象（代理对象）
+2. 代理对象的内部invoke（）方法中调用SimpleJpaRepository类的实现方法完成对应操作
+
+![](./pic/CustomerDao.png)
 
 # 4.SpringDataJPA复杂查询
 
-### 4.1 JPQL查询
+## 4.1 JPQL查询
 
-#### 4.1.1 单条件
+### 4.1.1 单条件
 
 ```java
 /**
@@ -370,7 +372,7 @@ public void testCount() {
 public Customer findJpql(String custName);
 ```
 
-#### 4.1.2 多个条件
+### 4.1.2 多个条件
 
 ```java
 /**
@@ -381,7 +383,7 @@ public Customer findJpql(String custName);
 public Customer findCustNameAndId(Long id,String name);
 ```
 
-#### 4.1.3 更新数据
+### 4.1.3 更新数据
 
 ```java
 /**
@@ -405,7 +407,7 @@ public void testUpdateCustomer() {
 }
 ```
 
-### 4.2 SQL查询
+## 4.2 SQL查询
 
 ```java
 /**
@@ -415,11 +417,11 @@ public void testUpdateCustomer() {
 public List<Object [] > findSql(String name);
 ```
 
-### 4.3 方法命名查询
+## 4.3 方法命名查询
 
-![](../diagrams/jpa/方法命名规则.png)
+![](./pic/方法命名规则.png)
 
-#### 4.3.1 单条件完全匹配
+### 4.3.1 单条件完全匹配
 
 ```java
 /**
@@ -429,7 +431,7 @@ public List<Object [] > findSql(String name);
 public Customer findByCustName(String custName);
 ```
 
-#### 4.3.2 单条件模糊查询
+### 4.3.2 单条件模糊查询
 
 ```java
 /**
@@ -439,7 +441,7 @@ public Customer findByCustName(String custName);
 public List<Customer> findByCustNameLike(String custName);
 ```
 
-#### 4.3.4 多条件组合查询
+### 4.3.4 多条件组合查询
 
 ```java
 /**
@@ -448,5 +450,3 @@ public List<Customer> findByCustNameLike(String custName);
  */
 public Customer findByCustNameLikeAndCustIndustry(String custName,String custIndustry);
 ```
-
-[案例源码](https://github.com/fudingcheng/JPA-Demo)
