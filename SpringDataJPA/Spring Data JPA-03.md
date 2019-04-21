@@ -1,19 +1,21 @@
 # 1. Specification动态条件查询
 
-```JpaSpecificationExecutor```提供了一种以更加面向的方式构建动态条件查询.
+```JpaSpecificationExecutor```提供了一种以更加面向对象的动态构建查询条件的方式.
 
 * 动态条件查询
 * 面向对象的查询方式
 
-### 1.1 步骤
+## 1.1 步骤
 
-1. Dao接口继承```JpaSpecificationExecutor```
-2. 创建```Specification```对象封装查询条件
-3. 调用```JpaSpecificationExecutor```接口方法,传递```Specification```对象进行条件查询
+```
+1. Dao接口继承JpaSpecificationExecutor
+2. 创建Specification对象封装查询条件
+3. 调用JpaSpecificationExecutor接口方法,传递Specification对象进行条件查询
+```
 
-### 1.2 常见查询
+## 1.2 常见查询
 
-#### 1.2.1 创建Dao接口
+### 1.2.1 创建Dao接口
 
 ```java
 /**
@@ -24,7 +26,7 @@ public interface CustomerDao extends JpaRepository<Customer,Long> ,JpaSpecificat
 }
 ```
 
-#### 1.2.2 单条件
+### 1.2.2 单条件
 
 ```java
 /**
@@ -53,7 +55,7 @@ public void testSpec() {
 }
 ```
 
-#### 1.2.3 多条件
+### 1.2.3 多条件
 
 ```java
 /**
@@ -89,7 +91,7 @@ public void testSpec1() {
 }
 ```
 
-#### 1.2.4 带条件查询并排序
+### 1.2.4 带条件查询并排序
 
 ```java
 /**
@@ -118,7 +120,7 @@ public void testSpec3() {
 }
 ```
 
-#### 1.2.5 带条件分页查询
+### 1.2.5 带条件分页查询
 
 ```java
 /**
@@ -146,12 +148,12 @@ public void testSpec4() {
 }
 ```
 
-#### 1.2.6 动态查询
+### 1.2.6 动态查询
 
 ```java
 public void test(){
         Customer customer = new Customer();
-        //customer.setCustIndustry("it教育");
+        customer.setCustIndustry("it教育");
         customer.setCustName("传智播客");
 
         Specification<Customer> spec = new Specification<Customer>() {
@@ -184,54 +186,56 @@ public void test(){
 }
 ```
 
-### 1.3 cb查询方式总结
+## 1.3 cb查询方式总结
 
-| 方法名称                    | Sql对应关系          |
-| -------------------------- | -------------------- |
-| equle                       | filed = value        |
+| 方法名称                      | Sql对应关系              |
+| ------------------------- | -------------------- |
+| equle                     | filed = value        |
 | gt（greaterThan ）          | filed > value        |
 | lt（lessThan ）             | filed < value        |
 | ge（greaterThanOrEqualTo ） | filed >= value       |
 | le（ lessThanOrEqualTo）    | filed <= value       |
-| notEqule                    | filed != value       |
-| like                        | filed like value     |
-| notLike                     | filed not like value |
+| notEqule                  | filed != value       |
+| like                      | filed like value     |
+| notLike                   | filed not like value |
 
 # 2. JPA的多表操作
 
-### 2.1 多表之间的关系
+## 2.1 多表之间的关系
 
 **举例:**
 
+```
 一对一:居民和身份证
-
 一对多:公司和员工
-
 多对多:用户和角色
+```
 
 **数据库实现:**
 
-一对一:在任意一张表中添加外键(值唯一),关联对方主键
-
+```
+一对一:在任意一张表中添加外键(唯一的),关联对方主键
 一对多:在多方表中添加外键,关联一方的主键
-
 多对多:创建中间表,分别关联两张表的主键
+```
 
 **JPA实体的实现:**
 
+```
 一对一:在任意一方添加对方的对象属性
-
 一对多:在一方添加多方的集合属性,在多方中添加一方的对象属性
-
 多对多:在任意一方添加对方的集合属性
+```
 
 **ORM配置多表关系步骤:**
 
+```
 1. 添加关系注解:@OneToMany @ManyToOne @ManyToMany
 2. 确定由哪方维护外键关系(另外一方放弃关系维护)
 3. 在维护关系一方配置外键信息
+```
 
-### 2.2 一对多配置
+## 2.2 一对多配置
 
 一方
 
@@ -290,7 +294,7 @@ public class LinkMan {
 }
 ```
 
-#### 2.2.1 一般保存
+### 2.2.1 一般保存
 
 ```java
 @Test
@@ -306,7 +310,6 @@ public void testAdd() {
 
 	//维护外键关系
     linkMan.setCustomer(customer);
-	
     //保存客户
     customerDao.save(customer);
     //保存联系人
@@ -314,7 +317,7 @@ public void testAdd() {
 }
 ```
 
-#### 2.2.2 级联保存
+### 2.2.2 级联保存
 
 ```java
 /**
@@ -342,7 +345,7 @@ public void testCascadeAdd() {
 }
 ```
 
-#### 2.2.3 级联删除
+### 2.2.3 级联删除
 
 ```java
 /**
@@ -362,7 +365,7 @@ public void testCascadeRemove() {
 }
 ```
 
-### 2.3 多对多配置
+## 2.3 多对多配置
 
 多方
 
@@ -402,7 +405,7 @@ public class Role {
 }
 ```
 
-#### 2.3.1 一般保存
+### 2.3.1 一般保存
 
 ```java
 /**
@@ -426,7 +429,7 @@ public void  testAdd() {
 }
 ```
 
-#### 2.3.2 级联保存
+### 2.3.2 级联保存
 
 ```java
 /**
@@ -454,7 +457,7 @@ public void  testCasCadeAdd() {
 }
 ```
 
-#### 2.3.3 级联删除
+### 2.3.3 级联删除
 
 ```java
 /**
@@ -475,7 +478,7 @@ public void  testCasCadeRemove() {
 }
 ```
 
-### 3. 级联配置总结
+## 2.4 级联配置总结
 
 ```
 //在关系注解上添加如下属性
@@ -487,7 +490,7 @@ public void  testCasCadeRemove() {
 
 # 3. 多表之间的查询
 
-### 3.1 对象导航图查询
+## 3.1 对象导航图查询
 
 通过实体类中的关联属性查询关联数据
 
@@ -536,7 +539,7 @@ public void  testQuery3() {
 懒加载:fetch=FetchType.LAZY
 ```
 
-### 3.2 Specification查询
+## 3.2 Specification查询
 
 ```java
 /**
@@ -562,5 +565,3 @@ public void testFind() {
  }
 }
 ```
-
-[案例源码](https://github.com/fudingcheng/JPA-Demo.git)
