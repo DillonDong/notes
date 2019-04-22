@@ -1,6 +1,6 @@
 # SpringBoot基础
 
-# 一、SpringBoot简介
+# 1. SpringBoot简介
 
 ## 1.1  Spring优缺点
 
@@ -15,7 +15,7 @@
 
 ## 1.2 SpringBoot概述
 
-SpringBoot就是Spring,它做了哪些没有它你也会去做得配置和添加依赖.让开发者专注于应用程序的逻辑处理.
+SpringBoot就是Spring,它做了那些没有它你也会去做得配置和添加依赖.让开发者专注于应用程序的逻辑处理.
 
 ### 1.2.2 特点
 
@@ -36,7 +36,7 @@ SpringBoot就是Spring,它做了哪些没有它你也会去做得配置和添加
 
   Spring Boot的自动配置是一个运行时（更准确地说，是应用程序启动时）的过程，考虑了众多因素，才决定Spring配置应该用哪个，不该用哪个。该过程是Spring自动完成的。
 
-# 二、SpringBoot快速入门
+# 2. SpringBoot快速入门
 
 ## 2.1 代码实现
 
@@ -250,7 +250,7 @@ o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**] onto handler of
 
 可以使用快速入门的方式创建Controller进行访问，此处不再赘述
 
-### 2.2.4 打包部署
+## 2.3 打包部署
 
 添加`spring-boot-maven-plugin`插件
 
@@ -265,7 +265,7 @@ o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**] onto handler of
 </build>
 ```
 
-#### 2.2.4.1 打成可执行jar包
+### 2.3.1 打成可执行jar包
 
 1. 打包
 
@@ -279,7 +279,7 @@ mvn package
 java -jar xxx.jar
 ```
 
-#### 2.2.4.2 打成war包
+### 2.3.2 打成war包
 
 1. 在pom.xml里设置 `<packaging>war</packaging>`
 
@@ -326,11 +326,11 @@ java -jar xxx.jar
    ```java
    @SpringBootApplication
    public class DemoApplication {
-   
+
    	public static void main(String[] args) {
    		SpringApplication.run(DemoApplication.class, args);
    	}
-   
+
    }
    ```
 
@@ -342,7 +342,7 @@ java -jar xxx.jar
 
 > 注意:打war包时,原先的启动类上的注解@SpringBootApplication是需要的!
 
-# 三、SpringBoot原理分析
+# 3. SpringBoot原理分析
 
 ## 3.1 起步依赖原理分析
 
@@ -474,7 +474,6 @@ java -jar xxx.jar
     	</dependency>
   	</dependencies>
 </project>
-
 ```
 
 从上面的spring-boot-starter-web的pom.xml中我们可以发现，spring-boot-starter-web就是将web开发要使用的spring-web、spring-webmvc等坐标进行了“打包”，这样我们的工程只要引入spring-boot-starter-web起步依赖的坐标就可以进行web开发了，同样体现了依赖传递的作用。
@@ -607,7 +606,6 @@ org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration,\
 public class ServletWebServerFactoryAutoConfiguration {
 	... ... ...
 }
-
 ```
 
 其中，
@@ -641,7 +639,7 @@ prefix = "server" 表示SpringBoot配置文件中的前缀，SpringBoot会将配
 
 ![](img/12.png)
 
-# 四、SpringBoot的配置文件
+# 4. SpringBoot的配置文件
 
 SpringBoot是基于约定的，所以很多配置都有默认值.如果可以需要修改配置,可以通过配置文件进行配置
 
@@ -829,8 +827,6 @@ server:
     context-path: /demo
 ```
 
-
-
 ## 4.2 配置文件与配置类的属性映射方式
 
 ### 4.2.1 使用注解@Value映射
@@ -930,22 +926,22 @@ public class QuickStartController {
 
 ```yml
 my:
-  servers:
-    - dev.example.com
-    - another.example.com
-
-  map:
-    key1: value1
-    key2: value2
-    key3: value3
-    
-  lMap:
-    - name: tom
-      age: 18
-      addr: beijing
-    - name: lucy
-      age: 17
-      addr: tianjin
+	servers:
+	  - dev.example.com
+	  - another.example.com
+	
+	map:
+	  key1: value1
+	  key2: value2
+	  key3: value3
+	  
+	lMap:
+	  - name: tom
+	    age: 18
+	    addr: beijing
+	  - name: lucy
+	    age: 17
+	    addr: tianjin
 ```
 
 * 配置类
@@ -972,7 +968,7 @@ public class HelloServlet {
 }
 ```
 
-# 五、SpringBoot与整合其他技术
+# 5. SpringBoot与整合其他技术
 
 ## 5.1 SpringBoot整合Mybatis
 
@@ -1322,7 +1318,7 @@ public class RedisTest {
 }
 ```
 
-# 六、Actuator
+# 6. Actuator
 
 SpringBoot的Actuator提供了监控应用程序的机制,帮助查看应用程序的运行和健康状况.
 
@@ -1374,4 +1370,3 @@ management.endpoints.web.exposure.include=*
   info.telephone=XXXXXXXX
   ```
 
-  
