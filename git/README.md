@@ -307,8 +307,8 @@ $ git clone git@github.com:sublun/mytest.git
 >
 > 区别:
 >
->    	1. 同步适用于将本地仓库推送到远程空的仓库
->      2. 克隆适用于将远程仓库复制到本地新的仓库
+>        	1. 同步适用于将本地仓库推送到远程空的仓库
+>         	2. 克隆适用于将远程仓库复制到本地新的仓库
 
 ## 6.5 拉取远程仓库代码
 
@@ -421,6 +421,13 @@ $ git remote add origin git@192.168.25.156:first
 **master:**创建仓库时,git默认就会创建一个master分支
 
 * master指向当前最新的提交,HEAD指向master,master就是一条线
+
+  ```shell
+  # 查看当前分支
+  git branch
+  ```
+
+  ​
 
 ![](img/branch1.png)
 
