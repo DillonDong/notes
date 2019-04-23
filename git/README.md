@@ -148,7 +148,7 @@ git commit -m '日志'
 
 ![](img/ignore2.png)
 
-.ignore文件参考内容
+.gitignore文件参考内容
 
 ```properties
 .idea
@@ -301,14 +301,7 @@ $ git clone git@github.com:sublun/mytest.git
 
 ![](img/clone3.png)
 
-> 克隆与同步
->
-> 相同点:都可以与远程仓库建立连接
->
-> 区别:
->
->        	1. 同步适用于将本地仓库推送到远程空的仓库
->         	2. 克隆适用于将远程仓库复制到本地新的仓库
+
 
 ## 6.5 拉取远程仓库代码
 
