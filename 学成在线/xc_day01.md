@@ -2,8 +2,8 @@
 
 ## 1.1 背景
 
-* 在线学习的互联网项目,为用户提供在线的IT职业课程的学习平台.
-* B2B2C业务模式.企业和个人都可以入驻平台给用户提供在线教学服务.
+* 在线学习的互联网项目,为用户提供在线的IT职业课程的学习平台。
+* B2B2C业务模式.企业和个人都可以入驻平台给用户提供在线教学服务。
 
 ## 1.2 功能模块
 
@@ -129,6 +129,8 @@ CMS （Content Management System）即内容管理系统，不同的项目对CMS
 
 ## 3.3 SSI技术
 
+![](img/SSI.png)
+
 ### 3.3.1 什么是SSI
 
 Server Side Include，通常称为服务器端嵌入，是一种类似于ASP/JSP的基于服务器的网页制作技术。大多数（尤其是基于Unix平台）的WEB服务器如Netscape Enterprise Server等均支持SSI命令。
@@ -176,7 +178,7 @@ Server Side Include，通常称为服务器端嵌入，是一种类似于ASP/JSP
 
    使用计算机技术将页面发送到页面所在站点的服务器，页面发布成功就可以通过浏览器来访问了。
 
-#4. CMS服务端
+# 4. CMS服务端
 
 ## 4.1 开发工具
 
@@ -217,7 +219,7 @@ IDEA+JDK1.8
    mvn install
    ```
 
-# 5.  MongoDB
+# 5. MongoDB
 
 MongoDB优点:
 
@@ -226,14 +228,34 @@ MongoDB优点:
 
 ## 5.1 安装MongoDB
 
-1. 基本步骤安装文档
-2. 将Mongo注册到本地服务
+1. 创建几个文件夹具体如下：数据库路径（data目录）、日志路径（logs目录）和日志文件（mongo.log文件）
+
+![](img/Mongo.png)
+
+2. 配置conf配置文件	
 
 ```shell
-mongod.exe --config "XXX/mongo.conf" --install
+#数据库路径
+dbpath=C:\develop\MongoDB\data
+#日志输出文件路径
+logpath=C:\develop\MongoDB\Server\3.2\logs\mongo.log
+#错误日志采用追加模式
+logappend=true
+#启用日志文件，默认启用
+journal=true
+#这个选项可以过滤掉一些无用的日志信息，若需要调试使用请设置为false
+quiet=true
+#端口号 默认为27017
+port=27017
 ```
 
-1. 启动关闭/命令
+3. 将Mongo注册到本地服务
+
+```shell
+mongod.exe --config "C:\develop\MongoDB\Server\3.2\mongo.conf" --install
+```
+
+4. 启动关闭/命令
 
 ```shell
 # 启动mongo
@@ -242,11 +264,11 @@ net start MongoDB
 net stop MongoDB
 ```
 
-4. 测试
+5. 测试
 
    访问:[http://127.0.0.1:27017/](http://127.0.0.1:27017/)
 
-5. 安装mongodb图形化客户端studio 3T
+6. 安装mongodb图形化客户端studio 3T
 
    破解链接:[https://www.jianshu.com/p/cc97f31509ea](https://www.jianshu.com/p/cc97f31509ea)
 
@@ -473,11 +495,11 @@ db.createUser(
 # 举例:
 use admin	# 切换到admin用户
 db.createUser(
-     {
-       user:"root",
-       pwd:"root",
-       roles:[{role:"root",db:"admin"}]
-     }
+   {
+     user:"root",
+     pwd:"123",
+     roles:[{role:"root",db:"admin"}]
+   }
 )
 ```
 
