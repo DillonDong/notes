@@ -143,7 +143,7 @@ ES7 ：[http://www.ecma-international.org/ecma-262/7.0/](http://www.ecma-interna
    组件系统是 Vue 的另一个重要概念，因为它是一种抽象，允许我们使用小型、独立和通常可复用的组件构建大型应用。仔细想想，几乎任意类型的应用界面都可以抽象为一个组件树：
    ![](img/vue1.png)
 ## 1.2 Vue.js基础
-### 1.2.1 MVVM模式
+### 1.2.1 MVVM模式		
 vue.js是一个MVVM的框架，理解MVVM有利于学习vue.js。
 * MVVM 拆分解释为：
   * Model: 负责数据存储
@@ -676,9 +676,6 @@ npm run dev
 
 项目中提供的初始化工程,是在```Vue```的```webpack```模板上进行了二次封装
 
-1. 将项目拷贝到```nginx中```
-2. 通过```WebStorm```打开
-
 ### 3.2.1 工程结构
 
 ![](img/vue7.jpg)
@@ -741,6 +738,8 @@ npm run build
 
 **单页应用**（英语：single-page application，缩写**SPA**）是一种[网络应用程序](https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F)或[网站](https://zh.wikipedia.org/wiki/%E7%B6%B2%E7%AB%99)的模型，它通过动态重写当前页面来与用户交互，而非传统的从服务器重新加载整个新页面。这种方法避免了页面之间切换打断[用户体验](https://zh.wikipedia.org/wiki/%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C)，使应用程序更像一个[桌面应用程序](https://zh.wikipedia.org/wiki/%E5%BA%94%E7%94%A8%E8%BD%AF%E4%BB%B6)。在单页应用中，所有必要的代码（[HTML](https://zh.wikipedia.org/wiki/HTML)、[JavaScript](https://zh.wikipedia.org/wiki/JavaScript)和[CSS](https://zh.wikipedia.org/wiki/%E5%B1%82%E5%8F%A0%E6%A0%B7%E5%BC%8F%E8%A1%A8)）都通过单个页面的加载而检索[[1\]](https://zh.wikipedia.org/wiki/%E5%8D%95%E9%A1%B5%E5%BA%94%E7%94%A8#cite_note-Flanagan2006-1)，或者根据需要（通常是为响应用户操作）[动态装载](https://zh.wikipedia.org/wiki/%E5%8B%95%E6%85%8B%E8%A3%9D%E8%BC%89)适当的资源并添加到页面。
 
+![](img/SPA.png)
+
 * 优点：
   1. 用户操作体验好，用户不用刷新页面，整个交互过程都是通过Ajax来操作。
   2. 适合前后端分离开发，服务端提供http接口，前端请求http接口获取数据，使用JS进行客户端渲染。
@@ -779,7 +778,7 @@ npm run build
 </template>
  
 <script>
-  	  /*2.编写页面静态部分，即view部分*/
+  	  /*2.编写JS脚本*/
 </script>
 
 <style>
