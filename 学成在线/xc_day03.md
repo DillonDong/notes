@@ -430,7 +430,7 @@ data(){
 },
 methods:{
   addSubmit(){
-alert("提交")    
+	alert("提交")    
   }
 }
 ```

@@ -290,9 +290,9 @@ map.put("point", 102920122);
 ${point?c}
 ```
 
-## 2.4 静态化测试
+## 2.5 静态化测试
 
-### 2.4.1 基于模板测试
+### 2.5.1 基于模板测试
 
 ```java
 public void testGenerateHtml() throws IOException, TemplateException {
@@ -318,7 +318,7 @@ public void testGenerateHtml() throws IOException, TemplateException {
 }
 ```
 
-### 2.4.2 基于模板字符串
+### 2.5.2 基于模板字符串
 
 ```java
 public void testGenerateHtmlByString() throws IOException, TemplateException {
