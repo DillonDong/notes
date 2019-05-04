@@ -1095,7 +1095,7 @@ server{
 ```nginx
 #cms页面预览
 upstream cms_server_pool{
-	server 127.0.0.1:31001 weight=10;    
+	server 127.0.0.1:31001 weight=10;
 }
 ```
 
