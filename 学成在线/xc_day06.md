@@ -229,8 +229,6 @@ public interface CmsSiteRepository extends MongoRepository<CmsSite,String> 
 
 ### 1.2.6 PageService
 
-![](img/page2.png)
-
 ```java
 @Service
 public class PageService {
@@ -915,23 +913,23 @@ public interface CourseControllerApi {
 
 ```java
 SELECT
-  a.id one_id,
-  a.pname one_pname,
-  b.id two_id,
-  b.pname two_pname,
-  c.id three_id,
-  c.pname three_pname
+ a.id one_id,
+ a.pname one_pname,
+ b.id two_id,
+ b.pname two_pname,
+ c.id three_id,
+ c.pname three_pname
 FROM
-  teachplan a
-  LEFT JOIN teachplan b
-    ON b.parentid = a.id
-  LEFT JOIN teachplan c
-    ON b.id = c.parentid
-WHERE a.parentid = '0'
-  AND a.courseid = '402885816243d2dd016243f24c030002'
-ORDER BY a.orderby,
-  b.orderby,
-  c.orderby
+ teachplan a
+ LEFT JOIN teachplan b
+ ON b.parentid = a.id
+ LEFT JOIN teachplan c
+ ON b.id = c.parentid
+WHERE a.parentid = '0'
+ AND a.courseid = '4028e581617f945f01617f9dabc40000'
+ORDER BY a.orderby,
+ b.orderby,
+ c.orderby
 ```
 
 #### 3.2.3.2 Dao
@@ -1031,7 +1029,7 @@ public class CourseController implements CourseControllerApi {
 
 使用postman或swagger-ui测试查询接口。
 
-Get 请求：http://localhost:31200/course/teachplan/list/402885816243d2dd016243f24c030002
+Get 请求：http://localhost:31200/course/teachplan/list/4028e581617f945f01617f9dabc40000
 
 ### 3.2.4 前端方法
 

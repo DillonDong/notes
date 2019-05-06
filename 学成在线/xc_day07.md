@@ -850,7 +850,7 @@ radio>&nbsp;&nbsp;
   export default {
     data() {
       return {
-                  studymodelList:[],
+        studymodelList:[],
         gradeList:[],
         props: {
           value: 'id',
