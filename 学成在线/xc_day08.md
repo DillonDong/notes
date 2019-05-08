@@ -815,7 +815,7 @@ public class FileSystemController implements FileSystemControllerApi {
   :on‐success="handleSuccess"
   :file‐list="fileList"
   :limit="picmax"
-  :name="multipartFile"
+  :name="file"
   :on‐exceed="rejectupload"
   :data="{"key":value,"key":""}">
   <i class="el‐icon‐plus"></i>
