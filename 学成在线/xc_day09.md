@@ -1,5 +1,7 @@
 # 1. Spring Cloud
 
+SpringCloud:是微服务架构在Java领域落地的解决方案。不是一个框架，而是一个框架的集合。
+
 ## 1.1 概述
 
 随着互联网和云计算的快速发展，企业的IT环境和架构风格也逐渐在发生变革。从过去的单体应用架构发展为至今广泛流行的的微服务架构。**微服务是一种架构风格,能给软件应用带来很大的便利。**但是微服务的实施和落地会面临很大的挑战，因此需要一套完整的微服务解决方案。在Java领域,Spring框架的出现给Java企业级应用开发带来了福音，提高了开发效率。在2014年低，Spring团队推出了Spring Cloud，目标使其成为Java领域微服务架构落地的标准，发展至今，Spring Cloud已经成为Java领域落地微服务架构的完成解决方案，为企业IT架构变革保驾护航。
@@ -334,8 +336,7 @@ Spring Cloud引入Ribbon配合 restTemplate 实现客户端负载均衡。Java�
 ribbon:
   MaxAutoRetries: 2 #最大重试次数，当Eureka中可以找到服务，但是服务连不上时将会重试
   MaxAutoRetriesNextServer: 3 #切换实例的重试次数
-  OkToRetryOnAllOperations: false  #对所有操作请求都进行重试，如果是get则可以，如果是post，put等操作
-没有实现幂等的情况下是很危险的,所以设置为false
+  OkToRetryOnAllOperations: false  #对所有操作请求都进行重试，如果是get则可以，如果是post，put等操作没有实现幂等的情况下是很危险的,所以设置为false
   ConnectTimeout: 5000  #请求连接的超时时间
   ReadTimeout: 6000 #请求处理的超时时间
 ```
