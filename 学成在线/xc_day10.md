@@ -97,7 +97,21 @@ public CmsPostPageResult postPageQuick(CmsPage cmsPage){
     return new CmsPostPageResult(CommonCode.SUCCESS,pageUrl);
 }
 ```
-2. 添加页面到MongoDB，如果已存在则更新页面
+2. 页面发布
+
+```java
+public ResponseResult post(String pageId){
+    //执行页面静态化
+    String pageHtml = this.getPageHtml(pageId);
+    //将页面静态化文件存储到GridFs中
+    CmsPage cmsPage = saveHtml(pageId, pageHtml);
+    //向MQ发消息
+    sendPostPage(pageId);
+    return new ResponseResult(CommonCode.SUCCESS);
+}
+```
+
+3. 添加页面到MongoDB，如果已存在则更新页面
 
 ```java
 //添加页面，如果已存在则更新页面
@@ -115,17 +129,17 @@ public CmsPageResult save(CmsPage cmsPage){
 }
 ```
 
-3. 查看站点信息
+4. 查看站点信息
 
 ```java
-    //根据id查询站点信息
-    public CmsSite findCmsSiteById(String siteId){
-        Optional<CmsSite> optional = cmsSiteRepository.findById(siteId);
-        if(optional.isPresent()){
-            return optional.get();
-        }
-        return null;
+//根据id查询站点信息
+public CmsSite findCmsSiteById(String siteId){
+    Optional<CmsSite> optional = cmsSiteRepository.findById(siteId);
+    if(optional.isPresent()){
+        return optional.get();
     }
+    return null;
+}
 ```
 
 ### 2.2.6 Controller

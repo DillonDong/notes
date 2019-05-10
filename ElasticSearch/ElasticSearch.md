@@ -141,7 +141,11 @@ ES的配置文件的位置根据安装形式的不同而不同：
 
 方式1：层次方式
 
-​	path: data: /var/lib/elasticsearch logs: /var/log/elasticsearch
+​	path: 
+
+​		data: /var/lib/elasticsearch 
+
+​		logs: /var/log/elasticsearch
 
 方式2：属性方式
 
@@ -1226,7 +1230,7 @@ ES更新文档的顺序是：先检索到文档、将原来的文档标记为删
 
 1. 完全替换
 
-   Post：http://localhost:9200/xc_test/doc/3
+   Post：http://localhost:9200/xc_test/doc/3	
 
 ```json
 {
