@@ -48,7 +48,7 @@ public Map<String, CoursePub> getall(String id) {
     //查询条件，根据课程id查询
     searchSourceBuilder.query(QueryBuilders.termsQuery("id", id));
     //取消source源字段过虑，查询所有字段
-      searchSourceBuilder.fetchSource(new String[]{"name", "grade", "charge","pic"}, newString[]{});
+    searchSourceBuilder.fetchSource(new String[]{"name", "grade", "charge","pic"}, newString[]{});
     searchRequest.source(searchSourceBuilder);
     SearchResponse searchResponse = null;
     try {
@@ -75,7 +75,7 @@ public Map<String, CoursePub> getall(String id) {
         coursePub.setId(courseId);
         coursePub.setName(name);
         coursePub.setPic(pic);
-                    coursePub.setGrade(grade);
+        coursePub.setGrade(grade);
         coursePub.setTeachplan(teachplan);
         coursePub.setDescription(description);
         map.put(courseId,coursePub);

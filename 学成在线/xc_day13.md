@@ -631,8 +631,6 @@ public void testChunk() throws IOException {
             }
         }
         raf_write.close();
-
-
     }
     raf_read.close();
 }
