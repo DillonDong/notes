@@ -122,6 +122,18 @@ Oauth 协议：https://tools.ietf.org/html/rfc6749
 
 ![](img/sec9.png)
 
+（A）用户打开客户端以后，客户端要求用户给予授权。
+
+（B）用户同意给予客户端授权。
+
+（C）客户端使用上一步获得的授权，向认证服务器申请令牌。
+
+（D）认证服务器对客户端进行认证以后，确认无误，同意发放令牌。
+
+（E）客户端使用令牌，向资源服务器申请获取资源。
+
+（F）资源服务器确认令牌无误，同意向客户端开放资源。
+
 Oauth2包括以下角色：
 
 * 客户端
@@ -208,7 +220,13 @@ authorized_grant_type：授权类型，authorization_code,password,refresh_token
 
 Oauth2有以下授权模式：
 
-授权码模式（Authorization Code） 隐式授权模式（Implicit） 密码模式（Resource Owner Password Credentials） 客户端模式（Client Credentials）
+授权码模式（Authorization Code） 
+
+隐式授权模式（Implicit） 
+
+密码模式（Resource Owner Password Credentials） 
+
+客户端模式（Client Credentials）
 
 其中授权码模式和密码模式应用较多，本小节介绍授权码模式。
 
@@ -926,7 +944,7 @@ public class RedisTest {
 
    业务流程如下：
 
-​![](img/sec34.png)
+![](img/sec34.png)
 
 ### 4.3.2 Api接口
 
