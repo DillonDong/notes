@@ -72,7 +72,7 @@ public void testProxyDao() throws IOException {
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
     SqlSession sqlSession = sqlSessionFactory.openSession();
     //获得MyBatis框架生成的UserMapper接口的实现类
-  UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+  	UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
     User user = userMapper.findById(1);
     System.out.println(user);
     sqlSession.close();
@@ -87,7 +87,9 @@ MyBatis的Dao层实现的两种方式：
 
 **代理方式对Dao进行实现：**
 
-     **UserMapper userMapper = sqlSession.getMapper(UserMapper.class);**
+```java
+UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+```
 
 ### 2.MyBatis映射文件深入
 
@@ -104,6 +106,7 @@ Mybatis 的映射文件中，前面我们的 SQL 都是比较简单的，有些�
 ##### 2.1.2动态 SQL  之<**if>** 
 
 我们根据实体类的不同取值，使用不同的 SQL语句来进行查询。比如在 id如果不为空时可以根据id查询，如果username 不同空时还要加入用户名作为条件。这种情况在我们的多条件组合查询中经常会碰到。
+例如：SELECT * FROM USER WHERE id  =  1 and username = 'zs'
 
 ```xml
 <select id="findByCondition" parameterType="user" resultType="user">
@@ -204,7 +207,7 @@ Sql 中可将重复的 sql 提取出来，使用时用 include 引用即可，�
 
 ```xml
 <!--抽取sql片段简化编写-->
-<sql id="selectUser" select * from User</sql>
+<sql id="selectUser"> select * from User</sql>
 <select id="findById" parameterType="int" resultType="user">
     <include refid="selectUser"></include> where id=#{id}
 </select>
@@ -222,23 +225,16 @@ Sql 中可将重复的 sql 提取出来，使用时用 include 引用即可，�
 
 MyBatis映射文件配置：
 
+```html
 <select>：查询
-
 <insert>：插入
-
 <update>：修改
-
 <delete>：删除
-
 <where>：where条件
-
 <if>：if判断
-
 <foreach>：循环
-
 <sql>：sql片段抽取
-
-
+```
 
 ### 3. MyBatis核心配置文件深入
 
@@ -299,7 +295,7 @@ userMapper.add2(user);
 
 测试查询操作：
 
-    
+​    
 
 ![](img\图片8.png)
 
@@ -386,8 +382,6 @@ MyBatis核心配置文件常用标签：
 4、typeHandlers标签：配置自定义类型处理器
 
 5、plugins标签：配置MyBatis的插件
-
-    "
 
 
 
