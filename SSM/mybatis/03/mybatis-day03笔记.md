@@ -12,7 +12,11 @@
 
 ##### 1.1.2一对一查询的语句
 
-对应的sql语句：select *  from orders o,user u where o.uid=u.id;
+对应的sql语句
+
+```sql
+select *  from orders o,user u where o.uid=u.id;
+```
 
 查询的结果如下：
 
@@ -105,7 +109,13 @@ for(Order order : all){
 
 ##### 1.2.2 一对多查询的语句
 
-对应的sql语句：select *,o.id oid from user u left join orders o on u.id=o.uid;
+对应的sql语句：
+
+```sql
+select *,o.id oid from user u left join orders o on u.id=o.uid;
+```
+
+
 
 查询的结果如下：
 
@@ -195,9 +205,15 @@ for(User user : all){
 
 ##### 1.3.2 多对多查询的语句
 
-对应的sql语句：select u.*,r.*,r.id rid from user u left join user_role ur on u.id=ur.user_id
+对应的sql语句：
 
- inner join role r on ur.role_id=r.id;
+```sql
+select u.*,r.*,r.id rid from user u 
+left join user_role ur on u.id=ur.user_id
+inner join role r on ur.role_id=r.id;
+```
+
+
 
 查询的结果如下：
 
@@ -246,7 +262,8 @@ List<User> findAllUserAndRole();
     </collection>
 </resultMap>
 <select id="findAllUserAndRole" resultMap="userRoleMap">
-    select u.*,r.*,r.id rid from user u left join user_role ur on u.id=ur.user_id
+    select u.*,r.*,r.id rid from user u 
+    left join user_role ur on u.id=ur.user_id
     inner join role r on ur.role_id=r.id
 </select>
 ```
@@ -272,7 +289,7 @@ for(User user : all){
 
 MyBatis多表配置方式：
 
-**一对一配置：使用<resultMap>做配置**
+**一对一配置：使用<resultMap>+<association>做配置**
 
 **一对多配置：使用<resultMap>+<collection>做配置**
 
@@ -398,7 +415,7 @@ public void testFindAll() throws IOException {
 对应的sql语句：
 
     select * from orders;
-
+    
     select * from user where id=查询出订单的uid;
 
 查询的结果如下：
@@ -491,7 +508,7 @@ public void testSelectOrderAndUser() {
 对应的sql语句：
 
     select * from user;
-
+    
     select * from orders where uid=查询出用户的id;
 
 查询的结果如下：
@@ -583,7 +600,7 @@ for(User user : all){
 对应的sql语句：
 
     select * from user;
-
+    
     select * from role r,user_role ur where r.id=ur.role_id and ur.user_id=用户的id
 
 查询的结果如下：
