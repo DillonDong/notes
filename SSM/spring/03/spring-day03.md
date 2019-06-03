@@ -136,10 +136,6 @@ Spring 的 AOP 实现底层就是对上面的动态代理的代码进行了封�
 
 - Weaving（织入）：是指把增强应用到目标对象来创建新的代理对象的过程。spring采用动态代理织入，而AspectJ采用编译期织入和类装载期织入
 
-1.8 AOP 开发明确的事项
-
-1.8 AOP 开发明确的事项
-
 #### 1.8 AOP 开发明确的事项
 
 ##### 1)需要编写的内容
@@ -148,7 +144,7 @@ Spring 的 AOP 实现底层就是对上面的动态代理的代码进行了封�
 
 - 编写切面类，切面类中有通知(增强功能方法)
 
-- 在配置文件中，配置织入关系，即将哪些通知与哪些连接点进行结合
+- 在配置文件中，配置织入关系，既将哪些通知与哪些连接点进行结合
 
 ##### 2）AOP 技术实现的内容
 
@@ -167,19 +163,19 @@ Spring 框架监控切入点方法的执行。一旦监控到切入点方法被�
 - aop的重点概念：
 
         Pointcut（切入点）：被增强的方法
-
+        
         Advice（通知/ 增强）：封装增强业务逻辑的方法
-
+        
         Aspect（切面）：切点+通知
-
+        
         Weaving（织入）：将切点与通知结合的过程
 
 - 开发明确事项：
 
         谁是切点（切点表达式配置）
-
+        
         谁是通知（切面类中的增强方法）
-
+        
         将切点和通知进行织入配置
 
 ### 2. 基于 XML 的 AOP 开发
@@ -283,7 +279,8 @@ public class MyAspect {
     <!--引用myAspect的Bean为切面对象-->
     <aop:aspect ref="myAspect">
         <!--配置Target的method方法执行时要进行myAspect的before方法前置增强-->
-        <aop:before method="before" pointcut="execution(public void com.itheima.aop.Target.method())"></aop:before>
+        <aop:before method="before" pointcut="execution(public void com.itheima.aop.Target.method())">
+        </aop:before>
     </aop:aspect>
 </aop:config>
 ```
@@ -502,12 +499,14 @@ aop 一样，我们可以将切点表达式抽取。抽取方式是在切面内�
 @@Component("myAspect")
 @Aspect
 public class MyAspect {
+    
+    @Pointcut("execution(* com.itheima.aop.*.*(..))")
+    public void myPoint(){}
+    
     @Before("MyAspect.myPoint()")
     public void before(){
         System.out.println("前置代码增强.....");
     }
-    @Pointcut("execution(* com.itheima.aop.*.*(..))")
-    public void myPoint(){}
 }
 ```
 
@@ -529,7 +528,7 @@ public class MyAspect {
 
 
 
-    
+​    
 
 
 
