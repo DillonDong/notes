@@ -246,7 +246,7 @@ public class MyAspect {
 ```xml
 <!--配置目标类-->
 <bean id="target" class="com.itheima.aop.Target"></bean>
-<!--配置切面类-->
+<!--配置通知类-->
 <bean id="myAspect" class="com.itheima.aop.MyAspect"></bean>
 
 ```
