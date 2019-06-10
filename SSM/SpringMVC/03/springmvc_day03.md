@@ -4,7 +4,7 @@
 
 文件上传客户端表单需要满足：
 
-表单项type=“file”
+表单项type=“file” name="XXX"
 
 表单的提交方式是post
 
@@ -46,7 +46,7 @@
 ```xml
 <!--配置文件上传解析器-->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <property name="defaultEncoding" value="UYF-8"/>
+        <property name="defaultEncoding" value="UTF-8"/>
         <property name="maxUploadSize" value="500000"/>
     </bean>
 ```
@@ -390,7 +390,7 @@ public User login(String username, String password) {
 
 ```
 
-## 1. SpringMVC异常处理机制
+# SpringMVC异常处理机制
 
 ### 1.1 异常处理的思路
 
@@ -476,18 +476,18 @@ public void quickMethod22() throws IOException, ParseException {
 
 异常处理方式
 
+1. SimpleMappingExceptionResolver
+
     配置简单异常处理器SimpleMappingExceptionResolver
 
-    自定义异常处理器
-
-自定义异常处理步骤
+2. 自定义异常处理器
 
     ①创建异常处理器类实现HandlerExceptionResolver
-
+    
     ②配置异常处理器
-
+    
     ③编写异常页面
-
+    
     ④测试异常跳转
 
 # SSM框架整合 
