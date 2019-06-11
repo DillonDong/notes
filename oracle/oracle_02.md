@@ -36,6 +36,11 @@ create or replace view empvd20 as select * from emp t where t.deptno = 20
 
 ![](img/视图4.png)
 
+作用：
+
+	1. 屏蔽表中的敏感字段
+ 	2. 保证多个系统查询数据的统一性（同步）
+
 # 2. 索引
 
 索引是用于加速数据存取的数据对象。合理的使用索引可以大大降低 i/o 次数,从而提高数据访问性能。索引有很多种我们主要介绍常用的几种:
@@ -165,10 +170,10 @@ emp_rec.ename:='ADAMS';
 
 ```plsql
 declare
-p emp%rowtype;
+	p emp%rowtype;
 begin
-select * into p from emp t where t.empno = 7369;
-dbms_output.put_line(p.ename || ' ' || p.sal);
+	select * into p from emp t where t.empno = 7369;
+	dbms_output.put_line(p.ename || ' ' || p.sal);
 end;
 ```
 
@@ -193,8 +198,8 @@ END IF ；
 语法 3：
 
 ```plsql
-IF 条件 THEN  语句;
-ELSIF 语句 THEN 语句;
+IF 条件1 THEN  语句;
+ELSIF 条件2 THEN 语句;
 ELSE 语句;
 END IF;
 ```
@@ -265,7 +270,8 @@ End loop
 语法 3：
 
 ```plsql
-FOR I IN 1 . . 3 LOOP
+FOR I IN 1 . . 3 
+LOOP
 语句序列 ;
 END LOOP ;
 ```
@@ -303,13 +309,14 @@ end;
 declare
 	step number := 1;
 begin
-	for step in 1 .. 10 loop
-		dbms_output.put_line(step);
-	end loop;
+	for step in 1 .. 10 
+		loop
+			dbms_output.put_line(step);
+		end loop;
 end;
 ```
 
-## 3.5 游标 Cursor
+# 4. 游标 Cursor
 
 在写 java 程序中有集合的概念，那么在 pl/sql 中也会用到多条记录，这时候我们就要用到游标，游标可以存储查询返回的多条数据。
 
@@ -357,7 +364,7 @@ end;
 
 ```plsql
 -- 备份出一张新表为 myemp;
-create table myemp as select * from emp;
+create table myemp as select * from emp;q
 ```
 
 ```plsql
@@ -381,7 +388,7 @@ begin
 end;
 ```
 
-范例 3：写一段PL/SQL 程序，为部门号为 10 的员工涨工资。
+范例 3：写一段PL/SQL 程序，为10号部门员工涨工资1000元。
 
 ```plsql
 declare
@@ -398,7 +405,7 @@ begin
 end
 ```
 
-# 4. 存储过程
+# 5. 存储过程
 
 存储过程（Stored Procedure）是在大型数据库系统中，一组为了完成特定功能的 SQL 语句集，经编译后存储在数据库中，用户通过指定存储过程的名字并给出参数（如果该存储过程带有参数）来执行它。存储过程是数据库中的一个重要对象，任何一个设计良好的数据库应用程序都应该用到存储过程。
 
@@ -421,7 +428,8 @@ End 过程名;
 范例1：创建一个输出 helloword 的存储过程
 
 ```plsql
-create or replace procedure helloworld is
+create or replace procedure helloworld 
+is
 begin
 	dbms_output.put_line('helloworld');
 end helloworld;
@@ -441,7 +449,8 @@ end;
 分析：我们需要使用带有参数的存储过程
 
 ```plsql
-create or replace procedure addSal1(eno in number) is
+create or replace procedure addSal1(eno in number) 
+is
 	pemp myemp%rowtype;
 begin
 	select * into pemp from myemp where empno = eno;
@@ -460,7 +469,7 @@ commit;
 end;
 ```
 
-# 5. 存储函数
+# 6. 存储函数
 
 ```plsql
 create or replace function  函数名(Name in type, Name in type, ...) return  数据类型 
@@ -480,11 +489,10 @@ end 函数名;
 ```plsql
 create or replace function empincome(eno in emp.empno%type) return	number 
 is
-	psal emp.sal%type;
-	pcomm emp.comm%type;
+	pemp emp%rowtype;
 begin
-	select t.sal into psal from emp t where t.empno = eno;
-	return psal * 12 + nvl(pcomm, 0);
+	select t.* into pemp from emp t where t.empno = eno;
+	return pemp.sal * 12 + nvl(pemp.comm, 0);
 end;
 ```
 
@@ -512,7 +520,7 @@ begin
 end;
 ```
 
-# 6. 触发器
+# 7. 触发器
 
 ##6.1 概念
 
@@ -541,26 +549,28 @@ CREATE [or REPLACE] TRIGGER 触发器名
 	[FOR EACH ROW [WHEN( 条件) ] ]
 begin
 	PLSQL块
-End  触发器名;
+End;
 ```
 
 范例：插入员工后打印一句话“一个新员工插入成功”
 
 ```plsql
 create or replace trigger testTrigger
-	after insert on person
+	after 
+	insert on person
 declare
 	-- local variables here
 begin
 	dbms_output.put_line('一个员工被插入');
-end testTrigger;
+end;
 ```
 
 范例：不能在休息时间插入员工
 
 ```plsql
 create or replace trigger validInsertPerson
-	before insert on person
+	before 
+	insert on person
 declare
 	weekend varchar2(10);
 begin
@@ -568,14 +578,14 @@ begin
 	if weekend in ('星期一') 
 		then raise_application_error(-20001, '不能在非法时间插入员工');
 	end if;
-end validInsertPerson;
+end;
 ```
 
 当执行插入时会报错
 
 ![](img/触发器.png)
 
-在触发器中触发语句与伪记录变量的值
+在行级触发器中触发语句与伪记录变量的值
 
 ![](img/触发器2.png)
 
@@ -583,7 +593,8 @@ end validInsertPerson;
 
 ```plsql
 create or replace trigger addsal4p
-	before update of sal on myemp
+	before 
+	update of sal on myemp
 	for each row
 begin
 	if :old.sal >= :new.sal 
@@ -600,7 +611,7 @@ update myemp t set t.sal = t.sal - 1;
 
 ![](img/触发器3.png)
 
-# 7. Java应用调用存储过程
+# 8. Java应用调用存储过程
 
 ## 7.1 环境搭建
 
@@ -627,7 +638,7 @@ String password="tiger";
 
 ```plsql
 -- 统计年薪的过程
-create or replace procedure proc_countyearsal(eno in number,esalout number)
+create or replace procedure proc_countyearsal(eno in number,esal out number)
 as
 begin
 	select sal*12+nvl(comm,0) into esal from emp where empno=eno;
