@@ -117,7 +117,7 @@ public class Member {
 }
 ```
 
-### 3）旅客
+### 3）旅客表traveller
 
 ![](img/oracle4.png)
 
