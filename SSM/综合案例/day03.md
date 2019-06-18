@@ -157,7 +157,7 @@ Spring Security 目前支持认证一体化如下认证技术： HTTP BASIC auth
 </dependencies>
 ```
 
-### 2.2.2 xml配置
+### 2.2.2 web.xml配置
 
 ```xml
 <context-param>
