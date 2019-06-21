@@ -56,8 +56,7 @@ public String addRoleToUser(@RequestParam(name = "userId", required = true) Stri
 #### 1）IRoleDao
 
 ```java
-@Select("select * from role where id not in( select roleId from user_role where userId=#
-{id})")
+@Select("select * from role where id not in( select roleId from user_role where userId=#{id})")
 public List<Role> findOtherRole(Long id);
 ```
 
@@ -207,8 +206,7 @@ void changePassword(@P("userId") long userId ){
 
 ```java
 @PostAuthorize
-User getUser("returnObject.userId == authentication.principal.userId or
-hasPermission(returnObject, 'ADMIN')");
+User getUser("returnObject.userId == authentication.principal.userId or hasPermission(returnObject, 'ADMIN')");
 ```
 
 * @PostFilter 允许方法调用,但必须按照表达式来过滤方法的结果
