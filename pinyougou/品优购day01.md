@@ -1,8 +1,8 @@
-# 1. 了解电商行业特点并理解常见电商的模式
+# 1. 电商网站背景
 
 ### [大型网站演变过程](./pic/大型网站演变过程.png)
 
-### 1.1 电商技术特点
+## 1.1 电商技术特点
 
 1. 用户多,高并发
 1. 高可用:7*24小时不间断访问
@@ -12,7 +12,7 @@
 
 ![](pic/高可用标准.png)
 
-### 1.2 电商模式
+## 1.2 电商模式
 
   * B2B:企业2企业;	阿里巴巴
   * B2C:企业2个人;     苏宁
@@ -22,24 +22,25 @@
   * O2O:Online2Offline;线上到线上; 团购网站
   * B2B2C:企业2企业2个人;  品优购;京东;天猫
 
-# 2. 了解整体品优购的架构特点
+# 2. 品优购的架构
 
-### 2.1 分布式架构优点
+## 2.1 分布式架构优点
 
-    1. 解耦
-    2. 提高服务的复用和扩展
+* 解耦
+2. 提高服务的复用和扩展
 
 ![](pic/品优购架构.png)
 
- ### 2.2 品优购架构
+## 2.2 品优购架构
+
   后台:SSM+Dubbo
-  前台:AngularJS+Bootstrap
+  前台:AngularJS+Bootstrap+Jquery
   数据交互:Ajax
   数据格式:JSON
 
 ![](pic/品优购前后台系统关系.png)
 
-###2.3 Dubbo组件的运行原理
+## 2.3 Dubbo组件的运行原理
 
   1.  启动服务的提供方
 
@@ -53,24 +54,23 @@
 
   6.  服务消费方和服务提供方会定期向dubbox的监控中心上报数据
 
-  ###Dubbox组件
+![](pic/dubbo原理图.png)
+
   Provider: 服务提供方。
   Consumer: 服务消费方。
   Registry: 注册中心。
   Monitor: 监控中心。
   Container: 容器。
 
-![](pic/dubbo原理图.png)
-
 # 3. Dubbo入门案例
 
-### 虚拟机网路配置
+## 1）虚拟机网路配置
 
 1. 仅主机:相当于虚拟机和宿主机用一根网线连接，主机任何时候都可以连接虚拟机。
 2. NAT:虚拟机将主机当作交换机,如果宿主机连上，虚拟机能够上网
 3. 桥接:虚拟机相当于主机直接连接到外部交换机，宿主机有独立的IP地址
 
-### 注册中心zookeeper安装
+##2）zookeeper安装
 
 1. 将本地的zookeeper软件上传到Linux系统
 
@@ -91,8 +91,7 @@
    2. 关闭 ``` ./zkServer.sh stop```
    3. 查看启动状态 ```./zkServer.sh status```
 
-
-### dubbo服务提供方
+##3）Dubbo服务提供方
 
 1. 创建Web工程,添加依赖
 
@@ -240,7 +239,7 @@
 
 7. 在classpath下添加log4j.properties
 
-### dubbo服务消费方
+##4）Dubbo服务消费方
 
 1. 创建Web工程,添加依赖
 
@@ -338,13 +337,11 @@
 
 6. 在classpath下添加log4j.properties
 
-### 常见错误排查思路
+##5）常见错误排查思路
 
 1. 网络问题
 2. 检查Zookeeper是否正常启动
 3. 使用Dubbo-admin查看服务是否注册成功
-
-[源码](https://github.com/fudingcheng/dubbo-learning)
 
 # 4. 初始化品优购工程
 
@@ -352,7 +349,7 @@
 
 # 5. 查询品牌数据
 
-### Mybatis逆向工程
+##1）Mybatis逆向工程
 
 1. 在配置文件中指定数据库的连接信息
 2. 确定生成的PO类所在包名和位置
@@ -366,7 +363,7 @@ PO实现```Serializable```接口的场景
 1. PO类对象要在网络上进行传输
 2. PO类对象要序列化到磁盘
 
-### 服务提供方
+##2）服务提供方
 
 * BrandController
 
@@ -383,7 +380,7 @@ public class BrandServiceImpl implements BrandService {
 }
 ```
 
-### 服务消费方
+## 3）服务消费方
 
 * BrandServiceImpl
 
