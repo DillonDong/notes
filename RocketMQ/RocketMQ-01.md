@@ -191,14 +191,6 @@ sh bin/mqshutdown broker
 - Producer与NameServer集群中的其中一个节点（随机选择）建立长连接，定期从NameServer取Topic路由信息，并向提供Topic服务的Master建立长连接，且定时向Master发送心跳。Producer完全无状态，可集群部署。
 - Consumer与NameServer集群中的其中一个节点（随机选择）建立长连接，定期从NameServer取Topic路由信息，并向提供Topic服务的Master、Slave建立长连接，且定时向Master、Slave发送心跳。Consumer既可以从Master订阅消息，也可以从Slave订阅消息，订阅规则由Broker配置决定。
 
-### 3.2.2 集群工作流程
-
-1. 启动NameServer，NameServer起来后监听端口，等待Broker、Producer、Consumer连上来，相当于一个路由控制中心。
-2. Broker启动，跟所有的NameServer保持长连接，定时发送心跳包。心跳包中包含当前Broker信息(IP+端口等)以及存储所有Topic信息。注册成功后，NameServer集群中就有Topic跟Broker的映射关系。
-3. 收发消息前，先创建Topic，创建Topic时需要指定该Topic要存储在哪些Broker上，也可以在发送消息时自动创建Topic。
-4. Producer发送消息，启动时先跟NameServer集群中的其中一台建立长连接，并从NameServer中获取当前发送的Topic存在哪些Broker上，轮询从队列列表中选择一个队列，然后与队列所在的Broker建立长连接从而向Broker发消息。
-5. Consumer跟Producer类似，跟其中一台NameServer建立长连接，获取当前订阅Topic存在哪些Broker上，然后直接跟Broker建立连接通道，开始消费消息。
-
 ### 3.2.3 集群模式
 
 #### 1）单Master模式
@@ -234,16 +226,22 @@ sh bin/mqshutdown broker
 
 ![](img/RocketMQ集群.png)
 
+### 3.3.2 集群工作流程
 
+1. 启动NameServer，NameServer起来后监听端口，等待Broker、Producer、Consumer连上来，相当于一个路由控制中心。
+2. Broker启动，跟所有的NameServer保持长连接，定时发送心跳包。心跳包中包含当前Broker信息(IP+端口等)以及存储所有Topic信息。注册成功后，NameServer集群中就有Topic跟Broker的映射关系。
+3. 收发消息前，先创建Topic，创建Topic时需要指定该Topic要存储在哪些Broker上，也可以在发送消息时自动创建Topic。
+4. Producer发送消息，启动时先跟NameServer集群中的其中一台建立长连接，并从NameServer中获取当前发送的Topic存在哪些Broker上，轮询从队列列表中选择一个队列，然后与队列所在的Broker建立长连接从而向Broker发消息。
+5. Consumer跟Producer类似，跟其中一台NameServer建立长连接，获取当前订阅Topic存在哪些Broker上，然后直接跟Broker建立连接通道，开始消费消息。
 
-### 3.3.2 服务器环境
+### 3.3.3 服务器环境
 
 | **序号** | **IP**         | **角色**                 | **架构模式**    |
 | -------- | -------------- | ------------------------ | --------------- |
 | 1        | 192.168.25.135 | nameserver、brokerserver | Master1、Slave2 |
 | 2        | 192.168.25.138 | nameserver、brokerserver | Master2、Slave1 |
 
-### 3.3.3 Host添加信息
+### 3.3.4 Host添加信息
 
 ```bash
 vim /etc/hosts
@@ -257,9 +255,9 @@ vim /etc/hosts
 192.168.25.138 rocketmq-nameserver2
 # broker
 192.168.25.135 rocketmq-master1
-192.168.25.138 rocketmq-slave2
-192.168.25.135 rocketmq-master1
-192.168.25.138 rocketmq-slave2
+192.168.25.135 rocketmq-slave2
+192.168.25.138 rocketmq-master2
+192.168.25.138 rocketmq-slave1
 ```
 
 配置完成后, 重启网卡
@@ -268,7 +266,7 @@ vim /etc/hosts
 systemctl restart network
 ```
 
-### 3.3.4 防火墙配置
+### 3.3.5 防火墙配置
 
 宿主机需要远程访问虚拟机的rocketmq服务和web服务，需要开放相关的端口号，简单粗暴的方式是直接关闭防火墙
 
@@ -300,7 +298,7 @@ firewall-cmd --remove-port=11011/tcp --permanent
 firewall-cmd --reload
 ```
 
-### 3.3.5 环境变量配置
+### 3.3.6 环境变量配置
 
 ```bash
 vim /etc/profile
@@ -321,7 +319,7 @@ export ROCKETMQ_HOME PATH
 source /etc/profile
 ```
 
-### 3.3.6 创建消息存储路径
+### 3.3.7 创建消息存储路径
 
 ```bash
 mkdir /usr/local/rocketmq/store
@@ -330,7 +328,7 @@ mkdir /usr/local/rocketmq/store/consumequeue
 mkdir /usr/local/rocketmq/store/index
 ```
 
-### 3.3.7 broker配置文件
+### 3.3.8 broker配置文件
 
 #### 1）master1
 
@@ -624,7 +622,7 @@ flushDiskType=ASYNC_FLUSH
 #pullMessageThreadPoolNums=128
 ```
 
-### 3.3.8 修改启动脚本文件
+### 3.3.9 修改启动脚本文件
 
 #### 1）runbroker.sh
 
@@ -650,7 +648,7 @@ vim /usr/local/rocketmq/bin/runserver.sh
 JAVA_OPT="${JAVA_OPT} -server -Xms256m -Xmx256m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m"
 ```
 
-### 3.3.9 服务启动
+### 3.3.10 服务启动
 
 #### 1）启动NameServe集群
 
@@ -695,13 +693,13 @@ cd /usr/local/rocketmq/bin
 nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-noslave/broker-a-s.properties &
 ```
 
-### 3.3.10 查看进程状态
+### 3.3.11 查看进程状态
 
 启动后通过JPS查看启动进程
 
 ![](img/jps1.png)
 
-### 3.3.11 查看日志
+### 3.3.12 查看日志
 
 ```sh
 # 查看nameServer日志
@@ -1783,7 +1781,7 @@ tail -500f ~/logs/rocketmqlogs/broker.log
  </tr>
 </table>
 
-#### 7） NameServer相关
+#### 7）NameServer相关
 
 <table border=0 cellpadding=0 cellspacing=0 width=714>
  <col width=177>
@@ -1945,7 +1943,7 @@ java -jar rocketmq-console-ng-1.0.0.jar
 
 # 4. 消息发送样例
 
-导入MQ客户端依赖
+* 导入MQ客户端依赖
 
 ```xml
 <dependency>
@@ -1953,6 +1951,27 @@ java -jar rocketmq-console-ng-1.0.0.jar
     <artifactId>rocketmq-client</artifactId>
     <version>4.4.0</version>
 </dependency>
+```
+
+* 消息发送者步骤分析r
+
+```tex
+1.创建消息生产者producer，并制定生产者组名
+2.指定Nameserver地址
+3.启动producer
+4.创建消息对象，指定主题Topic、Tag和消息体
+5.发送消息
+6.关闭生产者producer
+```
+
+* 消息消费者步骤分析
+
+```tex
+1.创建消费者Consumer，制定消费者组名
+2.指定Nameserver地址
+3.订阅主题Topic和Tag
+4.设置回调函数，处理消息
+5.启动消费者consumer
 ```
 
 ## 4.1 基本样例
@@ -1992,6 +2011,43 @@ public class SyncProducer {
 #### 2）发送异步消息
 
 异步消息通常用在对响应时间敏感的业务场景，即发送端不能容忍长时间地等待Broker的响应。
+
+```java
+public class AsyncProducer {
+	public static void main(String[] args) throws Exception {
+    	// 实例化消息生产者Producer
+        DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
+    	// 设置NameServer的地址
+        producer.setNamesrvAddr("localhost:9876");
+    	// 启动Producer实例
+        producer.start();
+        producer.setRetryTimesWhenSendAsyncFailed(0);
+    	for (int i = 0; i < 100; i++) {
+                final int index = i;
+            	// 创建消息，并指定Topic，Tag和消息体
+                Message msg = new Message("TopicTest",
+                    "TagA",
+                    "OrderID188",
+                    "Hello world".getBytes(RemotingHelper.DEFAULT_CHARSET));
+                // SendCallback接收异步返回结果的回调
+                producer.send(msg, new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        System.out.printf("%-10d OK %s %n", index,
+                            sendResult.getMsgId());
+                    }
+                    @Override
+                    public void onException(Throwable e) {
+      	              System.out.printf("%-10d Exception %s %n", index, e);
+      	              e.printStackTrace();
+                    }
+            	});
+    	}
+    	// 如果不再发送消息，关闭Producer实例。
+    	producer.shutdown();
+    }
+}
+```
 
 #### 3）单向发送消息
 
@@ -2558,39 +2614,31 @@ consumer.start();
 使用 `TransactionMQProducer`类创建生产者，并指定唯一的 `ProducerGroup`，就可以设置自定义线程池来处理这些检查请求。执行本地事务后、需要根据执行结果对消息队列进行回复。回传的事务状态在请参考前一节。
 
 ```java
-public class TransactionProducer {
-   public static void main(String[] args) throws MQClientException, InterruptedException {
-       TransactionListener transactionListener = new TransactionListenerImpl();
-       TransactionMQProducer producer = new TransactionMQProducer("please_rename_unique_group_name");
-       ExecutorService executorService = new ThreadPoolExecutor(2, 5, 100, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(2000), new ThreadFactory() {
-           @Override
-           public Thread newThread(Runnable r) {
-               Thread thread = new Thread(r);
-               thread.setName("client-transaction-msg-check-thread");
-               return thread;
-           }
-       });
-       producer.setExecutorService(executorService);
-       producer.setTransactionListener(transactionListener);
-       producer.start();
-       String[] tags = new String[] {"TagA", "TagB", "TagC", "TagD", "TagE"};
-       for (int i = 0; i < 10; i++) {
-           try {
-               Message msg =
-                   new Message("TopicTest1234", tags[i % tags.length], "KEY" + i,
-                       ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET));
-               SendResult sendResult = producer.sendMessageInTransaction(msg, null);
-               System.out.printf("%s%n", sendResult);
-               Thread.sleep(10);
-           } catch (MQClientException | UnsupportedEncodingException e) {
-               e.printStackTrace();
-           }
-       }
-       for (int i = 0; i < 100000; i++) {
-           Thread.sleep(1000);
-       }
-       producer.shutdown();
-   }
+public class Producer {
+    public static void main(String[] args) throws MQClientException, InterruptedException {
+        //创建事务监听器
+        TransactionListener transactionListener = new TransactionListenerImpl();
+        //创建消息生产者
+        TransactionMQProducer producer = new TransactionMQProducer("group6");
+        producer.setNamesrvAddr("192.168.25.135:9876;192.168.25.138:9876");
+        //生产者这是监听器
+        producer.setTransactionListener(transactionListener);
+        //启动消息生产者
+        producer.start();
+        String[] tags = new String[]{"TagA", "TagB", "TagC"};
+        for (int i = 0; i < 3; i++) {
+            try {
+                Message msg = new Message("TransactionTopic", tags[i % tags.length], "KEY" + i,
+                        ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET));
+                SendResult sendResult = producer.sendMessageInTransaction(msg, null);
+                System.out.printf("%s%n", sendResult);
+                TimeUnit.SECONDS.sleep(1);
+            } catch (MQClientException | UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        //producer.shutdown();
+    }
 }
 ```
 
@@ -2600,30 +2648,25 @@ public class TransactionProducer {
 
 ```java
 public class TransactionListenerImpl implements TransactionListener {
-  private AtomicInteger transactionIndex = new AtomicInteger(0);
-  private ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>();
-  @Override
-  public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
-      int value = transactionIndex.getAndIncrement();
-      int status = value % 3;
-      localTrans.put(msg.getTransactionId(), status);
-      return LocalTransactionState.UNKNOW;
-  }
-  @Override
-  public LocalTransactionState checkLocalTransaction(MessageExt msg) {
-      Integer status = localTrans.get(msg.getTransactionId());
-      if (null != status) {
-          switch (status) {
-              case 0:
-                  return LocalTransactionState.UNKNOW;
-              case 1:
-                  return LocalTransactionState.COMMIT_MESSAGE;
-              case 2:
-                  return LocalTransactionState.ROLLBACK_MESSAGE;
-          }
-      }
-      return LocalTransactionState.COMMIT_MESSAGE;
-  }
+
+    @Override
+    public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
+        System.out.println("执行本地事务");
+        if (StringUtils.equals("TagA", msg.getTags())) {
+            return LocalTransactionState.COMMIT_MESSAGE;
+        } else if (StringUtils.equals("TagB", msg.getTags())) {
+            return LocalTransactionState.ROLLBACK_MESSAGE;
+        } else {
+            return LocalTransactionState.UNKNOW;
+        }
+
+    }
+
+    @Override
+    public LocalTransactionState checkLocalTransaction(MessageExt msg) {
+        System.out.println("MQ检查消息Tag【"+msg.getTags()+"】的本地事务执行结果");
+        return LocalTransactionState.COMMIT_MESSAGE;
+    }
 }
 ```
 
