@@ -1,41 +1,39 @@
-
-
 # 1.AngularJS介绍
 
-###  1.1 四大特征
+## 1.1 四大特征
 
-	MVC
-	数据双向绑定
-	依赖注入
-	模块化
+* MVC
+* 数据双向绑定
+* 依赖注入
+* 模块化
 
 ![](pic/angular特征.png)
 
-### 1.2 指令
+## 1.2 指令
 
 ```javascript
-ng-app:定义angular的模块
-ng-controller:定义angular的控制器
-ng-model:绑定变量
-ng-click:绑定单击事件
-ng-repeat:遍历  XX in list
-ng-init:初始化
+ng-app：定义angular的模块
+ng-controller：定义angular的控制器
+ng-model：绑定变量
+ng-click：绑定单击事件
+ng-repeat：遍历  XX in list
+ng-init：初始化
 ```
 
-### 1.3 内置对象
+## 1.3 内置对象
 
 ```javascript
-$scope:在控制器中获得ng-model绑定的变量
-$http: 发起Ajax请求; $http.get()/$http.post()
-$event:事件对象;获得事件源;$event.target=DOM对象
-$index:在ng-repeat中获得元素的索引
+$scope：在控制器中获得ng-model绑定的变量
+$http：发起Ajax请求; $http.get()/$http.post()
+$event：事件对象;获得事件源;$event.target=DOM对象
+$index：在ng-repeat中获得元素的索引
 ```
 
 # 2.品牌管理
 
-### 2.1 列表显示
+## 2.1 列表显示
 
-* HTML
+###1）HTML
 
 ```html
 <body ng-app="pinyougou" ng-controller="brandController" ng-init="findAll()">
@@ -48,7 +46,7 @@ $index:在ng-repeat中获得元素的索引
 </body>
 ```
 
-* Javascript
+###2）Javascript
 
 ```javascript
 $scope.findAll=function(){
@@ -60,9 +58,9 @@ $scope.findAll=function(){
 }
 ```
 
-### 2.2 分页查询
+## 2.2 分页查询
 
-#### 数据传递
+###2.2.1 数据传递
 
 - 前台------>后台
 
@@ -76,9 +74,9 @@ $scope.findAll=function(){
 
   总记录数
 
-#### 代码实现
+###2.2.2 代码实现
 
-* 分页实体类
+####1）实体类
 
 ```java
 public class PageResult implements Serializable{
@@ -86,7 +84,7 @@ public class PageResult implements Serializable{
 	private List rows;//当前页记录
 }
 ```
-* 页面
+####2）页面
 
 ```html
 <!--导入分页资源文件-->
@@ -97,7 +95,7 @@ public class PageResult implements Serializable{
 <tm-pagination conf="paginationConf"></tm-pagination>
 ```
 
-* Javascript
+####3）Javascript
 
 ```javascript
 var app=angular.module('pinyougou',['pagination']);
@@ -126,7 +124,7 @@ $scope.findPage=function(page,size){
 	);				
 }
 ```
-* Web层
+####4）Web层
 
 ```java
 @RequestMapping("/findPage")
@@ -134,7 +132,7 @@ public PageResult findPage(int page,int size){
 	return brandService.findPage(page, size);
 }
 ```
-* 服务层
+####5）服务层
 
 ```java
 public PageResult findPage(int pageNum, int pageSize) {
@@ -143,9 +141,9 @@ public PageResult findPage(int pageNum, int pageSize) {
 	return new PageResult(page.getTotal(), page.getResult());
 }
 ```
-### 2.3 增加品牌
+## 2.3 增加品牌
 
-* 页面数据绑定
+###1）页面数据绑定
 
 ```html
 <input  class="form-control" placeholder="品牌名称" ng-model="entity.name">
@@ -153,7 +151,7 @@ public PageResult findPage(int pageNum, int pageSize) {
 <button class="btn btn-success" ng-click="save()">保存</button>
 ```
 
-* Javascript
+###2）Javascript
 
 ```javascript
 //新增
@@ -170,7 +168,7 @@ $scope.save=function(){
 }
 ```
 
-* Web层
+###3）Web层
 
 ```java
 @RequestMapping("/add")
@@ -185,7 +183,7 @@ public Result add(@RequestBody TbBrand brand){
 }
 ```
 
-* 服务层
+###4）服务层
 
 ```java
 @Override
@@ -196,11 +194,11 @@ public void add(TbBrand brand) {
 
 ![](pic/前后台数据交互.png)
 
-### 2.4 修改品牌
+## 2.4 修改品牌
 
-##### 数据的回显
+###2.4.1 数据的回显
 
-* 页面
+####1）页面
 
 ```html
 <tr ng-repeat="entity in list">    
@@ -209,7 +207,7 @@ public void add(TbBrand brand) {
 </tr>
 ```
 
-* Javascript
+####2）Javascript
 
 ```javascript
 $scope.findOne=function(id){
@@ -221,7 +219,7 @@ $scope.findOne=function(id){
 }
 ```
 
-* Web层
+####3）Web层
 
 ```java
 @RequestMapping("/findOne")
@@ -230,7 +228,7 @@ public TbBrand findOne(Long id){
 }
 ```
 
-* 服务层
+####4）服务层
 
 ```java
 @Override
@@ -239,9 +237,9 @@ public TbBrand findOne(Long id) {
 }
 ```
 
-##### 更新数据
+###2.4.2 更新数据
 
-* Javascript
+####1）Javascript
 
 ```javascript
 $scope.save=function(){
@@ -261,7 +259,7 @@ $scope.save=function(){
 }
 ```
 
-* Web层
+####2）Web层
 
 ```java
 @RequestMapping("/update")
@@ -276,7 +274,7 @@ public Result update(@RequestBody TbBrand brand){
 }
 ```
 
-* 服务层
+####3）服务层
 
 ```java
 public void update(TbBrand brand) {
@@ -284,11 +282,11 @@ public void update(TbBrand brand) {
 }
 ```
 
-### 2.5 删除品牌
+## 2.5 删除品牌
 
-##### 记录勾选的品牌ID
+###2.5.1 记录勾选的品牌ID
 
-* 页面
+####1）页面
 
 ```html
 <tr ng-repeat="entity in list">
@@ -297,7 +295,7 @@ public void update(TbBrand brand) {
 </tr>
 ```
 
-* Javascript
+####2）Javascript
 
 ```javascript
 //用户勾选的ID集合 
@@ -313,15 +311,15 @@ $scope.updateSelection=function($event,id){
 }
 ```
 
-##### 批量删除
+###2.4.2 批量删除
 
-* 页面
+####1）页面
 
 ```html
 <button type="button" class="btn btn-default" title="删除" ng-click="dele()">
 ```
 
-* Javascript
+####2）Javascript
 
 ```javascript
 $scope.dele=function(){
@@ -339,7 +337,7 @@ $scope.dele=function(){
 }
 ```
 
-* Web层
+####3）Web层
 
 ```java
 @RequestMapping("/delete")
@@ -354,7 +352,7 @@ public Result delete(Long [] ids){
 }
 ```
 
-* 服务层
+####4）服务层
 
 ```java
 @Override
@@ -365,9 +363,9 @@ public void delete(Long[] ids) {
 }
 ```
 
-### 2.6 条件查询
+## 2.6 条件查询
 
-* 页面绑定数据
+###1）页面绑定数据
 
 ```html
 品牌名称:<input ng-model="searchEntity.name"> 
@@ -375,7 +373,7 @@ public void delete(Long[] ids) {
 <button  class="btn btn-default" ng-click="reloadList()">查询</button>  
 ```
 
-* Javascript
+###2）Javascript
 
 ```javascript
 //刷新数据
@@ -397,7 +395,7 @@ $scope.search=function(page,size){
 }
 ```
 
-* Web层
+###3）Web层
 
 ```java
 @RequestMapping("/search")
@@ -406,7 +404,7 @@ public PageResult search(@RequestBody TbBrand brand,int page,int size){
 }
 ```
 
-* 服务层
+###4）服务层
 
 ```java
 public PageResult findPage(TbBrand brand, int pageNum, int pageSize) {
