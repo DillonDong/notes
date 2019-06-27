@@ -1,5 +1,3 @@
-
-
 # 1. SpringSecurity权限框架
 
 ## 1.1 概念
@@ -12,7 +10,7 @@ SpringSecurity控制系统的访问权限
 
 **RBAC**
 
-Role Base Access Controller
+Role Base Access Control
 
 权限授予给角色,角色授予给用户
 

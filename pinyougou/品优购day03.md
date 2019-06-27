@@ -395,7 +395,7 @@ public Specification findOne(Long id){
 }
 ```
 
-#### 3.3.2 修改数据 
+### 3.3.2 修改数据 
 
 * Web层
 
@@ -438,7 +438,7 @@ public void update(Specification specification){
 }
 ```
 
-### 3.4 删除规格
+## 3.4 删除规格
 
 * 前台
 
