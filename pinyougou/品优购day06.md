@@ -413,10 +413,10 @@ $scope.updateSpecAttribute=function($event,name,value){
 	3.1 获得每个规格名称和选项数组
  	3.2 定义新的sku集合
  	3.3 遍历entity中sku集合
- 		3.3.1 获得每个sku对象
+ 		3.3.1 获得每个oldSku对象
  		3.3.3 遍历当前规格选项数组
- 			3.3.3.1 克隆原sku对象
- 			3.3.3.1 规格和选项添加到克隆的sku对象
+ 			3.3.3.1 克隆原sku对象，得到newSKU
+ 			3.3.3.1 规格和选项添加到newSku对象的spec中
  			3.3.3.1 将新的sku对象添加到sku集合中
  		3.3.4 将entity中的sku集合替换为新的sku集合
 ```
@@ -445,20 +445,20 @@ $scope.createItemList=function(){
 	//获得勾选的规格列表
 	var specList = $scope.entity.goodsDesc.specificationItems;
 	//遍历规格列表
-	for(var i=0;i<specList.length;i++){
+	for(var i=0;i<specList.length;i++){		//循环规格集合
 		//规格名称
 		var specName=specList[i].attributeName;
 		//规格选项
 		var specAttributeValue=specList[i].attributeValue;
 		//新的SKU列表
         var newList=[];
-		//遍历SKU列表
-		for(var j=0;j<$scope.entity.itemList.length;j++){
-            //原sku对象
-            var oldSKU=$scope.entity.itemList[j];
+		//遍历SKU列表	  [{spec:{},price:0,num:99999,status:'0',isDefault:'0'}]
+		for(var j=0;j<$scope.entity.itemList.length;j++){	//循环SKU集合
+            //原sku对象	{spec:{},price:0,num:99999,status:'0',isDefault:'0'}
+            var oldSKU=$scope.entity.itemList[j];	
 			//遍历规格属性
-			for(var z=0;z<specAttributeValue.length;z++){
-                //克隆SKU对象
+			for(var z=0;z<specAttributeValue.length;z++){	//循环规格中规格选项集合
+                //克隆SKU对象	{spec:{网络：3G},price:0,num:99999,status:'0',isDefault:'0'}
                 var newSKU=JSON.parse(JSON.stringify(oldSKU));
                 //增加规格信息
                 newSKU.spec[specName]=specAttributeValue[z];
