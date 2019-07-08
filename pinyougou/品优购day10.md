@@ -236,11 +236,11 @@ private List<String> searchCategoryList(Map searchMap){
 
 2. 缓存哪些数据？
 
-   在Redis中缓存两部分的数据
+   ​	分类名称-->模板ID
 
-   ​	分类集合
+   ​	模板ID--->品牌集合
 
-   ​	模板集合
+   ​	模板ID--->规格集合
 
 3. 什么时候缓存？
 
