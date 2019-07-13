@@ -150,12 +150,12 @@ export NAMESRV_ADDR=localhost:9876
 sh bin/tools.sh org.apache.rocketmq.example.quickstart.Producer
 ```
 
-### 2.4.2 接受消息
+### 2.4.2 接收消息
 
 ```shell
 # 1.设置环境变量
 export NAMESRV_ADDR=localhost:9876
-# 2.接受消息
+# 2.接收消息
 sh bin/tools.sh org.apache.rocketmq.example.quickstart.Consumer
 ```
 
@@ -173,11 +173,11 @@ sh bin/mqshutdown broker
 ## 3.1 各角色介绍
 
 * Producer：消息的发送者；举例：发信者
-* Consumer：消息接受者；举例：收信者
+* Consumer：消息接收者；举例：收信者
 * Broker：暂存和传输消息；举例：邮局
 * NameServer：管理Broker；举例：各个邮局的管理机构
-* Topic：区分消息的种类；一个发送者可以发送消息给一个或者多个Topic；一个消息的接受者可以订阅一个或者多个Topic消息
-* Message Queue：相当于是Topic的分区；用于并行发送和接受消息
+* Topic：区分消息的种类；一个发送者可以发送消息给一个或者多个Topic；一个消息的接收者可以订阅一个或者多个Topic消息
+* Message Queue：相当于是Topic的分区；用于并行发送和接收消息
 
 ![](img/RocketMQ角色.jpg)
 
