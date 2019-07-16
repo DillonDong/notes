@@ -639,41 +639,1127 @@ shop系统基于Maven进行项目管理
 * 将实体类导入到shop-pojo工程
 * 在服务层工程中导入对应的Mapper类和对应配置文件
 
+## 3.4 公共类介绍
+
+* ID生成器
+
+  IDWorker：Twitter雪花算法
+
+* 异常处理类
+
+  CustomerException：自定义异常类
+
+  CastException：异常抛出类
+
+* 常量类
+
+  ShopCode：系统状态类
+
+* 响应实体类
+
+  Result：封装响应状态和响应信息
+
 # 4. 下单业务
 
 ![](img/下单时序图.png)
 
 ## 4.1 下单基本流程
 
-###1）校验订单
+### 1）接口定义
 
-###2）生成预订单
+* IOrderService
 
-###3）扣减库存
+```java
+public interface IOrderService {
+    /**
+     * 确认订单
+     * @param order
+     * @return Result
+     */
+    Result confirmOrder(TradeOrder order);
+}
+```
 
-###4）扣减优惠券
+###2）业务类实现
 
-###5）扣减用户余额
+```java
+@Slf4j
+@Component
+@Service(interfaceClass = IOrderService.class)
+public class OrderServiceImpl implements IOrderService {
 
-###6）确认订单 
+    @Override
+    public Result confirmOrder(TradeOrder order) {
+        //1.校验订单
+       
+        //2.生成预订单
+       
+        try {
+            //3.扣减库存
+            
+            //4.扣减优惠券
+           
+            //5.使用余额
+           
+            //6.确认订单
+            
+            //7.返回成功状态
+           
+        } catch (Exception e) {
+            //1.确认订单失败,发送消息
+            
+            //2.返回失败状态
+        }
+
+    }
+}
+```
+
+###3）校验订单
+
+![](img/校验订单.png)
+
+```java
+private void checkOrder(TradeOrder order) {
+
+    //1.判断订单信息是否为空
+    if (order == null) {
+        CastException.cast(ShopCode.SHOP_ORDER_INVALID);
+    }
+    //2.根据订单中商品是否存在
+    TradeGoods goods = goodsService.findOne(order.getGoodsId());
+    if (goods == null) {
+        CastException.cast(ShopCode.SHOP_GOODS_NO_EXIST);
+    }
+    //3.判断下单用户账号是否为空
+    if (order.getUserId() == null) {
+        CastException.cast(ShopCode.SHOP_USER_IS_NULL);
+    }
+    //4.判断订单价格是否合法
+    if ((order.getGoodsPrice().compareTo(goods.getGoodsPrice()) != 0)) {
+        CastException.cast(ShopCode.SHOP_GOODS_PRICE_INVALID);
+    }
+
+    //5.判断购买数量是否合法
+    if (goods.getGoodsNumber() < order.getGoodsNumber()) {
+        CastException.cast(ShopCode.SHOP_GOODS_NUM_NOT_ENOUGH);
+    }
+
+    log.info("订单校验通过");
+
+}
+```
+
+###4）生成预订单
+
+![](img/生成预订单.png)
+
+```java
+private Long savePreOrder(TradeOrder order) {
+        //1.设置订单状态为不可见
+        order.setOrderStatus(ShopCode.SHOP_ORDER_NO_CONFIRM.getCode());
+        //2.订单ID
+        order.setOrderId(idWorker.nextId());
+        //核算运费是否正确
+        BigDecimal shippingFee = calculateShippingFee(order.getOrderAmount());
+        if (order.getShippingFee().compareTo(shippingFee) != 0) {
+            CastException.cast(ShopCode.SHOP_ORDER_SHIPPINGFEE_INVALID);
+        }
+        //3.计算订单总价格是否正确
+        BigDecimal orderAmount = order.getGoodsPrice().multiply(new BigDecimal(order.getGoodsNumber()));
+        orderAmount.add(shippingFee);
+        if (orderAmount.compareTo(order.getOrderAmount()) != 0) {
+            CastException.cast(ShopCode.SHOP_ORDERAMOUNT_INVALID);
+        }
+
+        //4.判断优惠券信息是否合法
+        Long couponId = order.getCouponId();
+        if (couponId != null) {
+            TradeCoupon coupon = couponService.findOne(couponId);
+            //优惠券不存在
+            if (coupon == null) {
+                CastException.cast(ShopCode.SHOP_COUPON_NO_EXIST);
+            }
+            //优惠券已经使用
+            if ((ShopCode.SHOP_COUPON_ISUSED.getCode().toString())
+                .equals(coupon.getIsUsed().toString())) {
+                CastException.cast(ShopCode.SHOP_COUPON_INVALIED);
+            }
+            order.setCouponPaid(coupon.getCouponPrice());
+        } else {
+            order.setCouponPaid(BigDecimal.ZERO);
+        }
+
+        //5.判断余额是否正确
+        BigDecimal moneyPaid = order.getMoneyPaid();
+        if (moneyPaid != null) {
+            //比较余额是否大于0
+            int r = order.getMoneyPaid().compareTo(BigDecimal.ZERO);
+            //余额小于0
+            if (r == -1) {
+                CastException.cast(ShopCode.SHOP_MONEY_PAID_LESS_ZERO);
+            }
+            //余额大于0
+            if (r == 1) {
+                //查询用户信息
+                TradeUser user = userService.findOne(order.getUserId());
+                if (user == null) {
+                    CastException.cast(ShopCode.SHOP_USER_NO_EXIST);
+                }
+            //比较余额是否大于用户账户余额
+            if (user.getUserMoney().compareTo(order.getMoneyPaid().longValue()) == -1) {
+                CastException.cast(ShopCode.SHOP_MONEY_PAID_INVALID);
+            }
+            order.setMoneyPaid(order.getMoneyPaid());
+        }
+    } else {
+        order.setMoneyPaid(BigDecimal.ZERO);
+    }
+    //计算订单支付总价
+    order.setPayAmount(orderAmount.subtract(order.getCouponPaid())
+                       .subtract(order.getMoneyPaid()));
+    //设置订单添加时间
+    order.setAddTime(new Date());
+
+    //保存预订单
+    int r = orderMapper.insert(order);
+    if (ShopCode.SHOP_SUCCESS.getCode() != r) {
+        CastException.cast(ShopCode.SHOP_ORDER_SAVE_ERROR);
+    }
+    log.info("订单:["+order.getOrderId()+"]预订单生成成功");
+    return order.getOrderId();
+}
+```
+
+###5）扣减库存
+
+* 通过dubbo调用商品服务完成扣减库存
+
+```java
+private void reduceGoodsNum(TradeOrder order) {
+        TradeGoodsNumberLog goodsNumberLog = new TradeGoodsNumberLog();
+        goodsNumberLog.setGoodsId(order.getGoodsId());
+        goodsNumberLog.setOrderId(order.getOrderId());
+        goodsNumberLog.setGoodsNumber(order.getGoodsNumber());
+        Result result = goodsService.reduceGoodsNum(goodsNumberLog);
+        if (result.getSuccess().equals(ShopCode.SHOP_FAIL.getSuccess())) {
+            CastException.cast(ShopCode.SHOP_REDUCE_GOODS_NUM_FAIL);
+        }
+        log.info("订单:["+order.getOrderId()+"]扣减库存["+order.getGoodsNumber()+"个]成功");
+    }
+```
+
+* 商品服务GoodsService扣减库存
+
+```java
+@Override
+public Result reduceGoodsNum(TradeGoodsNumberLog goodsNumberLog) {
+    //检查请求参数是否合法
+    if (goodsNumberLog == null
+            || goodsNumberLog.getGoodsId() == null
+            || goodsNumberLog.getGoodsNumber() == null
+            || goodsNumberLog.getGoodsNumber() <= 0) {
+        CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
+    }
+  	//扣减库存
+    TradeGoods goods = new TradeGoods();
+    goods.setGoodsId(goodsNumberLog.getGoodsId());
+    goods.setGoodsNumber(goodsNumberLog.getGoodsNumber());
+    int r = goodsMapper.reduceGoodsNum(goods);
+    if(r<=0){
+        CastException.cast(ShopCode.SHOP_REDUCE_GOODS_NUM_FAIL);
+    }
+    //记录扣减库存日志
+    goodsNumberLog.setLogTime(new Date());
+    goodsNumberLogMapper.insert(goodsNumberLog);
+    return new Result(ShopCode.SHOP_SUCCESS.getSuccess(),ShopCode.SHOP_SUCCESS.getMessage());
+}
+```
+
+###6）扣减优惠券
+
+* 通过dubbo完成扣减优惠券
+
+```java
+private void changeCoponStatus(TradeOrder order) {
+    //判断用户是否使用优惠券
+    if (!StringUtils.isEmpty(order.getCouponId())) {
+        //封装优惠券对象
+        TradeCoupon coupon = couponService.findOne(order.getCouponId());
+        coupon.setIsUsed(ShopCode.SHOP_COUPON_ISUSED.getCode());
+        coupon.setUsedTime(new Date());
+        coupon.setOrderId(order.getOrderId());
+        Result result = couponService.changeCouponStatus(coupon);
+        //判断执行结果
+        if (result.getSuccess().equals(ShopCode.SHOP_FAIL.getSuccess())) {
+            //优惠券使用失败
+            CastException.cast(ShopCode.SHOP_COUPON_USE_FAIL);
+        }
+        log.info("订单:["+order.getOrderId()+"]使用扣减优惠券["+coupon.getCouponPrice()+"元]成功");
+    }
+
+}
+```
+
+* 优惠券服务CouponService更改优惠券状态
+
+```java
+@Override
+public Result changeCouponStatus(TradeCoupon coupon) {
+    try {
+        //判断请求参数是否合法
+        if (coupon == null || StringUtils.isEmpty(coupon.getCouponId())) {
+            CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
+        }
+		//更新优惠券状态未已使用
+        couponMapper.updateByPrimaryKey(coupon);
+        return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage());
+    } catch (Exception e) {
+        return new Result(ShopCode.SHOP_FAIL.getSuccess(), ShopCode.SHOP_FAIL.getMessage());
+    }
+}
+```
+
+###7）扣减用户余额
+
+* 通过用户服务完成扣减余额
+
+```java
+private void reduceMoneyPaid(TradeOrder order) {
+    //判断订单中使用的余额是否合法
+    if (order.getMoneyPaid() != null && order.getMoneyPaid().compareTo(BigDecimal.ZERO) == 1) {
+        TradeUserMoneyLog userMoneyLog = new TradeUserMoneyLog();
+        userMoneyLog.setOrderId(order.getOrderId());
+        userMoneyLog.setUserId(order.getUserId());
+        userMoneyLog.setUseMoney(order.getMoneyPaid());
+        userMoneyLog.setMoneyLogType(ShopCode.SHOP_USER_MONEY_PAID.getCode());
+        //扣减余额
+        Result result = userService.changeUserMoney(userMoneyLog);
+        if (result.getSuccess().equals(ShopCode.SHOP_FAIL.getSuccess())) {
+            CastException.cast(ShopCode.SHOP_USER_MONEY_REDUCE_FAIL);
+        }
+        log.info("订单:["+order.getOrderId()+"扣减余额["+order.getMoneyPaid()+"元]成功]");
+    }
+}
+```
+
+* 用户服务UserService,更新余额
+
+![](img/更改用户余额.png)
+
+```java
+@Override
+public Result changeUserMoney(TradeUserMoneyLog userMoneyLog) {
+    //判断请求参数是否合法
+    if (userMoneyLog == null
+            || userMoneyLog.getUserId() == null
+            || userMoneyLog.getUseMoney() == null
+            || userMoneyLog.getOrderId() == null
+            || userMoneyLog.getUseMoney().compareTo(BigDecimal.ZERO) <= 0) {
+        CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
+    }
+
+    //查询该订单是否存在付款记录
+    TradeUserMoneyLogExample userMoneyLogExample = new TradeUserMoneyLogExample();
+    userMoneyLogExample.createCriteria()
+            .andUserIdEqualTo(userMoneyLog.getUserId())
+            .andOrderIdEqualTo(userMoneyLog.getOrderId());
+   int count = userMoneyLogMapper.countByExample(userMoneyLogExample);
+   TradeUser tradeUser = new TradeUser();
+   tradeUser.setUserId(userMoneyLog.getUserId());
+   tradeUser.setUserMoney(userMoneyLog.getUseMoney().longValue());
+   //判断余额操作行为
+   //【付款操作】
+   if (userMoneyLog.getMoneyLogType().equals(ShopCode.SHOP_USER_MONEY_PAID.getCode())) {
+           //订单已经付款，则抛异常
+           if (count > 0) {
+                CastException.cast(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY);
+            }
+       	   //用户账户扣减余额
+           userMapper.reduceUserMoney(tradeUser);
+       }
+    //【退款操作】
+    if (userMoneyLog.getMoneyLogType().equals(ShopCode.SHOP_USER_MONEY_REFUND.getCode())) {
+         //如果订单未付款,则不能退款,抛异常
+         if (count == 0) {
+         CastException.cast(ShopCode.SHOP_ORDER_PAY_STATUS_NO_PAY);
+     }
+     //防止多次退款
+     userMoneyLogExample = new TradeUserMoneyLogExample();
+     userMoneyLogExample.createCriteria()
+             .andUserIdEqualTo(userMoneyLog.getUserId())
+                .andOrderIdEqualTo(userMoneyLog.getOrderId())
+                .andMoneyLogTypeEqualTo(ShopCode.SHOP_USER_MONEY_REFUND.getCode());
+     count = userMoneyLogMapper.countByExample(userMoneyLogExample);
+     if (count > 0) {
+         CastException.cast(ShopCode.SHOP_USER_MONEY_REFUND_ALREADY);
+     }
+     	//用户账户添加余额
+        userMapper.addUserMoney(tradeUser);
+    }
+
+
+    //记录用户使用余额日志
+    userMoneyLog.setCreateTime(new Date());
+    userMoneyLogMapper.insert(userMoneyLog);
+    return new Result(ShopCode.SHOP_SUCCESS.getSuccess(),ShopCode.SHOP_SUCCESS.getMessage());
+}
+```
+
+###8）确认订单 
+
+```java
+private void updateOrderStatus(TradeOrder order) {
+    order.setOrderStatus(ShopCode.SHOP_ORDER_CONFIRM.getCode());
+    order.setPayStatus(ShopCode.SHOP_ORDER_PAY_STATUS_NO_PAY.getCode());
+    order.setConfirmTime(new Date());
+    int r = orderMapper.updateByPrimaryKey(order);
+    if (r <= 0) {
+        CastException.cast(ShopCode.SHOP_ORDER_CONFIRM_FAIL);
+    }
+    log.info("订单:["+order.getOrderId()+"]状态修改成功");
+}
+```
+
+### 9）小结
+
+```java
+@Override
+public Result confirmOrder(TradeOrder order) {
+    //1.校验订单
+    checkOrder(order);
+    //2.生成预订单
+    Long orderId = savePreOrder(order);
+    order.setOrderId(orderId);
+    try {
+        //3.扣减库存
+        reduceGoodsNum(order);
+        //4.扣减优惠券
+        changeCoponStatus(order);
+        //5.使用余额
+        reduceMoneyPaid(order);
+        //6.确认订单
+        updateOrderStatus(order);
+        log.info("订单:["+orderId+"]确认成功");
+        return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage());
+    } catch (Exception e) {
+        //确认订单失败,发送消息
+        ...
+        return new Result(ShopCode.SHOP_FAIL.getSuccess(), ShopCode.SHOP_FAIL.getMessage());
+    }
+}
+```
 
 ## 4.2 失败补偿机制
 
-### 1）发送下单失败消息
+### 4.2.1 消息发送方
 
-### 2）回退库存
+* 配置RocketMQ属性值
 
-### 3）回退优惠券
+```properties
+rocketmq.name-server=192.168.25.135:9876;192.168.25.138:9876
+rocketmq.producer.group=orderProducerGroup
 
-### 4）回退余额
+mq.order.consumer.group.name=order_orderTopic_cancel_group
+mq.order.topic=orderTopic
+mq.order.tag.confirm=order_confirm
+mq.order.tag.cancel=order_cancel
+```
 
-### 5）取消订单
+* 注入模板类和属性值信息
+
+```java
+ @Autowired
+ private RocketMQTemplate rocketMQTemplate;
+
+ @Value("${mq.order.topic}")
+ private String topic;
+
+ @Value("mq.order.tag.confirm")
+ private String confirmTag;
+
+ @Value("${mq.order.tag.cancel}")
+ private String cancelTag;
+```
+
+* 发送下单失败消息
+
+```java
+@Override
+public Result confirmOrder(TradeOrder order) {
+    //1.校验订单
+    //2.生成预订
+    try {
+        //3.扣减库存
+        //4.扣减优惠券
+        //5.使用余额
+        //6.确认订单
+    } catch (Exception e) {
+        //确认订单失败,发送消息
+        CancelOrderMQ cancelOrderMQ = new CancelOrderMQ();
+        cancelOrderMQ.setOrderId(order.getOrderId());
+        cancelOrderMQ.setCouponId(order.getCouponId());
+        cancelOrderMQ.setGoodsId(order.getGoodsId());
+        cancelOrderMQ.setGoodsNumber(order.getGoodsNumber());
+        cancelOrderMQ.setUserId(order.getUserId());
+        cancelOrderMQ.setUserMoney(order.getMoneyPaid());
+        try {
+            sendMessage(topic, 
+                        cancelTag, 
+                        cancelOrderMQ.getOrderId().toString(), 
+                    JSON.toJSONString(cancelOrderMQ));
+    } catch (Exception e1) {
+        e1.printStackTrace();
+            CastException.cast(ShopCode.SHOP_MQ_SEND_MESSAGE_FAIL);
+        }
+        return new Result(ShopCode.SHOP_FAIL.getSuccess(), ShopCode.SHOP_FAIL.getMessage());
+    }
+}
+```
+
+```java
+private void sendMessage(String topic, String tags, String keys, String body) throws Exception {
+    //判断Topic是否为空
+    if (StringUtils.isEmpty(topic)) {
+        CastException.cast(ShopCode.SHOP_MQ_TOPIC_IS_EMPTY);
+    }
+    //判断消息内容是否为空
+    if (StringUtils.isEmpty(body)) {
+        CastException.cast(ShopCode.SHOP_MQ_MESSAGE_BODY_IS_EMPTY);
+    }
+    //消息体
+    Message message = new Message(topic, tags, keys, body.getBytes());
+    //发送消息
+    rocketMQTemplate.getProducer().send(message);
+}
+```
+
+### 4.2.2 消费接收方
+
+* 配置RocketMQ属性值
+
+```properties
+rocketmq.name-server=192.168.25.135:9876;192.168.25.138:9876
+mq.order.consumer.group.name=order_orderTopic_cancel_group
+mq.order.topic=orderTopic
+```
+
+* 创建监听类，消费消息
+
+```java
+@Slf4j
+@Component
+@RocketMQMessageListener(topic = "${mq.order.topic}", 
+                         consumerGroup = "${mq.order.consumer.group.name}",
+                         messageModel = MessageModel.BROADCASTING)
+public class CancelOrderConsumer implements RocketMQListener<MessageExt>{
+
+    @Override
+    public void onMessage(MessageExt messageExt) {
+        ...
+    }
+}
+```
+
+#### 1）回退库存
+
+* 流程分析
+
+![](img/回退库存.png)
+
+* 消息消费者
+
+```java
+public void onMessage(MessageExt messageExt) {
+        TradeMqConsumerLog mqConsumerLog = null;
+        try {
+            String msgId = messageExt.getMsgId();
+            String body = new String(messageExt.getBody(), "UTF-8");
+            String tags = messageExt.getTags();
+            String keys = messageExt.getKeys();
+            log.info("CancelOrderConsumer receive message"+messageExt);
+            //查询消息消费记录
+            TradeMqConsumerLogKey key = new TradeMqConsumerLogKey();
+            key.setGroupName(groupName);
+            key.setMsgKey(keys);
+            key.setMsgTag(tags);
+            mqConsumerLog = mqConsumerLogMapper.selectByPrimaryKey(key);
+            //消息已经处理过
+            if (mqConsumerLog != null) {
+                Integer consumerStatus = mqConsumerLog.getConsumerStatus();
+                if (ShopCode.SHOP_MQ_MESSAGE_STATUS_SUCCESS.getCode().equals(consumerStatus)) {
+                    log.warn("消息已经处理过,不能再处理了");
+                    return;
+                } else if (ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.equals(consumerStatus)) {
+                    log.warn("消息正在处理");
+                    return;
+                } else if (ShopCode.SHOP_MQ_MESSAGE_STATUS_FAIL.equals(consumerStatus)) {
+                    if (mqConsumerLog.getConsumerTimes() > 3) {
+                        log.warn("超过3次,不能再处理");
+                        return;
+                    }
+                    TradeMqConsumerLog updateMqConsumerLog = new TradeMqConsumerLog();
+                    updateMqConsumerLog.setGroupName(groupName);
+                    updateMqConsumerLog.setMsgKey(keys);
+                    updateMqConsumerLog.setMsgTag(tags);
+                    updateMqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.getCode());
+                    TradeMqConsumerLogExample tradeMqConsumerLogExample = new TradeMqConsumerLogExample();
+                    tradeMqConsumerLogExample.createCriteria()
+                            .andGroupNameEqualTo(mqConsumerLog.getGroupName())
+                            .andMsgKeyEqualTo(mqConsumerLog.getMsgKey())
+                            .andMsgTagEqualTo(mqConsumerLog.getMsgTag())
+                            .andConsumerTimesEqualTo(mqConsumerLog.getConsumerTimes());
+                    //乐观锁的方式防止并发更新
+                    int recode = mqConsumerLogMapper.updateByExampleSelective(updateMqConsumerLog, tradeMqConsumerLogExample);
+                    if(recode<=0){
+                        log.warn("并发更新处理,稍后重试");
+                        return;
+                    }
+                }
+            } else {
+                try {
+                    //消费未处理过,记录消息处理
+                    mqConsumerLog=new TradeMqConsumerLog();
+                    mqConsumerLog.setGroupName(groupName);
+                    mqConsumerLog.setMsgKey(keys);
+                    mqConsumerLog.setMsgTag(tags);
+                    mqConsumerLog.setConsumerTimes(0);
+                    mqConsumerLog.setMsgId(msgId);
+                    mqConsumerLog.setMsgBody(body);
+                    mqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.getCode());
+                    mqConsumerLogMapper.insertSelective(mqConsumerLog);
+                } catch (Exception e) {
+                    log.warn("主键冲突,说明有订阅者正在处理");
+                    return;
+                }
+
+                //回推库存
+                CancelOrderMQ cancelOrderMQ= JSON.parseObject(body,CancelOrderMQ.class);
+                TradeGoodsNumberLog goods = new TradeGoodsNumberLog();
+                goods.setGoodsId(cancelOrderMQ.getGoodsId());
+                goods.setGoodsNumber(cancelOrderMQ.getGoodsNumber());
+                goods.setOrderId(cancelOrderMQ.getOrderId());
+                goodsService.addGoodsNumber(goods);
+
+                //消息处理成功
+                TradeMqConsumerLog updateMqConsumerLog=new TradeMqConsumerLog();
+                updateMqConsumerLog.setGroupName(groupName);
+                updateMqConsumerLog.setMsgKey(keys);
+                updateMqConsumerLog.setMsgTag(tags);
+                updateMqConsumerLog.setConsumerTimes(mqConsumerLog.getConsumerTimes()+1);
+                updateMqConsumerLog.setMsgId(msgId);
+                updateMqConsumerLog.setMsgBody(body);
+                updateMqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_SUCCESS.getCode());
+                mqConsumerLogMapper.updateByPrimaryKey(updateMqConsumerLog);
+                log.info("商品库存回退成功");
+            }
+        } catch (Exception e) {
+            //处理异常
+            TradeMqConsumerLog updateMqConsumerLog=new TradeMqConsumerLog();
+            updateMqConsumerLog.setGroupName(mqConsumerLog.getGroupName());
+            updateMqConsumerLog.setMsgKey(mqConsumerLog.getMsgKey());
+            updateMqConsumerLog.setMsgTag(mqConsumerLog.getMsgTag());
+            updateMqConsumerLog.setConsumerTimes(mqConsumerLog.getConsumerTimes()+1);
+            updateMqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_FAIL.getCode());
+            mqConsumerLogMapper.updateByPrimaryKeySelective(updateMqConsumerLog);
+            log.error("商品库存回退失败");
+        }
+}
+```
+
+* 商品服务GoodsService回退库存
+
+```java
+public Result addGoodsNumber(TradeGoodsNumberLog goodsNumberLog) {
+    //判断请求参数是否合法
+    if (goodsNumberLog == null
+            || goodsNumberLog.getGoodsId() == null
+            || goodsNumberLog.getGoodsNumber() == null
+            || goodsNumberLog.getGoodsNumber() <= 0) {
+        CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
+    }
+    //判断订单ID是否为空
+    if(goodsNumberLog.getOrderId()!=null){
+        TradeGoodsNumberLogKey key=new TradeGoodsNumberLogKey();
+        key.setGoodsId(goodsNumberLog.getGoodsId());
+        key.setOrderId(goodsNumberLog.getOrderId());
+        //查询商品库存操作日志
+        TradeGoodsNumberLog  tradeGoodsNumberLog=goodsNumberLogMapper.selectByPrimaryKey(key);
+        //如果没有库存操作记录,则直接驳回
+        if(tradeGoodsNumberLog==null){
+            CastException.cast(ShopCode.SHOP_REDUCE_GOODS_NUM_EMPTY);
+        }
+        //扣减库存
+        TradeGoods tradeGoods=new TradeGoods();
+        tradeGoods.setGoodsId(goodsNumberLog.getGoodsId());
+        tradeGoods.setGoodsNumber(goodsNumberLog.getGoodsNumber());
+        int record=goodsMapper.addGoodsNum(tradeGoods);
+        if(record<=0){
+            throw new RuntimeException("扣减库存失败");
+        }
+    }
+    return new Result(ShopCode.SHOP_SUCCESS.getSuccess(),ShopCode.SHOP_SUCCESS.getMessage());
+}
+```
+
+#### 2）回退优惠券
+
+```java
+@Override
+public void onMessage(MessageExt messageExt) {
+    try {
+        String body=new String (messageExt.getBody(),"UTF-8");
+        String msgId=messageExt.getMsgId();
+        String tags=messageExt.getTags();
+        String keys=messageExt.getKeys();
+        log.info("CancelOrderConsumer receive message"+messageExt);
+        CancelOrderMQ cancelOrderMQ= JSON.parseObject(body,CancelOrderMQ.class);
+        if(!StringUtils.isEmpty(cancelOrderMQ.getCouponId())){
+            TradeCoupon coupon = couponService.findOne(cancelOrderMQ.getCouponId());
+            coupon.setOrderId(null);
+            coupon.setUsedTime(null);
+            coupon.setIsUsed(ShopCode.SHOP_COUPON_UNUSED.getCode());
+            couponService.changeCouponStatus(coupon);
+            log.info("优惠券回退成功");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        log.error("优惠券回退失败");
+    }
+}
+```
+
+#### 3）回退余额
+
+```java
+public void onMessage(MessageExt messageExt) {
+    try {
+        String body=new String (messageExt.getBody(),"UTF-8");
+        String msgId=messageExt.getMsgId();
+        String tags=messageExt.getTags();
+        String keys=messageExt.getKeys();
+        log.info("user CancelOrderProcessor receive message:"+body);
+        CancelOrderMQ cancelOrderMQ= JSON.parseObject(body,CancelOrderMQ.class);
+        if(cancelOrderMQ.getUserMoney()!=null 
+           && cancelOrderMQ.getUserMoney().compareTo(BigDecimal.ZERO)==1){
+            TradeUser user = userService.findOne(cancelOrderMQ.getUserId());
+            TradeUserMoneyLog userMoneyLog = new TradeUserMoneyLog();
+            userMoneyLog.setUserId(cancelOrderMQ.getUserId());
+            userMoneyLog.setMoneyLogType(ShopCode.SHOP_USER_MONEY_REFUND.getCode());
+            userMoneyLog.setOrderId(cancelOrderMQ.getOrderId());
+            userMoneyLog.setUseMoney(cancelOrderMQ.getUserMoney());
+            userService.changeUserMoney(userMoneyLog);
+            log.info("账户余额回退成功");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        log.error("账户余额回退失败");
+    }
+}
+```
+
+#### 4）取消订单
+
+```java
+@Override
+    public void onMessage(MessageExt messageExt) {
+        String body = new String(messageExt.getBody(), "UTF-8");
+        String msgId = messageExt.getMsgId();
+        String tags = messageExt.getTags();
+        String keys = messageExt.getKeys();
+        log.info("CancelOrderProcessor receive message:"+messageExt);
+        CancelOrderMQ cancelOrderMQ = JSON.parseObject(body, CancelOrderMQ.class);
+        TradeOrder order = orderService.findOne(cancelOrderMQ.getOrderId());
+		order.setOrderStatus(ShopCode.SHOP_ORDER_CANCEL.getCode());
+        orderService.changeOrderStatus(order);
+        log.info("订单:["+order.getOrderId()+"]状态设置为取消");
+        return order;
+    }
+```
 
 ## 4.3 测试
 
-* 测试下单成功流程
-* 测试下单失败流程
+### 1）准备测试环境
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = ShopOrderServiceApplication.class)
+public class OrderTest {
+
+    @Autowired
+    private IOrderService orderService;
+}
+```
+
+###1）准备测试数据
+
+* 用户数据
+* 商品数据
+* 优惠券数据
+
+###2）测试下单成功流程
+
+```java
+@Test    
+public void add(){
+    Long goodsId=XXXL;
+    Long userId=XXXL;
+    Long couponId=XXXL;
+
+    TradeOrder order = new TradeOrder();
+    order.setGoodsId(goodsId);
+    order.setUserId(userId);
+    order.setGoodsNumber(1);
+    order.setAddress("北京");
+    order.setGoodsPrice(new BigDecimal("5000"));
+    order.setOrderAmount(new BigDecimal("5000"));
+    order.setMoneyPaid(new BigDecimal("100"));
+    order.setCouponId(couponId);
+    order.setShippingFee(new BigDecimal(0));
+    orderService.confirmOrder(order);
+}
+```
+
+执行完毕后,查看数据库中用户的余额、优惠券数据，及订单的状态数据
+
+###3）测试下单失败流程
+
+代码同上。
+
+执行完毕后，查看用户的余额、优惠券数据是否发生更改，订单的状态是否为取消。
 
 # 5. 支付业务
 
+## 5.1 创建支付订单
+
+![](img/创建支付订单.png)
+
+```java
+public Result createPayment(TradePay tradePay) {
+    //查询订单支付状态
+    try {
+        TradePayExample payExample = new TradePayExample();
+        TradePayExample.Criteria criteria = payExample.createCriteria();
+        criteria.andOrderIdEqualTo(tradePay.getOrderId());
+        criteria.andIsPaidEqualTo(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY.getCode());
+        int count = tradePayMapper.countByExample(payExample);
+        if (count > 0) {
+            CastException.cast(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY);
+        }
+
+        long payId = idWorker.nextId();
+        tradePay.setPayId(payId);
+        tradePay.setIsPaid(ShopCode.SHOP_ORDER_PAY_STATUS_NO_PAY.getCode());
+        tradePayMapper.insert(tradePay);
+        log.info("创建支付订单成功:" + payId);
+    } catch (Exception e) {
+        return new Result(ShopCode.SHOP_FAIL.getSuccess(), ShopCode.SHOP_FAIL.getMessage());
+    }
+    return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage());
+}
+```
+
+## 5.2 支付回调 
+
+### 5.2.1 流程分析
+
+![](img/12.支付后回调.png)
+
+### 5.2.2 代码实现
+
+```java
+public Result callbackPayment(TradePay tradePay) {
+
+    if (tradePay.getIsPaid().equals(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY.getCode())) {
+        tradePay = tradePayMapper.selectByPrimaryKey(tradePay.getPayId());
+        if (tradePay == null) {
+            CastException.cast(ShopCode.SHOP_PAYMENT_NOT_FOUND);
+        }
+        tradePay.setIsPaid(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY.getCode());
+        int i = tradePayMapper.updateByPrimaryKeySelective(tradePay);
+        //更新成功代表支付成功
+        if (i == 1) {
+            TradeMqProducerTemp mqProducerTemp = new TradeMqProducerTemp();
+            mqProducerTemp.setId(String.valueOf(idWorker.nextId()));
+            mqProducerTemp.setGroupName("payProducerGroup");
+            mqProducerTemp.setMsgKey(String.valueOf(tradePay.getPayId()));
+            mqProducerTemp.setMsgTag(topic);
+            mqProducerTemp.setMsgBody(JSON.toJSONString(tradePay));
+            mqProducerTemp.setCreateTime(new Date());
+            mqProducerTempMapper.insert(mqProducerTemp);
+            TradePay finalTradePay = tradePay;
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        SendResult sendResult = sendMessage(topic, 
+                                                            tag, 
+                                                            finalTradePay.getPayId(), 
+                                                            JSON.toJSONString(finalTradePay));
+                        log.info(JSON.toJSONString(sendResult));
+                        if (SendStatus.SEND_OK.equals(sendResult.getSendStatus())) {
+                            mqProducerTempMapper.deleteByPrimaryKey(mqProducerTemp.getId());
+                            System.out.println("删除消息表成功");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } else {
+            CastException.cast(ShopCode.SHOP_PAYMENT_IS_PAID);
+        }
+    }
+    return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage());
+}
+```
+
+### 5.2.3 处理消息
+
+支付成功后，支付服务payService发送MQ消息，订单服务、用户服务、日志服务需要订阅消息进行处理
+
+1. 订单服务修改订单状态为已支付
+2. 日志服务记录支付日志
+3. 用户服务负责给用户增加积分
+
+以下用订单服务为例说明消息的处理情况
+
+#### 1）配置RocketMQ属性值
+
+```properties
+mq.pay.topic=payTopic
+mq.pay.consumer.group.name=pay_payTopic_group
+```
+
+### 2）消费消息
+
+* 在订单服务中，配置公共的消息处理类
+
+```java
+public class BaseConsumer {
+
+    public TradeOrder handleMessage(IOrderService 
+                                    orderService, 
+                                    MessageExt messageExt,Integer code) throws Exception {
+        //解析消息内容
+        String body = new String(messageExt.getBody(), "UTF-8");
+        String msgId = messageExt.getMsgId();
+        String tags = messageExt.getTags();
+        String keys = messageExt.getKeys();
+        OrderMQ orderMq = JSON.parseObject(body, OrderMQ.class);
+        
+        //查询
+        TradeOrder order = orderService.findOne(orderMq.getOrderId());
+
+        if(ShopCode.SHOP_ORDER_MESSAGE_STATUS_CANCEL.getCode().equals(code)){
+            order.setOrderStatus(ShopCode.SHOP_ORDER_CANCEL.getCode());
+        }
+
+        if(ShopCode.SHOP_ORDER_MESSAGE_STATUS_ISPAID.getCode().equals(code)){
+            order.setPayStatus(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY.getCode());
+        }
+        orderService.changeOrderStatus(order);
+        return order;
+    }
+
+}
+```
+
+* 接受订单支付成功消息
+
+```java
+@Slf4j
+@Component
+@RocketMQMessageListener(topic = "${mq.pay.topic}", 
+                         consumerGroup = "${mq.pay.consumer.group.name}")
+public class PayConsumer extends BaseConsumer implements RocketMQListener<MessageExt> {
+
+    @Autowired
+    private IOrderService orderService;
+
+    @Override
+    public void onMessage(MessageExt messageExt) {
+        try {
+            log.info("CancelOrderProcessor receive message:"+messageExt);
+            TradeOrder order = handleMessage(orderService, 
+                                             messageExt, 
+                                             ShopCode.SHOP_ORDER_MESSAGE_STATUS_ISPAID.getCode());
+            log.info("订单:["+order.getOrderId()+"]支付成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("订单支付失败");
+        }
+    }
+}
+```
+
 # 6. 整体联调
+
+通过Rest客户端请求shop-order-web和shop-pay-web完成下单和支付操作
+
+## 6.1 准备工作
+
+### 1）配置RestTemplate类
+
+```java
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    @ConditionalOnMissingBean({ RestOperations.class, RestTemplate.class })
+    public RestTemplate restTemplate(ClientHttpRequestFactory factory) {
+
+        RestTemplate restTemplate = new RestTemplate(factory);
+
+        // 使用 utf-8 编码集的 conver 替换默认的 conver（默认的 string conver 的编码集为"ISO-8859-1"）
+        List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
+        Iterator<HttpMessageConverter<?>> iterator = messageConverters.iterator();
+        while (iterator.hasNext()) {
+            HttpMessageConverter<?> converter = iterator.next();
+            if (converter instanceof StringHttpMessageConverter) {
+                iterator.remove();
+            }
+        }
+        messageConverters.add(new StringHttpMessageConverter(Charset.forName("UTF-8")));
+
+        return restTemplate;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean({ClientHttpRequestFactory.class})
+    public ClientHttpRequestFactory simpleClientHttpRequestFactory() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        // ms
+        factory.setReadTimeout(15000);
+        // ms
+        factory.setConnectTimeout(15000);
+        return factory;
+    }
+}
+```
+
+### 2）配置请求地址
+
+* 订单系统
+
+```properties
+server.host=http://localhost
+server.servlet.path=/order-web
+server.port=8080
+shop.order.baseURI=${server.host}:${server.port}${server.servlet.path}
+shop.order.confirm=/order/confirm
+```
+
+* 支付系统
+
+```properties
+server.host=http://localhost
+server.servlet.path=/pay-web
+server.port=9090
+shop.pay.baseURI=${server.host}:${server.port}${server.servlet.path}
+shop.pay.createPayment=/pay/createPayment
+shop.pay.callbackPayment=/pay/callbackPayment
+```
+
+## 6.2 下单
+
+ ```java
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ShopOrderWebApplication.class)
+@TestPropertySource("classpath:application.properties")
+public class OrderTest {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${shop.order.baseURI}")
+    private String baseURI;
+
+    @Value("${shop.order.confirm}")
+    private String confirmOrderPath;
+
+    @Autowired
+    private IDWorker idWorker;
+   
+   /**
+     * 下单
+     */
+    @Test
+    public void confirmOrder(){
+        Long goodsId=XXXL;
+        Long userId=XXXL;
+        Long couponId=XXXL;
+
+        TradeOrder order = new TradeOrder();
+        order.setGoodsId(goodsId);
+        order.setUserId(userId);
+        order.setGoodsNumber(1);
+        order.setAddress("北京");
+        order.setGoodsPrice(new BigDecimal("5000"));
+        order.setOrderAmount(new BigDecimal("5000"));
+        order.setMoneyPaid(new BigDecimal("100"));
+        order.setCouponId(couponId);
+        order.setShippingFee(new BigDecimal(0));
+
+        Result result = restTemplate.postForEntity(baseURI + confirmOrderPath, order, Result.class).getBody();
+        System.out.println(result);
+    }
+
+}
+ ```
+
+## 6.3 支付
+
+```java
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ShopPayWebApplication.class)
+@TestPropertySource("classpath:application.properties")
+public class PayTest {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${shop.pay.baseURI}")
+    private String baseURI;
+
+    @Value("${shop.pay.createPayment}")
+    private String createPaymentPath;
+
+    @Value("${shop.pay.callbackPayment}")
+    private String callbackPaymentPath;
+
+    @Autowired
+    private IDWorker idWorker;
+
+   /**
+     * 创建支付订单
+     */
+    @Test
+    public void createPayment(){
+
+        Long orderId = 346321587315814400L;
+        TradePay pay = new TradePay();
+        pay.setOrderId(orderId);
+        pay.setPayAmount(new BigDecimal(4800));
+
+        Result result = restTemplate.postForEntity(baseURI + createPaymentPath, pay, Result.class).getBody();
+        System.out.println(result);
+    }
+   
+    /**
+     * 支付回调
+     */
+    @Test
+    public void callbackPayment(){
+        Long payId = 346321891507720192L;
+        TradePay pay = new TradePay();
+        pay.setPayId(payId);
+        pay.setIsPaid(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY.getCode());
+        Result result = restTemplate.postForEntity(baseURI + callbackPaymentPath, pay, Result.class).getBody();
+        System.out.println(result);
+
+    }
+
+}
+```
+
