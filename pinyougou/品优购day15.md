@@ -289,11 +289,11 @@ authenticationFailure.FailedLoginException=\u5BC6\u7801\u9519\u8BEF.
 
 ## 5.2 配置
 
-完成以下4个方面的事情
+完成以下3个方面的事情
 
 ```
-1.登录
-2.票据验证
+1.登录入口
+2.认证和票据验证
 3.登出有关
 ```
 
