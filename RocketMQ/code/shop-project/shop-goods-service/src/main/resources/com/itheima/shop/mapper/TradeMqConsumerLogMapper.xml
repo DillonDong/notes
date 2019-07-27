@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.shop.mapper.TradeMqConsumerLogMapper" >
+  <resultMap id="BaseResultMap" type="com.itheima.shop.pojo.TradeMqConsumerLog" >
+    <id column="group_name" property="groupName" jdbcType="VARCHAR" />
+    <id column="msg_tag" property="msgTag" jdbcType="VARCHAR" />
+    <id column="msg_key" property="msgKey" jdbcType="VARCHAR" />
+    <result column="msg_id" property="msgId" jdbcType="VARCHAR" />
+    <result column="msg_body" property="msgBody" jdbcType="VARCHAR" />
+    <result column="consumer_status" property="consumerStatus" jdbcType="INTEGER" />
+    <result column="consumer_times" property="consumerTimes" jdbcType="INTEGER" />
+    <result column="consumer_timestamp" property="consumerTimestamp" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    group_name, msg_tag, msg_key, msg_id, msg_body, consumer_status, consumer_times, 
+    consumer_timestamp, remark
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.itheima.shop.pojo.TradeMqConsumerLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from trade_mq_consumer_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.itheima.shop.pojo.TradeMqConsumerLogKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from trade_mq_consumer_log
+    where group_name = #{groupName,jdbcType=VARCHAR}
+      and msg_tag = #{msgTag,jdbcType=VARCHAR}
+      and msg_key = #{msgKey,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.itheima.shop.pojo.TradeMqConsumerLogKey" >
+    delete from trade_mq_consumer_log
+    where group_name = #{groupName,jdbcType=VARCHAR}
+      and msg_tag = #{msgTag,jdbcType=VARCHAR}
+      and msg_key = #{msgKey,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.itheima.shop.pojo.TradeMqConsumerLogExample" >
+    delete from trade_mq_consumer_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.itheima.shop.pojo.TradeMqConsumerLog" >
+    insert into trade_mq_consumer_log (group_name, msg_tag, msg_key, 
+      msg_id, msg_body, consumer_status, 
+      consumer_times, consumer_timestamp, remark
+      )
+    values (#{groupName,jdbcType=VARCHAR}, #{msgTag,jdbcType=VARCHAR}, #{msgKey,jdbcType=VARCHAR}, 
+      #{msgId,jdbcType=VARCHAR}, #{msgBody,jdbcType=VARCHAR}, #{consumerStatus,jdbcType=INTEGER}, 
+      #{consumerTimes,jdbcType=INTEGER}, #{consumerTimestamp,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.itheima.shop.pojo.TradeMqConsumerLog" >
+    insert into trade_mq_consumer_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="groupName != null" >
+        group_name,
+      </if>
+      <if test="msgTag != null" >
+        msg_tag,
+      </if>
+      <if test="msgKey != null" >
+        msg_key,
+      </if>
+      <if test="msgId != null" >
+        msg_id,
+      </if>
+      <if test="msgBody != null" >
+        msg_body,
+      </if>
+      <if test="consumerStatus != null" >
+        consumer_status,
+      </if>
+      <if test="consumerTimes != null" >
+        consumer_times,
+      </if>
+      <if test="consumerTimestamp != null" >
+        consumer_timestamp,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="groupName != null" >
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="msgTag != null" >
+        #{msgTag,jdbcType=VARCHAR},
+      </if>
+      <if test="msgKey != null" >
+        #{msgKey,jdbcType=VARCHAR},
+      </if>
+      <if test="msgId != null" >
+        #{msgId,jdbcType=VARCHAR},
+      </if>
+      <if test="msgBody != null" >
+        #{msgBody,jdbcType=VARCHAR},
+      </if>
+      <if test="consumerStatus != null" >
+        #{consumerStatus,jdbcType=INTEGER},
+      </if>
+      <if test="consumerTimes != null" >
+        #{consumerTimes,jdbcType=INTEGER},
+      </if>
+      <if test="consumerTimestamp != null" >
+        #{consumerTimestamp,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.itheima.shop.pojo.TradeMqConsumerLogExample" resultType="java.lang.Integer" >
+    select count(*) from trade_mq_consumer_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update trade_mq_consumer_log
+    <set >
+      <if test="record.groupName != null" >
+        group_name = #{record.groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.msgTag != null" >
+        msg_tag = #{record.msgTag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.msgKey != null" >
+        msg_key = #{record.msgKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.msgId != null" >
+        msg_id = #{record.msgId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.msgBody != null" >
+        msg_body = #{record.msgBody,jdbcType=VARCHAR},
+      </if>
+      <if test="record.consumerStatus != null" >
+        consumer_status = #{record.consumerStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.consumerTimes != null" >
+        consumer_times = #{record.consumerTimes,jdbcType=INTEGER},
+      </if>
+      <if test="record.consumerTimestamp != null" >
+        consumer_timestamp = #{record.consumerTimestamp,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update trade_mq_consumer_log
+    set group_name = #{record.groupName,jdbcType=VARCHAR},
+      msg_tag = #{record.msgTag,jdbcType=VARCHAR},
+      msg_key = #{record.msgKey,jdbcType=VARCHAR},
+      msg_id = #{record.msgId,jdbcType=VARCHAR},
+      msg_body = #{record.msgBody,jdbcType=VARCHAR},
+      consumer_status = #{record.consumerStatus,jdbcType=INTEGER},
+      consumer_times = #{record.consumerTimes,jdbcType=INTEGER},
+      consumer_timestamp = #{record.consumerTimestamp,jdbcType=TIMESTAMP},
+      remark = #{record.remark,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.itheima.shop.pojo.TradeMqConsumerLog" >
+    update trade_mq_consumer_log
+    <set >
+      <if test="msgId != null" >
+        msg_id = #{msgId,jdbcType=VARCHAR},
+      </if>
+      <if test="msgBody != null" >
+        msg_body = #{msgBody,jdbcType=VARCHAR},
+      </if>
+      <if test="consumerStatus != null" >
+        consumer_status = #{consumerStatus,jdbcType=INTEGER},
+      </if>
+      <if test="consumerTimes != null" >
+        consumer_times = #{consumerTimes,jdbcType=INTEGER},
+      </if>
+      <if test="consumerTimestamp != null" >
+        consumer_timestamp = #{consumerTimestamp,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where group_name = #{groupName,jdbcType=VARCHAR}
+      and msg_tag = #{msgTag,jdbcType=VARCHAR}
+      and msg_key = #{msgKey,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.itheima.shop.pojo.TradeMqConsumerLog" >
+    update trade_mq_consumer_log
+    set msg_id = #{msgId,jdbcType=VARCHAR},
+      msg_body = #{msgBody,jdbcType=VARCHAR},
+      consumer_status = #{consumerStatus,jdbcType=INTEGER},
+      consumer_times = #{consumerTimes,jdbcType=INTEGER},
+      consumer_timestamp = #{consumerTimestamp,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR}
+    where group_name = #{groupName,jdbcType=VARCHAR}
+      and msg_tag = #{msgTag,jdbcType=VARCHAR}
+      and msg_key = #{msgKey,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,13 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Your template template
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+target
+*.class
+*.project
+*.settings
+*.classpath
+*.DS_store

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.shop.mapper.TradeUserMoneyLogMapper" >
+  <resultMap id="BaseResultMap" type="com.itheima.shop.pojo.TradeUserMoneyLog" >
+    <id column="user_id" property="userId" jdbcType="BIGINT" />
+    <id column="order_id" property="orderId" jdbcType="BIGINT" />
+    <id column="money_log_type" property="moneyLogType" jdbcType="INTEGER" />
+    <result column="use_money" property="useMoney" jdbcType="DECIMAL" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    user_id, order_id, money_log_type, use_money, create_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.itheima.shop.pojo.TradeUserMoneyLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from trade_user_money_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.itheima.shop.pojo.TradeUserMoneyLogKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from trade_user_money_log
+    where user_id = #{userId,jdbcType=BIGINT}
+      and order_id = #{orderId,jdbcType=BIGINT}
+      and money_log_type = #{moneyLogType,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.itheima.shop.pojo.TradeUserMoneyLogKey" >
+    delete from trade_user_money_log
+    where user_id = #{userId,jdbcType=BIGINT}
+      and order_id = #{orderId,jdbcType=BIGINT}
+      and money_log_type = #{moneyLogType,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.itheima.shop.pojo.TradeUserMoneyLogExample" >
+    delete from trade_user_money_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.itheima.shop.pojo.TradeUserMoneyLog" >
+    insert into trade_user_money_log (user_id, order_id, money_log_type, 
+      use_money, create_time)
+    values (#{userId,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{moneyLogType,jdbcType=INTEGER}, 
+      #{useMoney,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.itheima.shop.pojo.TradeUserMoneyLog" >
+    insert into trade_user_money_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="moneyLogType != null" >
+        money_log_type,
+      </if>
+      <if test="useMoney != null" >
+        use_money,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="moneyLogType != null" >
+        #{moneyLogType,jdbcType=INTEGER},
+      </if>
+      <if test="useMoney != null" >
+        #{useMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.itheima.shop.pojo.TradeUserMoneyLogExample" resultType="java.lang.Integer" >
+    select count(*) from trade_user_money_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update trade_user_money_log
+    <set >
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=BIGINT},
+      </if>
+      <if test="record.moneyLogType != null" >
+        money_log_type = #{record.moneyLogType,jdbcType=INTEGER},
+      </if>
+      <if test="record.useMoney != null" >
+        use_money = #{record.useMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update trade_user_money_log
+    set user_id = #{record.userId,jdbcType=BIGINT},
+      order_id = #{record.orderId,jdbcType=BIGINT},
+      money_log_type = #{record.moneyLogType,jdbcType=INTEGER},
+      use_money = #{record.useMoney,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.itheima.shop.pojo.TradeUserMoneyLog" >
+    update trade_user_money_log
+    <set >
+      <if test="useMoney != null" >
+        use_money = #{useMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where user_id = #{userId,jdbcType=BIGINT}
+      and order_id = #{orderId,jdbcType=BIGINT}
+      and money_log_type = #{moneyLogType,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.itheima.shop.pojo.TradeUserMoneyLog" >
+    update trade_user_money_log
+    set use_money = #{useMoney,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where user_id = #{userId,jdbcType=BIGINT}
+      and order_id = #{orderId,jdbcType=BIGINT}
+      and money_log_type = #{moneyLogType,jdbcType=INTEGER}
+  </update>
+</mapper>

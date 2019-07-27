@@ -9,9 +9,11 @@
 ![](img/下单组件图.png)
 
 1. 用户请求订单系统下单
-2. 订单系统调用优惠券服务，扣减优惠券
-3. 订单系统调用调用库存服务，校验并扣减库存
-4. 订单系统调用订单服务生成订单
+2. 订单系统通过RPC调用订单服务下单
+3. 订单服务调用优惠券服务，扣减优惠券
+4. 订单服务调用调用库存服务，校验并扣减库存
+5. 订单服务调用用户服务，扣减用户余额
+6. 订单服务完成确认订单
 
 ------
 
@@ -38,7 +40,7 @@
 
 <u>使用MQ保证在下单失败后系统数据的完整性</u>
 
-![](img/下单时序图.png)
+![](img/下单时序图(2).png)
 
 ###问题2
 
@@ -61,6 +63,8 @@
 - Zookeeper
 - RocketMQ
 - Mysql
+
+![](img/项目结构图.png)
 
 ## 2.2 SpringBoot整合RocketMQ
 
@@ -450,7 +454,7 @@ public class UserServiceImpl implements IUserService{
 spring.application.name=dubbo-demo-consumer
 spring.dubbo.application.name=dubbo-demo-consumer
 spring.dubbo.application.id=dubbo-demo-consumer
-spring.dubbo.registry.address=zookeeper://192.168.25.140:2181;zookeeper://192.168.25.140:2182;zookeeper://192.168.25.140:2183
+    spring.dubbo.registry.address=zookeeper://192.168.25.140:2181;zookeeper://192.168.25.140:2182;zookeeper://192.168.25.140:2183
 ```
 
 #### 3）启动类
@@ -517,7 +521,7 @@ public class UserController {
 | user_id         | bigint(50) NULL     | 用户ID                                       |
 | order_status    | int(1) NULL         | 订单状态 0未确认 1已确认 2已取消 3无效 4退款 |
 | pay_status      | int(1) NULL         | 支付状态 0未支付 1支付中 2已支付             |
-| shipping_status | int(1) NULL         | 发货状态 0未发货 1已发货 2已收货             |
+| shipping_status | int(1) NULL         | 发货状态 0未发货 1已发货 2已退货             |
 | address         | varchar(255) NULL   | 收货地址                                     |
 | consignee       | varchar(255) NULL   | 收货人                                       |
 | goods_id        | bigint(50) NULL     | 商品ID                                       |
@@ -541,7 +545,7 @@ public class UserController {
 | goods_id     | int(11) NOT NULL     | 商品ID   |
 | order_id     | varchar(32) NOT NULL | 订单ID   |
 | goods_number | int(11) NULL         | 库存数量 |
-| log_time     | datetime NULL        |          |
+| log_time     | datetime NULL        | 记录时间 |
 
 ### 5）用户表
 
@@ -562,7 +566,7 @@ public class UserController {
 | user_id        | bigint(50) NOT NULL | 用户ID                        |
 | order_id       | bigint(50) NOT NULL | 订单ID                        |
 | money_log_type | int(1) NOT NULL     | 日志类型 1订单付款 2 订单退款 |
-| use_money      | decimal(10,2) NULL  |                               |
+| use_money      | decimal(10,2) NULL  | 操作金额                      |
 | create_time    | timestamp NULL      | 日志时间                      |
 
 ### 7）订单支付表
@@ -578,28 +582,28 @@ public class UserController {
 
 | Field       | Type                  | Comment             |
 | ----------- | --------------------- | ------------------- |
-| id          | varchar(100) NOT NULL |                     |
-| group_name  | varchar(100) NULL     |                     |
-| msg_topic   | varchar(100) NULL     |                     |
-| msg_tag     | varchar(100) NULL     |                     |
-| msg_key     | varchar(100) NULL     |                     |
-| msg_body    | varchar(500) NULL     |                     |
+| id          | varchar(100) NOT NULL | 主键                |
+| group_name  | varchar(100) NULL     | 生产者组名          |
+| msg_topic   | varchar(100) NULL     | 消息主题            |
+| msg_tag     | varchar(100) NULL     | Tag                 |
+| msg_key     | varchar(100) NULL     | Key                 |
+| msg_body    | varchar(500) NULL     | 消息内容            |
 | msg_status  | int(1) NULL           | 0:未处理;1:已经处理 |
-| create_time | timestamp NOT NULL    |                     |
+| create_time | timestamp NOT NULL    | 记录时间            |
 
 ###9）MQ消息消费表
 
 | Field              | Type                  | Comment                          |
 | ------------------ | --------------------- | -------------------------------- |
-| msg_id             | varchar(50) NULL      |                                  |
-| group_name         | varchar(100) NOT NULL |                                  |
-| msg_tag            | varchar(100) NOT NULL |                                  |
-| msg_key            | varchar(100) NOT NULL |                                  |
-| msg_body           | varchar(500) NULL     |                                  |
+| msg_id             | varchar(50) NULL      | 消息ID                           |
+| group_name         | varchar(100) NOT NULL | 消费者组名                       |
+| msg_tag            | varchar(100) NOT NULL | Tag                              |
+| msg_key            | varchar(100) NOT NULL | Key                              |
+| msg_body           | varchar(500) NULL     | 消息体                           |
 | consumer_status    | int(1) NULL           | 0:正在处理;1:处理成功;2:处理失败 |
-| consumer_times     | int(1) NULL           |                                  |
-| consumer_timestamp | timestamp NULL        |                                  |
-| remark             | varchar(500) NULL     |                                  |
+| consumer_times     | int(1) NULL           | 消费次数                         |
+| consumer_timestamp | timestamp NULL        | 消费时间                         |
+| remark             | varchar(500) NULL     | 备注                             |
 
 ## 3.2 项目初始化
 
@@ -661,7 +665,7 @@ shop系统基于Maven进行项目管理
 
 # 4. 下单业务
 
-![](img/下单时序图.png)
+![](img/下单时序图(2).png)
 
 ## 4.1 下单基本流程
 
@@ -717,36 +721,34 @@ public class OrderServiceImpl implements IOrderService {
 
 ###3）校验订单
 
-![](img/校验订单.png)
+![](img/校验订单(2).png)
 
 ```java
 private void checkOrder(TradeOrder order) {
+        //1.校验订单是否存在
+        if(order==null){
+            CastException.cast(ShopCode.SHOP_ORDER_INVALID);
+        }
+        //2.校验订单中的商品是否存在
+        TradeGoods goods = goodsService.findOne(order.getGoodsId());
+        if(goods==null){
+            CastException.cast(ShopCode.SHOP_GOODS_NO_EXIST);
+        }
+        //3.校验下单用户是否存在
+        TradeUser user = userService.findOne(order.getUserId());
+        if(user==null){
+            CastException.cast(ShopCode.SHOP_USER_NO_EXIST);
+        }
+        //4.校验商品单价是否合法
+        if(order.getGoodsPrice().compareTo(goods.getGoodsPrice())!=0){
+            CastException.cast(ShopCode.SHOP_GOODS_PRICE_INVALID);
+        }
+        //5.校验订单商品数量是否合法
+        if(order.getGoodsNumber()>=goods.getGoodsNumber()){
+            CastException.cast(ShopCode.SHOP_GOODS_NUM_NOT_ENOUGH);
+        }
 
-    //1.判断订单信息是否为空
-    if (order == null) {
-        CastException.cast(ShopCode.SHOP_ORDER_INVALID);
-    }
-    //2.根据订单中商品是否存在
-    TradeGoods goods = goodsService.findOne(order.getGoodsId());
-    if (goods == null) {
-        CastException.cast(ShopCode.SHOP_GOODS_NO_EXIST);
-    }
-    //3.判断下单用户账号是否为空
-    if (order.getUserId() == null) {
-        CastException.cast(ShopCode.SHOP_USER_IS_NULL);
-    }
-    //4.判断订单价格是否合法
-    if ((order.getGoodsPrice().compareTo(goods.getGoodsPrice()) != 0)) {
-        CastException.cast(ShopCode.SHOP_GOODS_PRICE_INVALID);
-    }
-
-    //5.判断购买数量是否合法
-    if (goods.getGoodsNumber() < order.getGoodsNumber()) {
-        CastException.cast(ShopCode.SHOP_GOODS_NUM_NOT_ENOUGH);
-    }
-
-    log.info("订单校验通过");
-
+        log.info("校验订单通过");
 }
 ```
 
@@ -854,24 +856,28 @@ private void reduceGoodsNum(TradeOrder order) {
 ```java
 @Override
 public Result reduceGoodsNum(TradeGoodsNumberLog goodsNumberLog) {
-    //检查请求参数是否合法
-    if (goodsNumberLog == null
-            || goodsNumberLog.getGoodsId() == null
-            || goodsNumberLog.getGoodsNumber() == null
-            || goodsNumberLog.getGoodsNumber() <= 0) {
+    if (goodsNumberLog == null ||
+            goodsNumberLog.getGoodsNumber() == null ||
+            goodsNumberLog.getOrderId() == null ||
+            goodsNumberLog.getGoodsNumber() == null ||
+            goodsNumberLog.getGoodsNumber().intValue() <= 0) {
         CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
     }
-  	//扣减库存
-    TradeGoods goods = new TradeGoods();
-    goods.setGoodsId(goodsNumberLog.getGoodsId());
-    goods.setGoodsNumber(goodsNumberLog.getGoodsNumber());
-    int r = goodsMapper.reduceGoodsNum(goods);
-    if(r<=0){
-        CastException.cast(ShopCode.SHOP_REDUCE_GOODS_NUM_FAIL);
+    TradeGoods goods = goodsMapper.selectByPrimaryKey(goodsNumberLog.getGoodsId());
+    if(goods.getGoodsNumber()<goodsNumberLog.getGoodsNumber()){
+        //库存不足
+        CastException.cast(ShopCode.SHOP_GOODS_NUM_NOT_ENOUGH);
     }
-    //记录扣减库存日志
+    //减库存
+    goods.setGoodsNumber(goods.getGoodsNumber()-goodsNumberLog.getGoodsNumber());
+    goodsMapper.updateByPrimaryKey(goods);
+
+
+    //记录库存操作日志
+    goodsNumberLog.setGoodsNumber(-(goodsNumberLog.getGoodsNumber()));
     goodsNumberLog.setLogTime(new Date());
     goodsNumberLogMapper.insert(goodsNumberLog);
+
     return new Result(ShopCode.SHOP_SUCCESS.getSuccess(),ShopCode.SHOP_SUCCESS.getMessage());
 }
 ```
@@ -911,7 +917,7 @@ public Result changeCouponStatus(TradeCoupon coupon) {
         if (coupon == null || StringUtils.isEmpty(coupon.getCouponId())) {
             CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
         }
-		//更新优惠券状态未已使用
+		//更新优惠券状态为已使用
         couponMapper.updateByPrimaryKey(coupon);
         return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage());
     } catch (Exception e) {
@@ -1075,9 +1081,6 @@ mq.order.tag.cancel=order_cancel
  @Value("${mq.order.topic}")
  private String topic;
 
- @Value("mq.order.tag.confirm")
- private String confirmTag;
-
  @Value("${mq.order.tag.cancel}")
  private String cancelTag;
 ```
@@ -1170,161 +1173,179 @@ public class CancelOrderConsumer implements RocketMQListener<MessageExt>{
 * 消息消费者
 
 ```java
-public void onMessage(MessageExt messageExt) {
-        TradeMqConsumerLog mqConsumerLog = null;
+@Slf4j
+@Component
+@RocketMQMessageListener(topic = "${mq.order.topic}",consumerGroup = "${mq.order.consumer.group.name}",messageModel = MessageModel.BROADCASTING )
+public class CancelMQListener implements RocketMQListener<MessageExt>{
+
+
+    @Value("${mq.order.consumer.group.name}")
+    private String groupName;
+
+    @Autowired
+    private TradeGoodsMapper goodsMapper;
+
+    @Autowired
+    private TradeMqConsumerLogMapper mqConsumerLogMapper;
+
+    @Autowired
+    private TradeGoodsNumberLogMapper goodsNumberLogMapper;
+
+    @Override
+    public void onMessage(MessageExt messageExt) {
+        String msgId=null;
+        String tags=null;
+        String keys=null;
+        String body=null;
         try {
-            String msgId = messageExt.getMsgId();
-            String body = new String(messageExt.getBody(), "UTF-8");
-            String tags = messageExt.getTags();
-            String keys = messageExt.getKeys();
-            log.info("CancelOrderConsumer receive message"+messageExt);
-            //查询消息消费记录
-            TradeMqConsumerLogKey key = new TradeMqConsumerLogKey();
-            key.setGroupName(groupName);
-            key.setMsgKey(keys);
-            key.setMsgTag(tags);
-            mqConsumerLog = mqConsumerLogMapper.selectByPrimaryKey(key);
-            //消息已经处理过
-            if (mqConsumerLog != null) {
-                Integer consumerStatus = mqConsumerLog.getConsumerStatus();
-                if (ShopCode.SHOP_MQ_MESSAGE_STATUS_SUCCESS.getCode().equals(consumerStatus)) {
-                    log.warn("消息已经处理过,不能再处理了");
+            //1. 解析消息内容
+            msgId = messageExt.getMsgId();
+            tags= messageExt.getTags();
+            keys= messageExt.getKeys();
+            body= new String(messageExt.getBody(),"UTF-8");
+
+            log.info("接受消息成功");
+
+            //2. 查询消息消费记录
+            TradeMqConsumerLogKey primaryKey = new TradeMqConsumerLogKey();
+            primaryKey.setMsgTag(tags);
+            primaryKey.setMsgKey(keys);
+            primaryKey.setGroupName(groupName);
+            TradeMqConsumerLog mqConsumerLog = mqConsumerLogMapper.selectByPrimaryKey(primaryKey);
+
+            if(mqConsumerLog!=null){
+                //3. 判断如果消费过...
+                //3.1 获得消息处理状态
+                Integer status = mqConsumerLog.getConsumerStatus();
+                //处理过...返回
+                if(ShopCode.SHOP_MQ_MESSAGE_STATUS_SUCCESS.getCode().intValue()==status.intValue()){
+                    log.info("消息:"+msgId+",已经处理过");
                     return;
-                } else if (ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.equals(consumerStatus)) {
-                    log.warn("消息正在处理");
-                    return;
-                } else if (ShopCode.SHOP_MQ_MESSAGE_STATUS_FAIL.equals(consumerStatus)) {
-                    if (mqConsumerLog.getConsumerTimes() > 3) {
-                        log.warn("超过3次,不能再处理");
-                        return;
-                    }
-                    TradeMqConsumerLog updateMqConsumerLog = new TradeMqConsumerLog();
-                    updateMqConsumerLog.setGroupName(groupName);
-                    updateMqConsumerLog.setMsgKey(keys);
-                    updateMqConsumerLog.setMsgTag(tags);
-                    updateMqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.getCode());
-                    TradeMqConsumerLogExample tradeMqConsumerLogExample = new TradeMqConsumerLogExample();
-                    tradeMqConsumerLogExample.createCriteria()
-                            .andGroupNameEqualTo(mqConsumerLog.getGroupName())
-                            .andMsgKeyEqualTo(mqConsumerLog.getMsgKey())
-                            .andMsgTagEqualTo(mqConsumerLog.getMsgTag())
-                            .andConsumerTimesEqualTo(mqConsumerLog.getConsumerTimes());
-                    //乐观锁的方式防止并发更新
-                    int recode = mqConsumerLogMapper.updateByExampleSelective(updateMqConsumerLog, tradeMqConsumerLogExample);
-                    if(recode<=0){
-                        log.warn("并发更新处理,稍后重试");
-                        return;
-                    }
                 }
-            } else {
-                try {
-                    //消费未处理过,记录消息处理
-                    mqConsumerLog=new TradeMqConsumerLog();
-                    mqConsumerLog.setGroupName(groupName);
-                    mqConsumerLog.setMsgKey(keys);
-                    mqConsumerLog.setMsgTag(tags);
-                    mqConsumerLog.setConsumerTimes(0);
-                    mqConsumerLog.setMsgId(msgId);
-                    mqConsumerLog.setMsgBody(body);
+
+                //正在处理...返回
+                if(ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.getCode().intValue()==status.intValue()){
+                    log.info("消息:"+msgId+",正在处理");
+                    return;
+                }
+
+                //处理失败
+                if(ShopCode.SHOP_MQ_MESSAGE_STATUS_FAIL.getCode().intValue()==status.intValue()){
+                    //获得消息处理次数
+                    Integer times = mqConsumerLog.getConsumerTimes();
+                    if(times>3){
+                        log.info("消息:"+msgId+",消息处理超过3次,不能再进行处理了");
+                        return;
+                    }
                     mqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.getCode());
-                    mqConsumerLogMapper.insertSelective(mqConsumerLog);
-                } catch (Exception e) {
-                    log.warn("主键冲突,说明有订阅者正在处理");
-                    return;
+
+                    //使用数据库乐观锁更新
+                    TradeMqConsumerLogExample example = new TradeMqConsumerLogExample();
+                    TradeMqConsumerLogExample.Criteria criteria = example.createCriteria();
+                    criteria.andMsgTagEqualTo(mqConsumerLog.getMsgTag());
+                    criteria.andMsgKeyEqualTo(mqConsumerLog.getMsgKey());
+                    criteria.andGroupNameEqualTo(groupName);
+                    criteria.andConsumerTimesEqualTo(mqConsumerLog.getConsumerTimes());
+                    int r = mqConsumerLogMapper.updateByExampleSelective(mqConsumerLog, example);
+                    if(r<=0){
+                        //未修改成功,其他线程并发修改
+                        log.info("并发修改,稍后处理");
+                    }
                 }
 
-                //回推库存
-                CancelOrderMQ cancelOrderMQ= JSON.parseObject(body,CancelOrderMQ.class);
-                TradeGoodsNumberLog goods = new TradeGoodsNumberLog();
-                goods.setGoodsId(cancelOrderMQ.getGoodsId());
-                goods.setGoodsNumber(cancelOrderMQ.getGoodsNumber());
-                goods.setOrderId(cancelOrderMQ.getOrderId());
-                goodsService.addGoodsNumber(goods);
+            }else{
+                //4. 判断如果没有消费过...
+                mqConsumerLog = new TradeMqConsumerLog();
+                mqConsumerLog.setMsgTag(tags);
+                mqConsumerLog.setMsgKey(keys);
+                mqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_PROCESSING.getCode());
+                mqConsumerLog.setMsgBody(body);
+                mqConsumerLog.setMsgId(msgId);
+                mqConsumerLog.setConsumerTimes(0);
 
-                //消息处理成功
-                TradeMqConsumerLog updateMqConsumerLog=new TradeMqConsumerLog();
-                updateMqConsumerLog.setGroupName(groupName);
-                updateMqConsumerLog.setMsgKey(keys);
-                updateMqConsumerLog.setMsgTag(tags);
-                updateMqConsumerLog.setConsumerTimes(mqConsumerLog.getConsumerTimes()+1);
-                updateMqConsumerLog.setMsgId(msgId);
-                updateMqConsumerLog.setMsgBody(body);
-                updateMqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_SUCCESS.getCode());
-                mqConsumerLogMapper.updateByPrimaryKey(updateMqConsumerLog);
-                log.info("商品库存回退成功");
+                //将消息处理信息添加到数据库
+                mqConsumerLogMapper.insert(mqConsumerLog);
             }
+            //5. 回退库存
+            MQEntity mqEntity = JSON.parseObject(body, MQEntity.class);
+            Long goodsId = mqEntity.getGoodsId();
+            TradeGoods goods = goodsMapper.selectByPrimaryKey(goodsId);
+            goods.setGoodsNumber(goods.getGoodsNumber()+mqEntity.getGoodsNum());
+            goodsMapper.updateByPrimaryKey(goods);
+
+            //记录库存操作日志
+            TradeGoodsNumberLog goodsNumberLog = new TradeGoodsNumberLog();
+            goodsNumberLog.setOrderId(mqEntity.getOrderId());
+            goodsNumberLog.setGoodsId(goodsId);
+            goodsNumberLog.setGoodsNumber(mqEntity.getGoodsNum());
+            goodsNumberLog.setLogTime(new Date());
+            goodsNumberLogMapper.insert(goodsNumberLog);
+
+            //6. 将消息的处理状态改为成功
+            mqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_SUCCESS.getCode());
+            mqConsumerLog.setConsumerTimestamp(new Date());
+            mqConsumerLogMapper.updateByPrimaryKey(mqConsumerLog);
+            log.info("回退库存成功");
         } catch (Exception e) {
-            //处理异常
-            TradeMqConsumerLog updateMqConsumerLog=new TradeMqConsumerLog();
-            updateMqConsumerLog.setGroupName(mqConsumerLog.getGroupName());
-            updateMqConsumerLog.setMsgKey(mqConsumerLog.getMsgKey());
-            updateMqConsumerLog.setMsgTag(mqConsumerLog.getMsgTag());
-            updateMqConsumerLog.setConsumerTimes(mqConsumerLog.getConsumerTimes()+1);
-            updateMqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_FAIL.getCode());
-            mqConsumerLogMapper.updateByPrimaryKeySelective(updateMqConsumerLog);
-            log.error("商品库存回退失败");
+            e.printStackTrace();
+            TradeMqConsumerLogKey primaryKey = new TradeMqConsumerLogKey();
+            primaryKey.setMsgTag(tags);
+            primaryKey.setMsgKey(keys);
+            primaryKey.setGroupName(groupName);
+            TradeMqConsumerLog mqConsumerLog = mqConsumerLogMapper.selectByPrimaryKey(primaryKey);
+            if(mqConsumerLog==null){
+                //数据库未有记录
+                mqConsumerLog = new TradeMqConsumerLog();
+                mqConsumerLog.setMsgTag(tags);
+                mqConsumerLog.setMsgKey(keys);
+                mqConsumerLog.setConsumerStatus(ShopCode.SHOP_MQ_MESSAGE_STATUS_FAIL.getCode());
+                mqConsumerLog.setMsgBody(body);
+                mqConsumerLog.setMsgId(msgId);
+                mqConsumerLog.setConsumerTimes(1);
+                mqConsumerLogMapper.insert(mqConsumerLog);
+            }else{
+                mqConsumerLog.setConsumerTimes(mqConsumerLog.getConsumerTimes()+1);
+                mqConsumerLogMapper.updateByPrimaryKeySelective(mqConsumerLog);
+            }
         }
-}
-```
 
-* 商品服务GoodsService回退库存
-
-```java
-public Result addGoodsNumber(TradeGoodsNumberLog goodsNumberLog) {
-    //判断请求参数是否合法
-    if (goodsNumberLog == null
-            || goodsNumberLog.getGoodsId() == null
-            || goodsNumberLog.getGoodsNumber() == null
-            || goodsNumberLog.getGoodsNumber() <= 0) {
-        CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
     }
-    //判断订单ID是否为空
-    if(goodsNumberLog.getOrderId()!=null){
-        TradeGoodsNumberLogKey key=new TradeGoodsNumberLogKey();
-        key.setGoodsId(goodsNumberLog.getGoodsId());
-        key.setOrderId(goodsNumberLog.getOrderId());
-        //查询商品库存操作日志
-        TradeGoodsNumberLog  tradeGoodsNumberLog=goodsNumberLogMapper.selectByPrimaryKey(key);
-        //如果没有库存操作记录,则直接驳回
-        if(tradeGoodsNumberLog==null){
-            CastException.cast(ShopCode.SHOP_REDUCE_GOODS_NUM_EMPTY);
-        }
-        //扣减库存
-        TradeGoods tradeGoods=new TradeGoods();
-        tradeGoods.setGoodsId(goodsNumberLog.getGoodsId());
-        tradeGoods.setGoodsNumber(goodsNumberLog.getGoodsNumber());
-        int record=goodsMapper.addGoodsNum(tradeGoods);
-        if(record<=0){
-            throw new RuntimeException("扣减库存失败");
-        }
-    }
-    return new Result(ShopCode.SHOP_SUCCESS.getSuccess(),ShopCode.SHOP_SUCCESS.getMessage());
 }
 ```
 
 #### 2）回退优惠券
 
 ```java
-@Override
-public void onMessage(MessageExt messageExt) {
-    try {
-        String body=new String (messageExt.getBody(),"UTF-8");
-        String msgId=messageExt.getMsgId();
-        String tags=messageExt.getTags();
-        String keys=messageExt.getKeys();
-        log.info("CancelOrderConsumer receive message"+messageExt);
-        CancelOrderMQ cancelOrderMQ= JSON.parseObject(body,CancelOrderMQ.class);
-        if(!StringUtils.isEmpty(cancelOrderMQ.getCouponId())){
-            TradeCoupon coupon = couponService.findOne(cancelOrderMQ.getCouponId());
-            coupon.setOrderId(null);
+@Slf4j
+@Component
+@RocketMQMessageListener(topic = "${mq.order.topic}",consumerGroup = "${mq.order.consumer.group.name}",messageModel = MessageModel.BROADCASTING )
+public class CancelMQListener implements RocketMQListener<MessageExt>{
+
+
+    @Autowired
+    private TradeCouponMapper couponMapper;
+
+    @Override
+    public void onMessage(MessageExt message) {
+
+        try {
+            //1. 解析消息内容
+            String body = new String(message.getBody(), "UTF-8");
+            MQEntity mqEntity = JSON.parseObject(body, MQEntity.class);
+            log.info("接收到消息");
+            //2. 查询优惠券信息
+            TradeCoupon coupon = couponMapper.selectByPrimaryKey(mqEntity.getCouponId());
+            //3.更改优惠券状态
             coupon.setUsedTime(null);
             coupon.setIsUsed(ShopCode.SHOP_COUPON_UNUSED.getCode());
-            couponService.changeCouponStatus(coupon);
-            log.info("优惠券回退成功");
+            coupon.setOrderId(null);
+            couponMapper.updateByPrimaryKey(coupon);
+            log.info("回退优惠券成功");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            log.error("回退优惠券失败");
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        log.error("优惠券回退失败");
+
     }
 }
 ```
@@ -1332,28 +1353,38 @@ public void onMessage(MessageExt messageExt) {
 #### 3）回退余额
 
 ```java
-public void onMessage(MessageExt messageExt) {
-    try {
-        String body=new String (messageExt.getBody(),"UTF-8");
-        String msgId=messageExt.getMsgId();
-        String tags=messageExt.getTags();
-        String keys=messageExt.getKeys();
-        log.info("user CancelOrderProcessor receive message:"+body);
-        CancelOrderMQ cancelOrderMQ= JSON.parseObject(body,CancelOrderMQ.class);
-        if(cancelOrderMQ.getUserMoney()!=null 
-           && cancelOrderMQ.getUserMoney().compareTo(BigDecimal.ZERO)==1){
-            TradeUser user = userService.findOne(cancelOrderMQ.getUserId());
-            TradeUserMoneyLog userMoneyLog = new TradeUserMoneyLog();
-            userMoneyLog.setUserId(cancelOrderMQ.getUserId());
-            userMoneyLog.setMoneyLogType(ShopCode.SHOP_USER_MONEY_REFUND.getCode());
-            userMoneyLog.setOrderId(cancelOrderMQ.getOrderId());
-            userMoneyLog.setUseMoney(cancelOrderMQ.getUserMoney());
-            userService.changeUserMoney(userMoneyLog);
-            log.info("账户余额回退成功");
+@Slf4j
+@Component
+@RocketMQMessageListener(topic = "${mq.order.topic}",consumerGroup = "${mq.order.consumer.group.name}",messageModel = MessageModel.BROADCASTING )
+public class CancelMQListener implements RocketMQListener<MessageExt>{
+
+
+    @Autowired
+    private IUserService userService;
+
+    @Override
+    public void onMessage(MessageExt messageExt) {
+
+        try {
+            //1.解析消息
+            String body = new String(messageExt.getBody(), "UTF-8");
+            MQEntity mqEntity = JSON.parseObject(body, MQEntity.class);
+            log.info("接收到消息");
+            if(mqEntity.getUserMoney()!=null && mqEntity.getUserMoney().compareTo(BigDecimal.ZERO)>0){
+                //2.调用业务层,进行余额修改
+                TradeUserMoneyLog userMoneyLog = new TradeUserMoneyLog();
+                userMoneyLog.setUseMoney(mqEntity.getUserMoney());
+                userMoneyLog.setMoneyLogType(ShopCode.SHOP_USER_MONEY_REFUND.getCode());
+                userMoneyLog.setUserId(mqEntity.getUserId());
+                userMoneyLog.setOrderId(mqEntity.getOrderId());
+                userService.updateMoneyPaid(userMoneyLog);
+                log.info("余额回退成功");
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            log.error("余额回退失败");
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        log.error("账户余额回退失败");
+
     }
 }
 ```
@@ -1514,7 +1545,63 @@ public Result callbackPayment(TradePay tradePay) {
 }
 ```
 
-### 5.2.3 处理消息
+#### 线程池优化消息发送逻辑
+
+* 创建线程池对象
+
+```java
+@Bean
+public ThreadPoolTaskExecutor getThreadPool() {
+
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+
+    executor.setCorePoolSize(4);
+
+    executor.setMaxPoolSize(8);
+
+    executor.setQueueCapacity(100);
+
+    executor.setKeepAliveSeconds(60);
+
+    executor.setThreadNamePrefix("Pool-A");
+
+    executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+
+    executor.initialize();
+
+    return executor;
+
+}
+```
+
+* 使用线程池
+
+```java
+@Autowired
+private ThreadPoolTaskExecutor executorService;
+
+executorService.submit(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            SendResult sendResult = sendMessage(topic, tag, finalTradePay.getPayId(), JSON.toJSONString(finalTradePay));
+            log.info(JSON.toJSONString(sendResult));
+            if (SendStatus.SEND_OK.equals(sendResult.getSendStatus())) {
+                mqProducerTempMapper.deleteByPrimaryKey(mqProducerTemp.getId());
+                System.out.println("删除消息表成功");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+});
+```
+
+
+
+### 5.2.3 
+
+### 处理消息
 
 支付成功后，支付服务payService发送MQ消息，订单服务、用户服务、日志服务需要订阅消息进行处理
 
@@ -1531,7 +1618,7 @@ mq.pay.topic=payTopic
 mq.pay.consumer.group.name=pay_payTopic_group
 ```
 
-### 2）消费消息
+#### 2）消费消息
 
 * 在订单服务中，配置公共的消息处理类
 
@@ -1661,7 +1748,7 @@ shop.pay.createPayment=/pay/createPayment
 shop.pay.callbackPayment=/pay/callbackPayment
 ```
 
-## 6.2 下单
+## 6.2 下单测试
 
  ```java
 @RunWith(SpringRunner.class)
@@ -1708,7 +1795,7 @@ public class OrderTest {
 }
  ```
 
-## 6.3 支付
+## 6.3 支付测试
 
 ```java
 @RunWith(SpringRunner.class)
