@@ -699,7 +699,7 @@ $('.indicators').find('span').eq(num).addClass('active').siblings().removeClass(
 ```java
 @Autowired
 RestTemplate restTemplate;
-@RequestMapping("/banner")
+@RequestMapping("/f")
 public String index_banner(Map<String, Object> map){
     //数据模型url
     String dataUrl = "http://localhost:31001/cms/config/getmodel/5a791725dd573c3574ee333f";
