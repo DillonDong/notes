@@ -642,7 +642,7 @@ iK分词器自带一个main.dic的文件，此文件为词库文件。
 ```json
 "name": {
       	"type": "text",
-       "analyzer":"ik_max_word"
+       	"analyzer":"ik_max_word"
 }
 ```
 
