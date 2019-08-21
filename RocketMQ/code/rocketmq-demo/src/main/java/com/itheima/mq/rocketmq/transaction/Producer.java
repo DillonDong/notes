@@ -28,11 +28,11 @@ public class Producer {
              */
             @Override
             public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
-                if(StringUtils.equals("TAGA",msg.getTags())){
+                if (StringUtils.equals("TAGA", msg.getTags())) {
                     return LocalTransactionState.COMMIT_MESSAGE;
-                }else if(StringUtils.equals("TAGB",msg.getTags())){
+                } else if (StringUtils.equals("TAGB", msg.getTags())) {
                     return LocalTransactionState.ROLLBACK_MESSAGE;
-                }else if(StringUtils.equals("TAGC",msg.getTags())){
+                } else if (StringUtils.equals("TAGC", msg.getTags())) {
                     return LocalTransactionState.UNKNOW;
                 }
                 return LocalTransactionState.UNKNOW;
@@ -45,7 +45,7 @@ public class Producer {
              */
             @Override
             public LocalTransactionState checkLocalTransaction(MessageExt msg) {
-                System.out.println("消息的Tag:"+msg.getTags());
+                System.out.println("消息的Tag:" + msg.getTags());
                 return LocalTransactionState.COMMIT_MESSAGE;
             }
         });
@@ -53,7 +53,7 @@ public class Producer {
         //3.启动producer
         producer.start();
 
-        String[] tags = {"TAGA","TAGB","TAGC"};
+        String[] tags = {"TAGA", "TAGB", "TAGC"};
 
         for (int i = 0; i < 3; i++) {
             //4.创建消息对象，指定主题Topic、Tag和消息体
@@ -62,13 +62,13 @@ public class Producer {
              * 参数二：消息Tag
              * 参数三：消息内容
              */
-            Message msg = new Message("TransactionTopic",tags[i],("Hello World"+i).getBytes());
+            Message msg = new Message("TransactionTopic", tags[i], ("Hello World" + i).getBytes());
             //5.发送消息
-            SendResult result = producer.sendMessageInTransaction(msg,null);
+            SendResult result = producer.sendMessageInTransaction(msg, null);
             //发送状态
             SendStatus status = result.getSendStatus();
 
-            System.out.println("发送结果:"+result);
+            System.out.println("发送结果:" + result);
 
             //线程睡1秒
             TimeUnit.SECONDS.sleep(2);

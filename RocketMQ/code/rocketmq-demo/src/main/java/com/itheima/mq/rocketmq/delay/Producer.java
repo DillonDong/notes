@@ -27,7 +27,7 @@ public class Producer {
              * 参数二：消息Tag
              * 参数三：消息内容
              */
-            Message msg = new Message("DelayTopic","Tag1",("Hello World"+i).getBytes());
+            Message msg = new Message("DelayTopic", "Tag1", ("Hello World" + i).getBytes());
             //设定延迟时间
             //msg.setDelayTimeLevel(2);
             //5.发送消息
@@ -35,7 +35,7 @@ public class Producer {
             //发送状态
             SendStatus status = result.getSendStatus();
 
-            System.out.println("发送结果:"+result);
+            System.out.println("发送结果:" + result);
 
             //线程睡1秒
             TimeUnit.SECONDS.sleep(1);

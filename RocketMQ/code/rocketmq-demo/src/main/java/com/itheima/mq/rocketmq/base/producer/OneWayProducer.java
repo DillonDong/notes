@@ -26,7 +26,7 @@ public class OneWayProducer {
              * 参数二：消息Tag
              * 参数三：消息内容
              */
-            Message msg = new Message("base","Tag3",("Hello World，单向消息"+i).getBytes());
+            Message msg = new Message("base", "Tag3", ("Hello World，单向消息" + i).getBytes());
             //5.发送单向消息
             producer.sendOneway(msg);
 

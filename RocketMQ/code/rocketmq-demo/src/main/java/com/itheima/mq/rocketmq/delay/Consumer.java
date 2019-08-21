@@ -25,7 +25,7 @@ public class Consumer {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
                 for (MessageExt msg : msgs) {
-                    System.out.println("消息ID：【"+msg.getMsgId()+"】,延迟时间："+(System.currentTimeMillis()-msg.getStoreTimestamp()));
+                    System.out.println("消息ID：【" + msg.getMsgId() + "】,延迟时间：" + (System.currentTimeMillis() - msg.getStoreTimestamp()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }

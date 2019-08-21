@@ -27,7 +27,7 @@ public class AsyncProducer {
              * 参数二：消息Tag
              * 参数三：消息内容
              */
-            Message msg = new Message("base","Tag2",("Hello World"+i).getBytes());
+            Message msg = new Message("base", "Tag2", ("Hello World" + i).getBytes());
             //5.发送异步消息
             producer.send(msg, new SendCallback() {
                 /**
@@ -35,7 +35,7 @@ public class AsyncProducer {
                  * @param sendResult
                  */
                 public void onSuccess(SendResult sendResult) {
-                    System.out.println("发送结果："+sendResult);
+                    System.out.println("发送结果：" + sendResult);
                 }
 
                 /**
@@ -43,7 +43,7 @@ public class AsyncProducer {
                  * @param e
                  */
                 public void onException(Throwable e) {
-                    System.out.println("发送异常："+e);
+                    System.out.println("发送异常：" + e);
                 }
             });
 

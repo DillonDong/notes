@@ -667,14 +667,14 @@ master1：
 
 ```bash
 cd /usr/local/rocketmq/bin
-nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-noslave/broker-a.properties &
+nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-2s-syncbroker-a.properties &
 ```
 
 slave2：
 
 ```sh
 cd /usr/local/rocketmq/bin
-nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-noslave/broker-b-s.properties &
+nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-2s-sync/broker-b-s.properties &
 ```
 
 * 在192.168.25.138上启动master2和slave2
@@ -683,14 +683,14 @@ master2
 
 ```sh
 cd /usr/local/rocketmq/bin
-nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-noslave/broker-b.properties &
+nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-2s-sync/broker-b.properties &
 ```
 
 slave1
 
 ```sh
 cd /usr/local/rocketmq/bin
-nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-noslave/broker-a-s.properties &
+nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-2s-sync/broker-a-s.properties &
 ```
 
 ### 3.3.11 查看进程状态

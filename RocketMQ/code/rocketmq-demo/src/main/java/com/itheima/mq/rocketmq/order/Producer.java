@@ -20,9 +20,9 @@ public class Producer {
         //构建消息集合
         List<OrderStep> orderSteps = OrderStep.buildOrders();
         //发送消息
-        for (int i=0;i<orderSteps.size();i++) {
-            String body = orderSteps.get(i)+"";
-            Message message = new Message("OrderTopic","Order","i"+i,body.getBytes());
+        for (int i = 0; i < orderSteps.size(); i++) {
+            String body = orderSteps.get(i) + "";
+            Message message = new Message("OrderTopic", "Order", "i" + i, body.getBytes());
             /**
              * 参数一：消息对象
              * 参数二：消息队列的选择器
@@ -44,7 +44,7 @@ public class Producer {
                 }
             }, orderSteps.get(i).getOrderId());
 
-            System.out.println("发送结果："+sendResult);
+            System.out.println("发送结果：" + sendResult);
         }
         producer.shutdown();
     }

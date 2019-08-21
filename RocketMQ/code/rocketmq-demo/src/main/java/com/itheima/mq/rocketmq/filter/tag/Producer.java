@@ -24,13 +24,13 @@ public class Producer {
              * 参数二：消息Tag
              * 参数三：消息内容
              */
-            Message msg = new Message("FilterTagTopic","Tag2",("Hello World"+i).getBytes());
+            Message msg = new Message("FilterTagTopic", "Tag2", ("Hello World" + i).getBytes());
             //5.发送消息
             SendResult result = producer.send(msg);
             //发送状态
             SendStatus status = result.getSendStatus();
 
-            System.out.println("发送结果:"+result);
+            System.out.println("发送结果:" + result);
 
             //线程睡1秒
             TimeUnit.SECONDS.sleep(1);
