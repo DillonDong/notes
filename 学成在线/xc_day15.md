@@ -108,17 +108,17 @@ public Map<String, CoursePub> getall(@PathVariable("id") String id)  {
 #学成网用户中心
 server{
 	listen80; 
-	server_nameucenter.xuecheng.com; 
+	server_name	ucenter.xuecheng.com; 
 
 	#个人中心 
 	location / { 
-		proxy_passhttp://ucenter_server_pool; 
+		proxy_pass	http://ucenter_server_pool; 
 	} 
 }
 	#前端ucenter
-upstreamucenter_server_pool{
-	#server127.0.0.1:7081weight=10;
-	server127.0.0.1:13000weight=10;
+upstream	ucenter_server_pool{
+	#server	127.0.0.1:7081	weight=10;
+	server	127.0.0.1:13000	weight=10;
 }
 ```
 
@@ -130,12 +130,12 @@ upstreamucenter_server_pool{
 
 ```java
 #后台搜索（公开api）
-upstreamsearch_server_pool{
-	server127.0.0.1:40100weight=10; 
+upstream	search_server_pool{
+	server	127.0.0.1:40100	weight=10; 
 }
 #后端搜索服务
-location/openapi/search/{
-	proxy_passhttp://search_server_pool/search/; 
+location	/openapi/search/{
+	proxy_pass	http://search_server_pool/search/; 
 }
 ```
 
@@ -1116,3 +1116,4 @@ teachplan_first.children"><i class="glyphicon glyphicon‐check"></i>
 2. 传入正确的课程id、课程计划id传入0，自动播放第一个视频
 3. 传入错误的课程id或课程计划id，提示错误信息。
 4. 通过右侧章节目录切换章节及播放视频。
+
